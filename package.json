@@ -1,5 +1,5 @@
 {
-  "name": "bereal-client",
+  "name": "beunblurred",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,11 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.18",
     "autoprefixer": "10.4.14",
+    "axios": "^1.4.0",
+    "cookie": "^0.5.0",
+    "cookies-next": "^2.1.2",
     "next": "13.4.10",
+    "next-pwa": "^5.6.0",
+    "next-seo": "^6.1.0",
     "postcss": "8.4.26",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tailwindcss": "3.3.3"
+    "react-phone-number-input": "^3.3.0",
+    "tailwindcss": "3.3.3",
+    "timeago.js": "^4.0.0-beta.3"
   }
 }

@@ -21,3 +21,7 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+#__next {
+  @apply min-h-screen flex flex-col lg:justify-start justify-between;
+}

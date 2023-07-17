@@ -15,8 +15,8 @@ export default function Login() {
     otp: []
   });
 
-  const requestOTP = async () => {
-    const res = await fetch("/api/auth/send", {
+  const requestFire = async () => {
+    const res = await fetch("/api/fire/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -26,20 +26,65 @@ export default function Login() {
       })
     });
 
-    if (res.status !== 200) return alert("Internal server error");
+    if (res.status !== 200) throw new Error("Internal server error");
 
     const data = await res.json();
-    if (!data.success) return alert(data.error);
+    if (!data.success) throw new Error("Internal server error");
 
-    setLoginData({
-      ...LoginData,
-      showCodeInput: true,
-      requestId: data.requestId
-    });
+    return {
+      ...data,
+      type: "fire"
+    };
   };
 
-  const verifyOTP = async () => {
-    const res = await fetch("/api/auth/verify", {
+  const requestVonage = async () => {
+    const res = await fetch("/api/vonage/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        phone: LoginData.phoneNumber
+      })
+    });
+
+    if (res.status !== 200) throw new Error("Internal server error");
+
+    const data = await res.json();
+    if (!data.success) throw new Error("Internal server error");
+
+    return {
+      ...data,
+      type: "vonage"
+    };
+  };
+
+  const requestOTP = async () => {
+    if (!isValidPhoneNumber(LoginData.phoneNumber)) return alert("Invalid phone number");
+
+    try {
+      const data = await requestVonage();
+
+      setLoginData({
+        ...LoginData,
+        showCodeInput: true,
+        requestId: data.requestId,
+        type: data.type
+      });
+    } catch {
+      const data = await requestFire();
+
+      setLoginData({
+        ...LoginData,
+        showCodeInput: true,
+        requestId: data.requestId,
+        type: data.type
+      });
+    }
+  };
+
+  const verifyFire = async () => {
+    const res = await fetch("/api/fire/verify", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -56,6 +101,34 @@ export default function Login() {
     if (!data.success) return alert(data.error);
 
     router.push("/feed");
+  };
+
+  const verifyVonage = async () => {
+    const res = await fetch("/api/vonage/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        otp: LoginData.otp.join(""),
+        requestId: LoginData.requestId
+      })
+    });
+
+    if (res.status !== 200) return alert("Internal server error");
+
+    const data = await res.json();
+    if (!data.success) return alert(data.error);
+
+    router.push("/feed");
+  };
+
+  const verifyOTP = async () => {
+    if (LoginData.type === "fire") {
+      verifyFire();
+    } else {
+      verifyVonage();
+    }
   };
 
   return (

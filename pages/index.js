@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { hasCookie } from "cookies-next";
 
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
@@ -8,6 +8,8 @@ import "react-phone-number-input/style.css";
 export default function Login() {
   const router = useRouter();
 
+  const verifyOtpButtonRef = useRef(null);
+  const [Loading, setLoading] = useState(false);
   const [LoginData, setLoginData] = useState({
     phoneNumber: "",
     showCodeInput: false,
@@ -60,6 +62,7 @@ export default function Login() {
   };
 
   const requestOTP = async () => {
+    setLoading(true);
     if (!isValidPhoneNumber(LoginData.phoneNumber)) return alert("Invalid phone number");
 
     try {
@@ -81,6 +84,8 @@ export default function Login() {
         type: data.type
       });
     }
+
+    setLoading(false);
   };
 
   const verifyFire = async () => {
@@ -95,10 +100,16 @@ export default function Login() {
       })
     });
 
-    if (res.status !== 200) return alert("Internal server error");
+    if (res.status !== 200) {
+      setLoading(false);
+      return alert("Internal server error");
+    }
 
     const data = await res.json();
-    if (!data.success) return alert(data.error);
+    if (!data.success) {
+      setLoading(false);
+      return alert(data.error);
+    }
 
     router.push("/feed");
   };
@@ -115,15 +126,23 @@ export default function Login() {
       })
     });
 
-    if (res.status !== 200) return alert("Internal server error");
+    if (res.status !== 200) {
+      setLoading(false);
+      return alert("Internal server error");
+    }
 
     const data = await res.json();
-    if (!data.success) return alert(data.error);
+    if (!data.success) {
+      setLoading(false);
+      return alert(data.error);
+    }
 
     router.push("/feed");
   };
 
   const verifyOTP = async () => {
+    setLoading(true);
+
     if (LoginData.type === "fire") {
       verifyFire();
     } else {
@@ -145,34 +164,59 @@ export default function Login() {
                   type="number"
                   className={`
                     w-12 h-12 bg-white/5 rounded-lg
-                    text-center text-white text-2xl font-medium
-                    focus:outline-none
+                    text-center text-white text-2xl font-medium transition-all
+                    focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed
+                    focus:ring-2 focus:ring-white/20 outline-none
                   `}
                   min={0}
+                  disabled={Loading}
                   value={LoginData.otp?.[i] || ""}
                   max={9}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value.length === 1) {
-                      const nextSibling = e.target.nextSibling;
-                      if (nextSibling) {
-                        nextSibling.focus();
-                      }
-                    } else {
+                  onKeyDown={(e) => {
+                    if (e.key === "Backspace") {
+                      setLoginData({
+                        ...LoginData,
+                        otp: [
+                          ...LoginData.otp.slice(0, i),
+                          "",
+                          ...LoginData.otp.slice(i + 1)
+                        ]
+                      });
+
                       const previousSibling = e.target.previousSibling;
                       if (previousSibling) {
                         previousSibling.focus();
                       }
-                    }
+                    } else if (e.key === "ArrowLeft") {
+                      const previousSibling = e.target.previousSibling;
+                      if (previousSibling) {
+                        previousSibling.focus();
+                      }
+                    } else if (e.key === "ArrowRight") {
+                      const nextSibling = e.target.nextSibling;
+                      if (nextSibling) {
+                        nextSibling.focus();
+                      }
+                    } else if (!isNaN(Number(e.key))) {
+                      const nextSibling = e.target.nextSibling;
+                      if (nextSibling) {
+                        nextSibling.focus();
+                      } else {
+                        e.target.blur();
+                        setTimeout(() => {
+                          verifyOtpButtonRef.current.focus();
+                        }, 100);
+                      }
 
-                    setLoginData({
-                      ...LoginData,
-                      otp: [
-                        ...LoginData.otp.slice(0, i),
-                        value,
-                        ...LoginData.otp.slice(i + 1)
-                      ]
-                    })
+                      setLoginData({
+                        ...LoginData,
+                        otp: [
+                          ...LoginData.otp.slice(0, i),
+                          e.key,
+                          ...LoginData.otp.slice(i + 1)
+                        ]
+                      });
+                    }
                   }}
                 />
               ))
@@ -180,19 +224,22 @@ export default function Login() {
           </div>
 
           <button
+            ref={verifyOtpButtonRef}
             className={`
               px-4 py-2 bg-white/5 rounded-lg transition-all
               disabled:opacity-50 disabled:cursor-not-allowed mt-2
+              focus:ring-2 focus:ring-white/20 outline-none
             `}
-            disabled={LoginData.otp.join("")?.length !== 6}
+            disabled={LoginData.otp.join("")?.length !== 6 || Loading}
             onClick={verifyOTP}
           >
-            Verify code
+            {Loading ? "Loading..." : "Verify code"}
           </button>
         </>) : (<>
           <PhoneInput
             placeholder="Enter a phone number"
             value={LoginData.phoneNumber}
+            disabled={Loading}
             onChange={(v) => {
               setLoginData({
                 ...LoginData,
@@ -211,11 +258,12 @@ export default function Login() {
             className={`
               px-4 py-2 bg-white/5 rounded-lg transition-all
               disabled:opacity-50 disabled:cursor-not-allowed mt-2
+              focus:ring-2 focus:ring-white/20 outline-none
             `}
-            disabled={!isValidPhoneNumber(LoginData.phoneNumber || "")}
+            disabled={!isValidPhoneNumber(LoginData.phoneNumber || "") || Loading}
             onClick={requestOTP}
           >
-            Send code
+            {Loading ? "Loading..." : "Send code"}
           </button>
         </>)
       }

@@ -203,7 +203,7 @@ export default function PostComponent({ data }) {
                             key={index}
                             className="w-20"
                         >
-                            <div className="relative w-20 h-20">
+                            <div className="relative overflow-visible w-20 h-20">
                                 <img
                                     src={realmoji.media.url}
                                     alt={`${PostData.user.username} realmoji's`}
@@ -211,7 +211,7 @@ export default function PostComponent({ data }) {
                                     className="rounded-full border-2 border-white/50 aspect-square"
                                 />
 
-                                <span className="absolute text-4xl -bottom-2 -right-4">
+                                <span className="absolute text-4xl -bottom-2 -right-2">
                                     {realmoji.emoji}
                                 </span>
                             </div>

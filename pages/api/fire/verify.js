@@ -76,7 +76,7 @@ export default async function handler(req, res) {
         let access_token = access_grant_response.data.access_token;
         let access_refresh_token = access_grant_response.data.refresh_token;
         let access_token_type = access_grant_response.data.token_type;
-        let access_expiration = Date.now() + access_grant_response.data.expires_in * 1000;
+        let access_expiration = Date.now() + (Number(access_grant_response.data.expires_in) * 1000);
 
         const setCookieOptions = {
             req,

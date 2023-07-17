@@ -83,7 +83,7 @@ export async function getServerSideProps({ req, res }) {
 
     requiredCookies.forEach(n => data[n] = getCookie(n, { req, res }));
 
-    if (data.tokenExpiration < Date.now() || (data.tokenExpiration / 1000) < Date.now()) {
+    if (data.tokenExpiration < Date.now()) {
         const refreshData = await axios.post(
             "https://auth.bereal.team/token?grant_type=refresh_token",
             {

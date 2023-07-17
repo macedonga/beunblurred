@@ -21,7 +21,7 @@ export default function Document() {
           sizes="16x16"
           href="/icons/favicon-16x16.png"
         />
-        <link rel="manifest" href="/icons/site.webmanifest" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5" />
         <link rel="shortcut icon" href="/icons/favicon.ico" />
         <meta name="msapplication-TileColor" content="#da532c" />

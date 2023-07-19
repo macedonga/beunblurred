@@ -66,22 +66,22 @@ export default function Login() {
     if (!isValidPhoneNumber(LoginData.phoneNumber)) return alert("Invalid phone number");
 
     try {
-      const data = await requestVonage();
-
-      setLoginData({
-        ...LoginData,
-        showCodeInput: true,
-        requestId: data.requestId,
-        type: data.type
-      });
-    } catch {
       const data = await requestFire();
 
       setLoginData({
         ...LoginData,
         showCodeInput: true,
         requestId: data.requestId,
-        type: data.type
+        type: data.type,
+      });
+    } catch {
+      const data = await requestVonage();
+
+      setLoginData({
+        ...LoginData,
+        showCodeInput: true,
+        requestId: data.requestId,
+        type: data.type,
       });
     }
 

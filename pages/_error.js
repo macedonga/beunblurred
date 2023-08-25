@@ -15,19 +15,16 @@ function Error({ statusCode }) {
                     : `An error occurred on client`}
         </p>
 
-        {
-            statusCode === 500 &&
-            <button
+        <button
                 className={`
-                    px-4 py-2 bg-white/5 rounded-lg transition-all
-                    disabled:opacity-50 disabled:cursor-not-allowed mt-2
-                    focus:ring-2 focus:ring-white/20 outline-none
+                        px-4 py-2 bg-white/5 rounded-lg transition-all
+                        disabled:opacity-50 disabled:cursor-not-allowed mt-2
+                        focus:ring-2 focus:ring-white/20 outline-none
                 `}
                 onClick={() => router.push("/logout")}
-            >
+        >
                 Logout
-            </button>
-        }
+        </button>
     </>);
 }
 

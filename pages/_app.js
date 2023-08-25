@@ -1,10 +1,22 @@
 import "@/styles/globals.css";
+import Script from "next/script";
 import { DefaultSeo } from "next-seo";
 
 import Layout from "@/components/Layout";
 
 export default function App({ Component, pageProps }) {
-  return (
+  return (<>
+    <Script src="https://www.googletagmanager.com/gtag/js?id=G-BFT79HZ7RH" />
+    <Script id="google-analytics">
+      {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+ 
+          gtag('config', 'G-BFT79HZ7RH');
+        `}
+    </Script>
+
     <Layout>
       <DefaultSeo
         titleTemplate="%s - BeUnblurred"
@@ -27,5 +39,5 @@ export default function App({ Component, pageProps }) {
 
       <Component {...pageProps} />
     </Layout>
-  )
+  </>);
 }

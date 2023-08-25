@@ -38,7 +38,7 @@ export default function Feed(props) {
                 backgroundPosition: "center",
             }}
         >
-            <div className="backdrop-blur-3xl bg-black/25 absolute inset-0 rounded-lg z-[1]" />
+            <div className="backdrop-blur-3xl bg-black/50 absolute inset-0 rounded-lg z-[1]" />
             <div className="z-[2] relative">
                 <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
                 <p className="text-sm text-white/70">
@@ -99,6 +99,7 @@ export async function getServerSideProps({ req, res }) {
         props = await fetchData(data.token);
     } catch (e) {
         console.log(e);
+        // deepcode ignore HardcodedNonCryptoSecret
         const refreshData = await axios.post(
             "https://auth.bereal.team/token?grant_type=refresh_token",
             {

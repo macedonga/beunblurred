@@ -197,7 +197,7 @@ export default function Login() {
                       if (nextSibling) {
                         nextSibling.focus();
                       }
-                    } else if (!isNaN(Number(e.key))) {
+                    } else if (!Number.isNaN(Number(e.key))) {
                       const nextSibling = e.target.nextSibling;
                       if (nextSibling) {
                         nextSibling.focus();

@@ -78,6 +78,7 @@ export default async function handler(req, res) {
         let user_id = firebase_refresh_response.data.user_id;
         let firebase_expiration = Date.now() + firebase_refresh_response.data.expires_in * 1000;
 
+        // deepcode ignore HardcodedNonCryptoSecret
         const access_grant_response = await axios.post(
             "https://auth.bereal.team/token?grant_type=firebase",
             {

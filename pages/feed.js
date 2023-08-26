@@ -4,6 +4,7 @@ import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
 import PostComponent from "../components/PostComponent";
 import { NextSeo } from "next-seo";
+import Link from "next/link";
 
 export default function Feed(props) {
     const [Greeting, setGreeting] = useState("Good morning");
@@ -38,7 +39,7 @@ export default function Feed(props) {
                 backgroundPosition: "center",
             }}
         >
-            <div className="backdrop-blur-3xl bg-black/50 absolute inset-0 rounded-lg z-[1]" />
+            <div className="backdrop-blur-3xl bg-black/25 absolute inset-0 rounded-lg z-[1]" />
             <div className="z-[2] relative">
                 <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
                 <p className="text-sm text-white/70">
@@ -46,6 +47,29 @@ export default function Feed(props) {
                 </p>
             </div>
         </div>
+
+        <Link
+            href="/u/me"
+            className={`
+                flex bg-white/5 mt-2
+                relative border-2 border-white/10
+                rounded-lg px-4 py-2 min-w-0 justify-center
+                text-white/75 font-medium
+            `}
+        >
+            View your profile
+        </Link>
+        <Link
+            href="/discovery"
+            className={`
+                flex bg-white/5 mt-2
+                relative border-2 border-white/10
+                rounded-lg px-4 py-2 min-w-0 justify-center
+                text-white/75 font-medium
+            `}
+        >
+            View discovery feed
+        </Link>
 
         <div
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}

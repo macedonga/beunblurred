@@ -1,30 +1,11 @@
 import axios from "axios";
 import { format } from "timeago.js";
-import { useEffect, useState } from "react";
 import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 
 export default function User(props) {
-    const [Greeting, setGreeting] = useState("Good morning");
-    const [Data, setData] = useState({
-        ...props.user
-    });
-
-    useEffect(() => {
-        var today = new Date()
-        var curHr = today.getHours()
-        let greeting;
-
-        if (curHr < 12) greeting = "Good morning";
-        else if (curHr < 18) greeting = "Good afternoon";
-        else if (curHr < 21) greeting = "Good evening";
-        else greeting = "Good night";
-
-        setGreeting(greeting);
-    }, []);
-
     return (<>
         <NextSeo title="Feed" />
 

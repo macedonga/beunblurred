@@ -4,6 +4,7 @@ import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
 import PostComponent from "../components/PostComponent";
 import { NextSeo } from "next-seo";
+import Link from "next/link";
 
 export default function Discovery(props) {
     const [Greeting, setGreeting] = useState("Good morning");
@@ -11,6 +12,7 @@ export default function Discovery(props) {
     const [Loading, setLoading] = useState(false);
 
     const fetchDiscovery = async () => {
+        if (Loading) return;
         try {
             setLoading(true);
             const { data: { data } } = await axios.get("/api/discovery");
@@ -18,7 +20,7 @@ export default function Discovery(props) {
             setData(o => {
                 let newData = [...o, ...data];
 
-                newData.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
+                newData = newData.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
 
                 return newData;
             });
@@ -43,10 +45,11 @@ export default function Discovery(props) {
         setGreeting(greeting);
         fetchDiscovery();
 
+
         if (window) {
             window.addEventListener("scroll", (e) => {
                 if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 250) {
-                    if (!Loading) fetchDiscovery();
+                    fetchDiscovery();
                 }
             });
         }
@@ -71,6 +74,18 @@ export default function Discovery(props) {
                 </p>
             </div>
         </div>
+
+        <Link
+            href="/feed"
+            className={`
+                flex bg-white/5 mt-2
+                relative border-2 border-white/10
+                rounded-lg px-4 py-2 min-w-0 justify-center
+                text-white/75 font-medium
+            `}
+        >
+            View friends feed
+        </Link>
 
         <div
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}

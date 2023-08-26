@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { format } from "timeago.js";
+import Link from "next/link";
 
 import {
     ChevronLeftIcon,
     ChevronRightIcon,
     MusicalNoteIcon,
-    PlusIcon
+    PlusIcon,
+    MapPinIcon,
 } from "@heroicons/react/20/solid";
 
 export default function PostComponent({ data, isDiscovery }) {
@@ -63,11 +65,11 @@ export default function PostComponent({ data, isDiscovery }) {
             className={`
                 flex flex-col lg:gap-y-6 gap-y-4
                 bg-white/5
-                relative
+                relative border-2 border-white/10
                 rounded-lg lg:p-6 p-4 min-w-0
             `}
         >
-            <div className="flex gap-x-4">
+            <Link href={`/u/${PostData.user.id}`} className="flex gap-x-4">
                 {
                     PostData.user.profilePicture?.url ?
                         <img
@@ -90,7 +92,7 @@ export default function PostComponent({ data, isDiscovery }) {
                         {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} retake{(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 && "s"}
                     </span>
                 </p>
-            </div>
+            </Link>
 
             <div className="relative mx-auto">
                 <img
@@ -198,7 +200,8 @@ export default function PostComponent({ data, isDiscovery }) {
                     target="_blank"
                     rel="noreferrer"
                 >
-                    <div className="bg-white/5 rounded-lg cursor-pointer p-2">
+                    <div className="bg-white/5 rounded-lg cursor-pointer p-2 relative items-center">
+                        <MapPinIcon className="h-5 w-5 inline-flex absolute" />
                         <p className="text-sm text-white text-center">
                             {(isDiscovery ? PostData : PostData.posts[PostIndex]).location.name || "Open on Google Maps"}
                         </p>

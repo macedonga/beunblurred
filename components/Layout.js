@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,15 +11,17 @@ export default function Layout({ children }) {
                 lg:max-w-xl mx-auto ${inter.className}
             `}
         >
-            <header className="py-8 border-b-2 px-4 lg:border-x-2 border-white/10 bg-[#0d0d0d]">
-                <h1 className="text-4xl font-bold text-center">
-                    BeUnblurred.
-                </h1>
-                <p className="text-center mt-1 opacity-75">
-                    View your friends' BeReal without posting one.
-                </p>
-            </header>
-
+            <Link href="/feed">
+                <header className="py-8 border-b-2 px-4 lg:border-x-2 border-white/10 bg-[#0d0d0d]">
+                    <h1 className="text-4xl font-bold text-center">
+                        BeUnblurred.
+                    </h1>
+                    <p className="text-center mt-1 opacity-75">
+                        View your friends' BeReal without posting one.
+                    </p>
+                </header>
+            </Link>
+            
             <main className="lg:px-8 px-4 py-8">
                 {children}
             </main>

@@ -17,7 +17,7 @@ export default function PostComponent({ data, isDiscovery }) {
 
     useEffect(() => {
         if (!RealMojisContainer.current) return;
-        
+
         const onScroll = (e) => {
             e.preventDefault();
 
@@ -207,13 +207,29 @@ export default function PostComponent({ data, isDiscovery }) {
             }
 
             {
-                (isDiscovery ? PostData : PostData.posts[PostIndex]).caption &&
-                <div className="bg-white/5 rounded-lg p-2">
+                ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || (isDiscovery ? PostData : PostData.posts[PostIndex])?.comments?.length > 0) &&
+                <div className="bg-white/5 rounded-lg py-2 px-4">
                     <p className="text-sm text-white">
-                        <span className="font-semibold">{PostData.user.username}</span> {(isDiscovery ? PostData : PostData.posts[PostIndex]).caption}
+                        <span className="font-semibold">{PostData.user.username}</span>{" "}
+                        <span className={!(isDiscovery ? PostData : PostData.posts[PostIndex]).caption ? "italic opacity-80 font-light" : "not-italic"}>
+                            <span dangerouslySetInnerHTML={{
+                                __html:
+                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || "No caption")
+                                        .replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>"
+                                        )
+                            }} />
+                        </span>
                     </p>
-                </div>
 
+                    {
+                        (isDiscovery ? PostData : PostData.posts[PostIndex]).comments?.map(c => (
+                            <p className="text-sm text-white ml-4" key={c.id}>
+                                <span className="font-semibold">{c.user?.username}</span>{" "}
+                                <span dangerouslySetInnerHTML={{ __html: c.content.replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>") }} />
+                            </p>
+                        ))
+                    }
+                </div>
             }
 
             {

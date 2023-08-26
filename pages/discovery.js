@@ -52,6 +52,16 @@ export default function Discovery(props) {
                 }
             });
         }
+
+        return () => {
+            if (window) {
+                window.removeEventListener("scroll", (e) => {
+                    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 250) {
+                        fetchDiscovery();
+                    }
+                });
+            }
+        };
     }, []);
 
     return (<>
@@ -85,7 +95,7 @@ export default function Discovery(props) {
         >
             View your profile
         </Link>
-        
+
         <div className="flex gap-x-2">
             <Link
                 href="/fof"

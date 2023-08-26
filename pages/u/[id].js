@@ -4,6 +4,8 @@ import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
 import { NextSeo } from "next-seo";
 import Link from "next/link";
+import PostComponent from "@/components/PostComponent";
+import { CheckBadgeIcon } from "@heroicons/react/20/solid";
 
 export default function User(props) {
     return (<>
@@ -37,7 +39,13 @@ export default function User(props) {
                     {"@" + props.user.username}
                 </p>
             }
-            <p className="text-base text-center opacity-75">
+            {props.user.isRealPeople &&
+                <p className="bg-white rounded-lg text-black font-bold inline-flex mx-auto px-4 mt-2 items-center">
+                    <CheckBadgeIcon className="w-4 h-4 mr-2" />
+                    RealPeople
+                </p>
+            }
+            <p className="text-base text-center opacity-75 mt-2">
                 {
                     props.user.biography && <>
                         Bio: {props.user.biography}<br />
@@ -67,6 +75,52 @@ export default function User(props) {
         </div>
 
         {
+            props.pinnedMemories && props.pinnedMemories.length > 0 && <>
+                <div
+                    className={`
+                        flex flex-col
+                        bg-white/5 mt-4
+                        relative border-2 border-white/10
+                        rounded-lg lg:p-6 p-4 min-w-0 gap-y-4
+                    `}
+                >
+                    <h2 className="text-lg font-medium text-center">
+                        {props.pinnedMemories.length} pinned memories
+                    </h2>
+
+                    {
+                        props.pinnedMemories.map((memory, index) => (
+                            <PostComponent
+                                key={index}
+                                isMemory={true}
+                                data={{
+                                    posts: [
+                                        {
+                                            primary: memory.primary,
+                                            takenAt: memory.takenAt,
+                                            secondary: memory.secondary,
+                                            id: memory.id,
+                                            location: memory.location,
+                                            isLate: memory.isLate,
+                                            isMain: memory.isMain,
+                                            lateInSeconds: memory.lateInSeconds,
+                                            caption: memory.caption,
+                                        }
+                                    ],
+                                    ...memory,
+                                    user: {
+                                        ...props.user,
+                                        relationship: null
+                                    }
+                                }}
+                            />
+                        ))
+                    }
+                </div>
+            </>
+        }
+
+        {
             (props.user.relationship?.friendedAt || props.friends?.total) && <>
                 <div
                     className={`
@@ -77,7 +131,7 @@ export default function User(props) {
                     `}
                 >
                     <h2 className="text-lg font-medium text-center">
-                        {(props.user?.relationship?.commonFriends || props.friends)?.total} {props.user?.relationship?.commonFriends && "common"} friends
+                        {(props.user?.relationship?.commonFriends || props.friends)?.total} {props.user?.relationship?.commonFriends && "common"} friend{(props.user?.relationship?.commonFriends?.sample || props?.friends?.data)?.length !== 1 && "s"}
                     </h2>
 
                     {
@@ -133,7 +187,12 @@ const fetchData = async (token, profileId) => {
     let props = {};
     if (profileId == "me") {
         const friendsResponse = await axios.get("https://mobile.bereal.com/api/relationships/friends", reqOptions);
+
         props.friends = friendsResponse.data;
+    } else {
+        const pinnedMemoriesResponse = await axios.get("https://mobile.bereal.com/api/feeds/memories-v1/pinned-memories/for-user/" + profileId, reqOptions);
+
+        props.pinnedMemories = pinnedMemoriesResponse?.data?.pinnedMemories || [];
     }
     return {
         ...props,

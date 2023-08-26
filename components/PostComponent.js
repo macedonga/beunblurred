@@ -10,7 +10,7 @@ import {
     MapPinIcon,
 } from "@heroicons/react/20/solid";
 
-export default function PostComponent({ data, isDiscovery }) {
+export default function PostComponent({ data, isDiscovery, isMemory }) {
     const [PostData, setPostData] = useState({ ...data });
     const [PostIndex, setPostIndex] = useState(0);
     const [ShowMain, setShowMain] = useState(true);
@@ -62,14 +62,16 @@ export default function PostComponent({ data, isDiscovery }) {
 
     return (<>
         <div
-            className={`
-                flex flex-col lg:gap-y-6 gap-y-4
-                bg-white/5
-                relative border-2 border-white/10
-                rounded-lg lg:p-6 p-4 min-w-0
-            `}
+            className={
+                isMemory ? "relative" : `
+                    flex flex-col lg:gap-y-6 gap-y-4
+                    bg-white/5
+                    relative border-2 border-white/10
+                    rounded-lg lg:p-6 p-4 min-w-0
+                `
+            }
         >
-            <Link href={`/u/${PostData.user.id}`} className="flex gap-x-4">
+            <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4" : "hidden"}>
                 {
                     PostData.user.profilePicture?.url ?
                         <img
@@ -97,6 +99,23 @@ export default function PostComponent({ data, isDiscovery }) {
                     </span>
                 </p>
             </Link>
+
+            {
+                isMemory && (
+                    <div className="absolute bottom-0 inset-x-0 z-50 p-8 bg-gradient-to-t from-black/75 to-transparent">
+                        <p>
+                            <span className="text-4xl font-black">
+                                {new Date(PostData.memoryDay).toLocaleDateString(navigator.language || "en-US", {
+                                    day: "numeric",
+                                    month: "long",
+                                })}
+                            </span>
+                            <br />
+                            <span className="opacity-80 text-3xl font-bold">{new Date(PostData.memoryDay).getFullYear()}</span>
+                        </p>
+                    </div>
+                )
+            }
 
             <div className="relative mx-auto">
                 <img

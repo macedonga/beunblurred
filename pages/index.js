@@ -153,7 +153,6 @@ export default function Login() {
   return (
     <div className="flex flex-col gap-y-2">
       <h1 className="text-xl font-medium">Login with your phone number</h1>
-
       {
         LoginData.showCodeInput ? (<>
           <div className="flex justify-between">
@@ -267,6 +266,58 @@ export default function Login() {
           </button>
         </>)
       }
+
+      <h2 className="text-xl font-bold mt-4">
+        What's BeUnblurred?
+      </h2>
+
+      <p className="text-white/75">
+        BeUnblurred is a custom BeReal client that lets you see your friends' BeReals without posting one.
+      </p>
+      <p className="text-white/75 font-bold">
+        BeUnblurred is not affiliated with BeReal SAS in any way.
+      </p>
+
+      <h2 className="text-xl font-bold mt-4">
+        Why do I need to login?
+      </h2>
+      <p className="text-white/75">
+        BeUnblurred needs to log in to your account to retrieve your friends on BeReal.
+      </p>
+      <p className="text-white/75">
+        If you're not comfortable with that, you can check out{" "}
+
+        <a
+          href="/github"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-dashed hover:opacity-75 transition-all"
+        >
+          the source code on GitHub
+        </a>, or, of course, you can always use the official BeReal app.
+      </p>
+
+      <h2 className="text-xl font-bold mt-4">
+        Found a bug, or want a feature to be added?
+      </h2>
+      <p className="text-white/75">
+        Feel free to open an issue on{" "}
+        <a
+          href="/github"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-dashed hover:opacity-75 transition-all"
+        >
+          GitHub
+        </a>, or if you're more tech savvy, you can fork the repository and open a pull request.
+      </p>
+
+      <h2 className="text-xl font-bold mt-4">
+        Why doesn't BeUnblurred have all the features of BeReal?
+      </h2>
+      <p className="text-white/75">
+        BeUnblurred is a side project, and it takes time to reverse engineer the BeReal app and implement all the latest features, so you'll have to be patient for when a new feature is added.
+      </p>
     </div>
   )
 }

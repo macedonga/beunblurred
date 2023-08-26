@@ -121,7 +121,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                 <img
                     src={ShowMain ? (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url) : (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url)}
                     alt={PostData.user.username}
-                    className="rounded-lg w-full border-2 border-black aspect-[3/4]"
+                    className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
                     onClick={() => setShowSecondary(!ShowSecondary)}
                 />
 
@@ -129,7 +129,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                     src={ShowMain ? (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url) : (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url)}
                     alt={PostData.user.username}
                     className={`
-                        rounded-lg absolute top-4 left-4 w-[35%] border-2 border-black aspect-[3/4]
+                        rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-white/10
                         ${!ShowSecondary ? "hidden" : "block"}
                     `}
                     onClick={() => setShowMain(!ShowMain)}

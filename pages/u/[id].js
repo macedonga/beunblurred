@@ -79,7 +79,7 @@ export default function User(props) {
                 <div
                     className={`
                         flex flex-col
-                        bg-white/5 mt-4
+                        bg-white/5 mt-8
                         relative border-2 border-white/10
                         rounded-lg lg:p-6 p-4 min-w-0 gap-y-4
                     `}
@@ -125,7 +125,7 @@ export default function User(props) {
                 <div
                     className={`
                         flex flex-col
-                        bg-white/5 mt-4
+                        bg-white/5 mt-8
                         relative border-2 border-white/10
                         rounded-lg lg:p-6 p-4 min-w-0
                     `}

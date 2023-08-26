@@ -84,44 +84,6 @@ export default function Discovery(props) {
             </div>
         </div>
 
-        <Link
-            href="/u/me"
-            className={`
-                flex bg-white/5 mt-2
-                relative border-2 border-white/10
-                rounded-lg px-4 py-2 min-w-0 justify-center
-                text-white/75 font-medium
-            `}
-        >
-            View your profile
-        </Link>
-
-        <div className="flex gap-x-2">
-            <Link
-                href="/fof"
-                className={`
-                    flex bg-white/5 mt-2
-                    relative border-2 border-white/10
-                    rounded-lg px-4 py-2 min-w-0 justify-center
-                    text-white/75 font-medium flex-grow
-                `}
-            >
-                View friends of friends feed
-            </Link>
-
-            <Link
-                href="/feed"
-                className={`
-                    flex bg-white/5 mt-2
-                    relative border-2 border-white/10
-                    rounded-lg px-4 py-2 min-w-0 justify-center
-                    text-white/75 font-medium flex-grow
-                `}
-            >
-                View friends feed
-            </Link>
-        </div>
-
         <div
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}
         >

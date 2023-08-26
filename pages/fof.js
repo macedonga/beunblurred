@@ -8,12 +8,36 @@ import Link from "next/link";
 
 export default function Feed(props) {
     const [Greeting, setGreeting] = useState("Good morning");
-    const [Data, setData] = useState({
-        ...props.feed,
-        friendsPosts: props.feed.friendsPosts.sort((a, b) => {
-            return new Date(b.posts[0].takenAt) - new Date(a.posts[0].takenAt);
-        })
-    });
+    const [Data, setData] = useState({});
+    const [Loading, setLoading] = useState(false);
+
+    const fetchData = async () => {
+        if (Data.next === null && Data.posts.length > 0) return alert("No more posts to load.");
+        
+        if (Loading) return;
+        try {
+            setLoading(true);
+            const { data } = await axios.get("/api/fof" + (Data.next ? ("?next=" + Data.next) : ""));
+
+            setData(o => {
+                let newData = [...(o.posts || []), ...data.data];
+
+                newData = newData.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
+
+                return {
+                    next: data.next,
+                    posts: newData.sort((a, b) => {
+                        return new Date(b.takenAt) - new Date(a.takenAt);
+                    })
+                };
+            });
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+            setLoading(false);
+            alert("An error occurred while fetching FoF feed.");
+        }
+    };
 
     useEffect(() => {
         var today = new Date()
@@ -26,10 +50,11 @@ export default function Feed(props) {
         else greeting = "Good night";
 
         setGreeting(greeting);
+        fetchData();
     }, []);
 
     return (<>
-        <NextSeo title="Friends - Feed" />
+        <NextSeo title="Friends of Friends - Feed" />
 
         <div
             className="relative p-4 rounded-lg"
@@ -43,7 +68,7 @@ export default function Feed(props) {
             <div className="z-[2] relative">
                 <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
                 <p className="text-sm text-white/70">
-                    {Data.friendsPosts.length} friends posted a BeReal today.
+                    Check out BeReals from your friends of friends.
                 </p>
             </div>
         </div>
@@ -62,7 +87,7 @@ export default function Feed(props) {
 
         <div className="flex gap-x-2">
             <Link
-                href="/fof"
+                href="/feed"
                 className={`
                     flex bg-white/5 mt-2
                     relative border-2 border-white/10
@@ -70,7 +95,7 @@ export default function Feed(props) {
                     text-white/75 font-medium flex-grow
                 `}
             >
-                View friends of friends feed
+                View friends feed
             </Link>
 
             <Link
@@ -90,29 +115,49 @@ export default function Feed(props) {
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}
         >
             {
-                Data.friendsPosts.map((friendPost, index) => (
+                Data.posts?.map((friendPost, index) => (
                     <PostComponent
                         key={index}
                         data={friendPost}
                     />
                 ))
             }
+
+            {
+                Loading && (
+                    <div className="flex justify-center">
+                        <div className="w-8 h-8 border-2 border-white/50 rounded-full animate-spin" />
+                    </div>
+                )
+            }
+
+            <button
+                onClick={fetchData}
+                className={`
+                    flex bg-white/5 mt-2
+                    relative border-2 border-white/10
+                    rounded-lg px-4 py-2 min-w-0 justify-center
+                    text-white/75 font-medium
+                    disabled:opacity-50
+                `}
+                disabled={Loading}
+            >
+                Load more
+            </button>
         </div>
     </>)
 }
 
-const fetchData = async (token) => {
+const fetchData = async (token, nextToken) => {
     const reqOptions = { "headers": { "Authorization": `Bearer ${token}`, } };
-    const feedResponse = await axios.get("https://mobile.bereal.com/api/feeds/friends-v1", reqOptions);
     const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
 
     return {
-        feed: feedResponse.data,
-        user: userResponse.data
-    };
+        user: userResponse.data,
+    }
 };
 
-export async function getServerSideProps({ req, res }) {
+export async function getServerSideProps({ req, res, query }) {
     const requiredCookies = [
         "token",
         "refreshToken",
@@ -174,5 +219,7 @@ export async function getServerSideProps({ req, res }) {
         props = await fetchData(data.token);
     }
 
-    return { props };
+    return {
+        props: JSON.parse(JSON.stringify(props)),
+    };
 };

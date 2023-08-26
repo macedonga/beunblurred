@@ -1,18 +1,14 @@
 import { useRouter } from "next/router";
 
-function Error({ statusCode }) {
+export default function Error({ statusCode }) {
     const router = useRouter();
 
     return (<>
         <h1 className="text-3xl font-semibold text-center">
-            Error {statusCode}
+            Error 404
         </h1>
         <p className="text-center mt-2">
-            {statusCode === 404
-                ? `Looks like this page doesn't exist.`
-                : statusCode === 500
-                    ? `Looks like something went wrong on the server side. Try logging out and logging back in.`
-                    : `An error occurred on client`}
+            Looks like this page doesn't exist.
         </p>
 
         <button
@@ -40,10 +36,3 @@ function Error({ statusCode }) {
         </button>
     </>);
 }
-
-Error.getInitialProps = ({ res, err }) => {
-    const statusCode = res ? res.statusCode : err ? err.statusCode : 404
-    return { statusCode }
-}
-
-export default Error;

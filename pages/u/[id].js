@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function User(props) {
     return (<>
-        <NextSeo title="Feed" />
+        <NextSeo title={`${props.user.username}'s profile`} />
 
         <div
             className={`

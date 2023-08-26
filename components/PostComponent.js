@@ -105,7 +105,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                     <div className="absolute bottom-0 inset-x-0 z-50 p-8 bg-gradient-to-t from-black/75 to-transparent">
                         <p>
                             <span className="text-4xl font-black">
-                                {new Date(PostData.memoryDay).toLocaleDateString(navigator.language || "en-US", {
+                                {new Date(PostData.memoryDay).toLocaleDateString("en-US", {
                                     day: "numeric",
                                     month: "long",
                                 })}

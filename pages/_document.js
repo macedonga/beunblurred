@@ -1,4 +1,5 @@
 import { Html, Head, Main, NextScript } from "next/document";
+import Script from "next/script";
 
 export default function Document() {
   return (
@@ -27,6 +28,8 @@ export default function Document() {
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
         <meta name="theme-color" content="#ffffff" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5089978270400571"
+          crossorigin="anonymous" />
       </Head>
       <body>
         <Main />

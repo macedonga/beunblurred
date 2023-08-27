@@ -8,7 +8,7 @@ BeUnblurred is a custom BeReal client that lets you see your friends' BeReals wi
 2. Run `npm install` in the repository directory.
 3. Run `npm run build` in the repository directory.
 4. Run `npm start` in the repository directory.
-5. Open `http://localhost:3000` in your browser.
+5. Open `http://localhost:3290` in your browser.
 
 ## Deploying to Vercel
 

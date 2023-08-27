@@ -99,7 +99,7 @@ export default async function handler(req, res) {
             success: true,
         });
     } catch (e) {
-        console.log(e)
+        console.log(e?.response?.data)
         return res.status(500).json({ error: "Internal server error", success: false });
     }
 };

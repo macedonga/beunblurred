@@ -263,7 +263,7 @@ export async function getServerSideProps({ req, res, params }) {
     }
 
     if (params.id == "me") {
-        setCookie("user", btoa(JSON.stringify(props.user)), setCookieOptions);
+        setCookie("user", JSON.stringify(props.user), setCookieOptions);
     }
 
     return { props };

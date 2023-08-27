@@ -110,7 +110,7 @@ export default function Feed(props) {
     </>)
 }
 
-export async function getServerSideProps({ req, res, query }) {
+export async function getServerSideProps({ req, res }) {
     const requiredCookies = [
         "token",
         "refreshToken",

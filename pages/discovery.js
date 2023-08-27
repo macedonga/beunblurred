@@ -133,4 +133,4 @@ export async function getServerSideProps({ req, res }) {
             user: JSON.parse(getCookie("user", { req, res }))
         }
     };
-}
+};

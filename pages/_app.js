@@ -79,7 +79,7 @@ Root.getInitialProps = async (appContext) => {
       userData = { notLoggedIn: true };
     } else {
       try {
-        userData = JSON.parse(atob(getCookie("user", cookieOptions)));
+        userData = JSON.parse(getCookie("user", cookieOptions));
       } catch {
         requiredCookies.map(c => deleteCookie(c, cookieOptions));
         

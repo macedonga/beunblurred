@@ -130,7 +130,7 @@ export async function getServerSideProps({ req, res }) {
 
     return {
         props: {
-            user: JSON.parse(atob(getCookie("user", { req, res })))
+            user: JSON.parse(getCookie("user", { req, res }))
         }
     };
 }

@@ -97,7 +97,7 @@ export async function getServerSideProps({ req, res }) {
     try {
         props = {
             ...await fetchData(data.token),
-            user: atob(JSON.parse(getCookie("user", { req, res })))
+            user: JSON.parse(getCookie("user", { req, res }))
         };
     } catch (e) {
         console.log(e);
@@ -136,7 +136,7 @@ export async function getServerSideProps({ req, res }) {
 
         props = {
             ...await fetchData(data.token),
-            user:JSON.parse(atob(getCookie("user", { req, res })))
+            user:JSON.parse(getCookie("user", { req, res }))
         };
     }
 

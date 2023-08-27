@@ -93,7 +93,7 @@ export default async function handler(req, res) {
 
         const reqOptions = { "headers": { "Authorization": `Bearer ${access_token}`, } };
         const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
-        setCookie("user", btoa(JSON.stringify(userResponse.data)), setCookieOptions);
+        setCookie("user", JSON.stringify(userResponse.data), setCookieOptions);
 
         res.status(200).json({
             success: true,

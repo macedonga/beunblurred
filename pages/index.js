@@ -152,120 +152,122 @@ export default function Login() {
 
   return (
     <div className="flex flex-col gap-y-2">
-      <h1 className="text-xl font-medium">Login with your phone number</h1>
-      {
-        LoginData.showCodeInput ? (<>
-          <div className="flex justify-between">
-            {
-              (new Array(6)).fill(0).map((_, i) => (
-                <input
-                  key={i}
-                  type="number"
-                  className={`
+      <div className="mx-1 flex flex-col gap-y-2">
+        <h1 className="text-xl font-medium">Login with your phone number</h1>
+        {
+          LoginData.showCodeInput ? (<>
+            <div className="flex justify-between">
+              {
+                (new Array(6)).fill(0).map((_, i) => (
+                  <input
+                    key={i}
+                    type="number"
+                    className={`
                     w-12 h-12 bg-white/5 rounded-lg
                     text-center text-white text-2xl font-medium transition-all
                     focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed
                     focus:ring-2 focus:ring-white/20 outline-none
                   `}
-                  min={0}
-                  disabled={Loading}
-                  value={LoginData.otp?.[i] || ""}
-                  max={9}
-                  onKeyDown={(e) => {
-                    if (e.key === "Backspace") {
-                      setLoginData({
-                        ...LoginData,
-                        otp: [
-                          ...LoginData.otp.slice(0, i),
-                          "",
-                          ...LoginData.otp.slice(i + 1)
-                        ]
-                      });
+                    min={0}
+                    disabled={Loading}
+                    value={LoginData.otp?.[i] || ""}
+                    max={9}
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace") {
+                        setLoginData({
+                          ...LoginData,
+                          otp: [
+                            ...LoginData.otp.slice(0, i),
+                            "",
+                            ...LoginData.otp.slice(i + 1)
+                          ]
+                        });
 
-                      const previousSibling = e.target.previousSibling;
-                      if (previousSibling) {
-                        previousSibling.focus();
-                      }
-                    } else if (e.key === "ArrowLeft") {
-                      const previousSibling = e.target.previousSibling;
-                      if (previousSibling) {
-                        previousSibling.focus();
-                      }
-                    } else if (e.key === "ArrowRight") {
-                      const nextSibling = e.target.nextSibling;
-                      if (nextSibling) {
-                        nextSibling.focus();
-                      }
-                    } else if (!Number.isNaN(Number(e.key))) {
-                      const nextSibling = e.target.nextSibling;
-                      if (nextSibling) {
-                        nextSibling.focus();
-                      } else {
-                        e.target.blur();
-                        setTimeout(() => {
-                          verifyOtpButtonRef.current.focus();
-                        }, 100);
-                      }
+                        const previousSibling = e.target.previousSibling;
+                        if (previousSibling) {
+                          previousSibling.focus();
+                        }
+                      } else if (e.key === "ArrowLeft") {
+                        const previousSibling = e.target.previousSibling;
+                        if (previousSibling) {
+                          previousSibling.focus();
+                        }
+                      } else if (e.key === "ArrowRight") {
+                        const nextSibling = e.target.nextSibling;
+                        if (nextSibling) {
+                          nextSibling.focus();
+                        }
+                      } else if (!Number.isNaN(Number(e.key))) {
+                        const nextSibling = e.target.nextSibling;
+                        if (nextSibling) {
+                          nextSibling.focus();
+                        } else {
+                          e.target.blur();
+                          setTimeout(() => {
+                            verifyOtpButtonRef.current.focus();
+                          }, 100);
+                        }
 
-                      setLoginData({
-                        ...LoginData,
-                        otp: [
-                          ...LoginData.otp.slice(0, i),
-                          e.key,
-                          ...LoginData.otp.slice(i + 1)
-                        ]
-                      });
-                    }
-                  }}
-                />
-              ))
-            }
-          </div>
+                        setLoginData({
+                          ...LoginData,
+                          otp: [
+                            ...LoginData.otp.slice(0, i),
+                            e.key,
+                            ...LoginData.otp.slice(i + 1)
+                          ]
+                        });
+                      }
+                    }}
+                  />
+                ))
+              }
+            </div>
 
-          <button
-            ref={verifyOtpButtonRef}
-            className={`
+            <button
+              ref={verifyOtpButtonRef}
+              className={`
               px-4 py-2 bg-white/5 rounded-lg transition-all
               disabled:opacity-50 disabled:cursor-not-allowed mt-2
               focus:ring-2 focus:ring-white/20 outline-none
             `}
-            disabled={LoginData.otp.join("")?.length !== 6 || Loading}
-            onClick={verifyOTP}
-          >
-            {Loading ? "Loading..." : "Verify code"}
-          </button>
-        </>) : (<>
-          <PhoneInput
-            placeholder="Enter a phone number"
-            value={LoginData.phoneNumber}
-            disabled={Loading}
-            onChange={(v) => {
-              setLoginData({
-                ...LoginData,
-                phoneNumber: v,
-              });
-            }}
-            addInternationalOption={false}
-            defaultCountry="IT"
-            className="flex px-4 py-2 bg-white/5 rounded-lg"
-            numberInputProps={{
-              className: "w-full bg-transparent ml-2 focus:outline-none text-white placeholder-white/50"
-            }}
-          />
+              disabled={LoginData.otp.join("")?.length !== 6 || Loading}
+              onClick={verifyOTP}
+            >
+              {Loading ? "Loading..." : "Verify code"}
+            </button>
+          </>) : (<>
+            <PhoneInput
+              placeholder="Enter a phone number"
+              value={LoginData.phoneNumber}
+              disabled={Loading}
+              onChange={(v) => {
+                setLoginData({
+                  ...LoginData,
+                  phoneNumber: v,
+                });
+              }}
+              addInternationalOption={false}
+              defaultCountry="IT"
+              className="flex px-4 py-2 bg-white/5 rounded-lg"
+              numberInputProps={{
+                className: "w-full bg-transparent ml-2 focus:outline-none text-white placeholder-white/50"
+              }}
+            />
 
-          <button
-            className={`
+            <button
+              className={`
               px-4 py-2 bg-white/5 rounded-lg transition-all
               disabled:opacity-50 disabled:cursor-not-allowed mt-2
               focus:ring-2 focus:ring-white/20 outline-none
             `}
-            disabled={!isValidPhoneNumber(LoginData.phoneNumber || "") || Loading}
-            onClick={requestOTP}
-          >
-            {Loading ? "Loading..." : "Send code"}
-          </button>
-        </>)
-      }
+              disabled={!isValidPhoneNumber(LoginData.phoneNumber || "") || Loading}
+              onClick={requestOTP}
+            >
+              {Loading ? "Loading..." : "Send code"}
+            </button>
+          </>)
+        }
+      </div>
 
       <h2 className="text-xl font-bold mt-4">
         What's BeUnblurred?

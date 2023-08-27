@@ -15,3 +15,6 @@ BeUnblurred is a custom BeReal client that lets you see your friends' BeReals wi
 To deploy to Vercel you just need to click the button below and follow the instructions.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/macedonga/beunblurred)
+
+**This is not reccomended for public use, as it will probably get blocked by BeReal after a while.**
+If you want to host a public instance of BeUnblurred, you should probably host it yourself.

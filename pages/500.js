@@ -12,7 +12,7 @@ function Error() {
             <br />
             This usually means that your token cookie has expired, and it couldn't be refreshed.
             <br />
-            Try logging out and logging back in.
+            Try reloading this tab, or if that doesn't work, logging out and logging back in.
         </p>
 
         <button

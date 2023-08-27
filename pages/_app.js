@@ -61,7 +61,6 @@ Root.getInitialProps = async (appContext) => {
     "token",
     "refreshToken",
     "tokenType",
-    "tokenExpiration"
   ];
   const data = [];
   const cookieOptions = {
@@ -70,10 +69,14 @@ Root.getInitialProps = async (appContext) => {
   };
   let userData;
 
-  if (requiredCookies.map(n => hasCookie(n, cookieOptions)).includes(false)) {
+  if (!hasCookie("token", cookieOptions) || !hasCookie("refreshToken", cookieOptions)) {
     userData = { notLoggedIn: true };
   } else {
-    requiredCookies.forEach(n => data[n] = getCookie(n, cookieOptions));
+    userData = {
+      token: getCookie("token", cookieOptions),
+      refreshToken: getCookie("refreshToken", cookieOptions),
+      tokenType: getCookie("tokenType", cookieOptions),
+    };
 
     try {
       const reqOptions = { "headers": { "Authorization": `Bearer ${data.token}`, } };

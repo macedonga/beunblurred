@@ -110,21 +110,13 @@ export default function Feed(props) {
     </>)
 }
 
-const fetchData = async (token, nextToken) => {
-    const reqOptions = { "headers": { "Authorization": `Bearer ${token}`, } };
-    const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
-
-    return {
-        user: userResponse.data,
-    }
-};
-
 export async function getServerSideProps({ req, res, query }) {
     const requiredCookies = [
         "token",
         "refreshToken",
         "tokenType",
-        "tokenExpiration"
+        "tokenExpiration",
+        "user"
     ];
     const data = [];
 
@@ -138,50 +130,9 @@ export async function getServerSideProps({ req, res, query }) {
         };
     }
 
-    requiredCookies.forEach(n => data[n] = getCookie(n, { req, res }));
-
-    let props;
-    try {
-        props = await fetchData(data.token);
-    } catch (e) {
-        console.log(e);
-        // deepcode ignore HardcodedNonCryptoSecret
-        const refreshData = await axios.post(
-            "https://auth.bereal.team/token?grant_type=refresh_token",
-            {
-                "grant_type": "refresh_token",
-                "client_id": "ios",
-                "client_secret": "962D357B-B134-4AB6-8F53-BEA2B7255420",
-                "refresh_token": data.refreshToken
-            },
-            {
-                headers: {
-                    "Accept": "*/*",
-                    "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
-                    "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        const setCookieOptions = {
-            req,
-            res,
-            maxAge: 60 * 60 * 24 * 7 * 3600,
-            path: "/",
-        };
-
-        setCookie("token", refreshData.data.access_token, setCookieOptions);
-        setCookie("refreshToken", refreshData.data.refresh_token, setCookieOptions);
-        setCookie("tokenExpiration", Date.now() + (refreshData.data.expires_in * 1000), setCookieOptions);
-
-        data.token = refreshData.data.access_token;
-        data.refreshToken = refreshData.data.refresh_token;
-
-        props = await fetchData(data.token);
-    }
-
     return {
-        props: JSON.parse(JSON.stringify(props)),
+        props: {
+            user: JSON.parse(atob(getCookie("user", { req, res })))
+        }
     };
 };

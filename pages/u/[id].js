@@ -221,6 +221,13 @@ export async function getServerSideProps({ req, res, params }) {
 
     requiredCookies.forEach(n => data[n] = getCookie(n, { req, res }));
 
+    const setCookieOptions = {
+        req,
+        res,
+        maxAge: 60 * 60 * 24 * 7 * 3600,
+        path: "/",
+    };
+
     let props;
     try {
         props = await fetchData(data.token, params.id);
@@ -245,13 +252,6 @@ export async function getServerSideProps({ req, res, params }) {
             }
         );
 
-        const setCookieOptions = {
-            req,
-            res,
-            maxAge: 60 * 60 * 24 * 7 * 3600,
-            path: "/",
-        };
-
         setCookie("token", refreshData.data.access_token, setCookieOptions);
         setCookie("refreshToken", refreshData.data.refresh_token, setCookieOptions);
         setCookie("tokenExpiration", Date.now() + (refreshData.data.expires_in * 1000), setCookieOptions);
@@ -260,6 +260,10 @@ export async function getServerSideProps({ req, res, params }) {
         data.refreshToken = refreshData.data.refresh_token;
 
         props = await fetchData(data.token, params.id);
+    }
+
+    if (params.id == "me") {
+        setCookie("user", btoa(JSON.stringify(props.user)), setCookieOptions);
     }
 
     return { props };

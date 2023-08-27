@@ -134,7 +134,7 @@ export default function Layout({ children, user }) {
 
                         <Link href="/u/me">
                             <img
-                                src={user.profilePicture.url}
+                                src={user.profilePicture?.url}
                                 alt="Avatar"
                                 className="rounded-lg h-12 w-12"
                             />

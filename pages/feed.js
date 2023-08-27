@@ -66,11 +66,9 @@ export default function Feed(props) {
 const fetchData = async (token) => {
     const reqOptions = { "headers": { "Authorization": `Bearer ${token}`, } };
     const feedResponse = await axios.get("https://mobile.bereal.com/api/feeds/friends-v1", reqOptions);
-    const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
 
     return {
         feed: feedResponse.data,
-        user: userResponse.data
     };
 };
 
@@ -97,7 +95,10 @@ export async function getServerSideProps({ req, res }) {
 
     let props;
     try {
-        props = await fetchData(data.token);
+        props = {
+            ...await fetchData(data.token),
+            user: atob(JSON.parse(getCookie("user", { req, res })))
+        };
     } catch (e) {
         console.log(e);
         // deepcode ignore HardcodedNonCryptoSecret
@@ -133,7 +134,10 @@ export async function getServerSideProps({ req, res }) {
         data.token = refreshData.data.access_token;
         data.refreshToken = refreshData.data.refresh_token;
 
-        props = await fetchData(data.token);
+        props = {
+            ...await fetchData(data.token),
+            user:JSON.parse(atob(getCookie("user", { req, res })))
+        };
     }
 
     return { props };

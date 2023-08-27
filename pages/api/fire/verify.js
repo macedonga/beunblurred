@@ -91,6 +91,10 @@ export default async function handler(req, res) {
         setCookie("tokenType", access_token_type, setCookieOptions);
         setCookie("tokenExpiration", Date.now() + (access_expiration * 1000), setCookieOptions);
 
+        const reqOptions = { "headers": { "Authorization": `Bearer ${access_token}`, } };
+        const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
+        setCookie("user", btoa(JSON.stringify(userResponse.data)), setCookieOptions);
+
         res.status(200).json({
             success: true,
         });

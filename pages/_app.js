@@ -10,7 +10,7 @@ import "../styles/nprogress.css";
 
 import Layout from "@/components/Layout";
 import axios from "axios";
-import { getCookie, hasCookie, setCookie } from "cookies-next";
+import { deleteCookie, getCookie, hasCookie, setCookie } from "cookies-next";
 
 Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
@@ -61,6 +61,7 @@ Root.getInitialProps = async (appContext) => {
     "token",
     "refreshToken",
     "tokenType",
+    "user"
   ];
   const data = [];
   const cookieOptions = {
@@ -72,55 +73,19 @@ Root.getInitialProps = async (appContext) => {
   if (!hasCookie("token", cookieOptions) || !hasCookie("refreshToken", cookieOptions)) {
     userData = { notLoggedIn: true };
   } else {
-    userData = {
-      token: getCookie("token", cookieOptions),
-      refreshToken: getCookie("refreshToken", cookieOptions),
-      tokenType: getCookie("tokenType", cookieOptions),
-    };
+    if (!hasCookie("user", cookieOptions)) {
+      requiredCookies.map(c => deleteCookie(c, cookieOptions));
 
-    try {
-      const reqOptions = { "headers": { "Authorization": `Bearer ${data.token}`, } };
-      const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
-      userData = userResponse.data;
-    } catch (e) {
-      console.log(e);
-      // deepcode ignore HardcodedNonCryptoSecret
-      const refreshData = await axios.post(
-        "https://auth.bereal.team/token?grant_type=refresh_token",
-        {
-          "grant_type": "refresh_token",
-          "client_id": "ios",
-          "client_secret": "962D357B-B134-4AB6-8F53-BEA2B7255420",
-          "refresh_token": data.refreshToken
-        },
-        {
-          headers: {
-            "Accept": "*/*",
-            "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
-            "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-            "Content-Type": "application/json"
-          }
-        }
-      );
-
-      const setCookieOptions = {
-        req: appContext.ctx.req,
-        res: appContext.ctx.res,
-        maxAge: 60 * 60 * 24 * 7 * 3600,
-        path: "/",
-      };
-
-      setCookie("token", refreshData.data.access_token, setCookieOptions);
-      setCookie("refreshToken", refreshData.data.refresh_token, setCookieOptions);
-      setCookie("tokenExpiration", Date.now() + (refreshData.data.expires_in * 1000), setCookieOptions);
-
-      data.token = refreshData.data.access_token;
-      data.refreshToken = refreshData.data.refresh_token;
+      userData = { notLoggedIn: true };
+    } else {
+      try {
+        userData = JSON.parse(atob(getCookie("user", cookieOptions)));
+      } catch {
+        requiredCookies.map(c => deleteCookie(c, cookieOptions));
+        
+        userData = { notLoggedIn: true };
+      }
     }
-
-    const reqOptions = { "headers": { "Authorization": `Bearer ${data.token}`, } };
-    const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
-    userData = userResponse.data;
   }
 
   return {

@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "co.beunblurred.macedonga",
+      "sha256_cert_fingerprints":
+        ["DE:F5:2B:0A:98:EF:B6:C5:74:DC:7B:4B:5D:68:5C:CF:C6:C4:89:0A:6A:4B:0D:F8:5C:B4:E7:F1:FA:FA:88:D2"]
+    }
+  }
+]

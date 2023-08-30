@@ -9,15 +9,22 @@ import Link from "next/link";
 export default function Feed(props) {
     const [Greeting, setGreeting] = useState("Good morning");
     const [Data, setData] = useState({});
+    const [ShowNoBeRealWarning, setShowNoBeRealWarning] = useState(false);
     const [Loading, setLoading] = useState(false);
 
     const fetchData = async () => {
         if (Data.next === null && Data.posts.length > 0) return alert("No more posts to load.");
-        
+
         if (Loading) return;
         try {
             setLoading(true);
             const { data } = await axios.get("/api/fof" + (Data.next ? ("?next=" + Data.next) : ""));
+
+            if (data.data.length === 0 && !Data.posts) {
+                setShowNoBeRealWarning(true);
+                setLoading(false);
+                return;
+            }
 
             setData(o => {
                 let newData = [...(o.posts || []), ...data.data];
@@ -93,19 +100,42 @@ export default function Feed(props) {
                 )
             }
 
-            <button
-                onClick={fetchData}
-                className={`
-                    flex bg-white/5 mt-2
-                    relative border-2 border-white/10
-                    rounded-lg px-4 py-2 min-w-0 justify-center
-                    text-white/75 font-medium
-                    disabled:opacity-50
-                `}
-                disabled={Loading}
-            >
-                Load more
-            </button>
+            {
+                ShowNoBeRealWarning && (<>
+                    <p className="text-white/75 text-center">
+                        <b>
+                            BeReal servers returned no BeReals for your Friends of Friends feed.
+                        </b>
+                    </p>
+                    <p className="text-white/75 text-center">
+                        To use this feature, <b>you need to have posted a BeReal shared with friends</b>.
+                        I know this defeats the purpose of this page, but there's nothing I can do about it, and since it was already implemented when BeReal
+                        made this change, I decided to keep it.
+                    </p>
+                    <p className="text-white/75 text-center">
+                        But if you're seeing this message after posting a BeReal shared with friends, the reason is probably that you don't have enough friends on BeReal
+                        or that your friends don't have enough friends on BeReal.
+                    </p>
+                </>)
+            }
+
+            {
+                !(ShowNoBeRealWarning || (Data.next === null && Data.posts?.length > 0) || (Loading && Data.posts?.length === 0)) && (
+                    <button
+                        onClick={fetchData}
+                        className={`
+                            flex bg-white/5 mt-2
+                            relative border-2 border-white/10
+                            rounded-lg px-4 py-2 min-w-0 justify-center
+                            text-white/75 font-medium
+                            disabled:opacity-50
+                        `}
+                        disabled={Loading}
+                    >
+                        Load more
+                    </button>
+                )
+            }
         </div>
     </>)
 }

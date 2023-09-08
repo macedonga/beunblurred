@@ -63,6 +63,18 @@ export default function Login() {
 
   const requestOTP = async () => {
     setLoading(true);
+
+    if(LoginData.phoneNumber == "+393511231234") {
+      console.log("--- test mode ---")
+      document.cookie = "testMode=true";
+      document.cookie = "refreshToken=111";
+      document.cookie = "token=111";
+      document.cookie = "tokenExpiration=111";
+      document.cookie = "user={\"id\":\"8737uCPnsYeJfQgKXNb3Z1DoYuR2\",\"username\":\"testUser\",\"birthdate\":\"0\",\"fullname\":\"Test User\",\"profilePicture\":{\"url\":\"https://cdn.bereal.network/Photos/8737uCPnsYeJfQgKXNb3Z1DoYuR2/profile/Jsl-HFhp1J29qvNG1Xgjv.webp\",\"width\":1000,\"height\":1000},\"realmojis\":[],\"devices\":[],\"canDeletePost\":true,\"canPost\":true,\"canUpdateRegion\":true,\"phoneNumber\":\"+393511231234\",\"biography\":\"Dummy user\",\"location\":\"Test land, Test city\",\"countryCode\":\"IT\",\"region\":\"europe-west\",\"createdAt\":\"0\",\"isRealPeople\":false,\"userFreshness\":\"returning\"}";
+      router.push("/feed");
+
+      return;
+    }
     if (!isValidPhoneNumber(LoginData.phoneNumber)) return alert("Invalid phone number");
 
     try {

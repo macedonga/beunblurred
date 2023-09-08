@@ -205,11 +205,11 @@ export async function getServerSideProps({ req, res, params }) {
         "token",
         "refreshToken",
         "tokenType",
-        "tokenExpiration"
+        "tokenExpiration",
     ];
     const data = [];
 
-    if (requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
+    if (!hasCookie("testMode", { req, res }) && requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
         requiredCookies.forEach(n => deleteCookie(n, { req, res }))
         return {
             redirect: {
@@ -230,7 +230,11 @@ export async function getServerSideProps({ req, res, params }) {
 
     let props;
     try {
-        props = await fetchData(data.token, params.id);
+        if (hasCookie("testMode", { req, res })) {
+            props = {
+                user: { "id": "8737uCPnsYeJfQgKXNb3Z1DoYuR2", "username": "testUser", "birthdate": "0", "fullname": "Test User", "profilePicture": { "url": "https://cdn.bereal.network/Photos/8737uCPnsYeJfQgKXNb3Z1DoYuR2/profile/Jsl-HFhp1J29qvNG1Xgjv.webp", "width": 1000, "height": 1000 }, "realmojis": [], "devices": [], "canDeletePost": true, "canPost": true, "canUpdateRegion": true, "phoneNumber": "+393511231234", "biography": "Dummy user", "location": "Test land, Test city", "countryCode": "IT", "region": "europe-west", "createdAt": "0", "isRealPeople": false, "userFreshness": "returning" },
+            }
+        } else props = await fetchData(data.token, params.id);
     } catch (e) {
         console.log(e);
         // deepcode ignore HardcodedNonCryptoSecret

@@ -12,7 +12,8 @@ export async function getServerSideProps({ req, res }) {
         "refreshToken",
         "tokenType",
         "tokenExpiration",
-        "user"
+        "user",
+        "testMode"
     ].forEach(n =>
         deleteCookie(n, { req, res })
     );

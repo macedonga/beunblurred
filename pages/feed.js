@@ -77,11 +77,11 @@ export async function getServerSideProps({ req, res }) {
         "token",
         "refreshToken",
         "tokenType",
-        "tokenExpiration"
+        "tokenExpiration",
     ];
     const data = [];
 
-    if (requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
+    if (!hasCookie("testMode", { req, res }) && requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
         requiredCookies.forEach(n => deleteCookie(n, { req, res }))
         return {
             redirect: {
@@ -95,10 +95,51 @@ export async function getServerSideProps({ req, res }) {
 
     let props;
     try {
-        props = {
-            ...await fetchData(data.token),
-            user: JSON.parse(getCookie("user", { req, res }))
-        };
+        if (hasCookie("testMode", { req, res })) {
+            props = {
+                feed: {
+                    friendsPosts: [{
+                        "user": {
+                            "id": "8737uCPnsYeJfQgKXNb3Z1DoYuR2",
+                            "username": "testUser",
+                            "profilePicture": null
+                        },
+                        "momentId": "8737uCPnsYeJfQgKXNb3Z1DoYuR2",
+                        "region": "europe-west",
+                        "moment": {
+                            "id": "8737uCPnsYeJfQgKXNb3Z1DoYuR2",
+                            "region": "europe-west"
+                        },
+                        "posts": [
+                            {
+                                "id": "8737uCPnsYeJfQgKXNb3Z1DoYuR2-U1Kg",
+                                "primary": {
+                                    "url": "https://i.marco.win/XgzbOhrMmxOopuyj.webp",
+                                    "width": 1500,
+                                    "height": 2000
+                                },
+                                "secondary": {
+                                    "url": "https://i.marco.win/XgzbOhrMmxOopuyj.webp",
+                                    "width": 1500,
+                                    "height": 2000
+                                },
+                                "retakeCounter": 0,
+                                "lateInSeconds": 9723,
+                                "isLate": true,
+                                "isMain": true,
+                                "takenAt": "2023-09-08T10:26:36.967Z"
+                            }
+                        ]
+                    }]
+                },
+                user: JSON.parse(getCookie("user", { req, res }))
+            };
+        } else {
+            props = {
+                ...await fetchData(data.token),
+                user: JSON.parse(getCookie("user", { req, res }))
+            };
+        }
     } catch (e) {
         console.log(e);
         // deepcode ignore HardcodedNonCryptoSecret
@@ -136,7 +177,7 @@ export async function getServerSideProps({ req, res }) {
 
         props = {
             ...await fetchData(data.token),
-            user:JSON.parse(getCookie("user", { req, res }))
+            user: JSON.parse(getCookie("user", { req, res }))
         };
     }
 

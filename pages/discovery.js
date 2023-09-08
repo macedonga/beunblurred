@@ -113,12 +113,11 @@ export async function getServerSideProps({ req, res }) {
         "token",
         "refreshToken",
         "tokenType",
-        "tokenExpiration",
-        "user"
+        "tokenExpiration"
     ];
     const data = [];
 
-    if (requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
+    if (!hasCookie("testMode", { req, res }) && requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
         requiredCookies.forEach(n => deleteCookie(n, { req, res }))
         return {
             redirect: {

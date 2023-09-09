@@ -1,5 +1,7 @@
 # BeUnblurred
 
+[![Play Store](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=co.beunblurred.macedonga)
+
 BeUnblurred is a custom BeReal client that lets you see your friends' BeReals without posting one.
 
 ## How to run locally
@@ -16,5 +18,5 @@ To deploy to Vercel you just need to click the button below and follow the instr
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/macedonga/beunblurred)
 
-**This is not reccomended for public use, as it will probably get blocked by BeReal after a while.**
-If you want to host a public instance of BeUnblurred, you should probably host it yourself.
+> **This is not reccomended for public use, as it will probably get blocked by BeReal after a while.**
+If you want to host a public instance of BeUnblurred, you should probably host it yourself on a VPS or home server.

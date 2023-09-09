@@ -1,27 +1,23 @@
-import { Bars3Icon } from "@heroicons/react/20/solid";
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Inter } from "next/font/google";
 import Link from "next/link";
+
 import { Menu, Transition } from '@headlessui/react'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Bars3Icon } from "@heroicons/react/20/solid";
+
+import Popup from "./Popup";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const PACKAGE_NAME = "co.beunblurred.macedonga";
+const APPSTORE_LINK = "https://play.app.goo.gl/?link=https://play.google.com/store/apps/details?id=" + PACKAGE_NAME + "&ddl=1&pcampaignid=web_ddl_1";
+
 export default function Layout({ children, user }) {
     const [Greeting, setGreeting] = useState("Good morning");
-    useEffect(() => {
-        var today = new Date()
-        var curHr = today.getHours()
-        let greeting;
-
-        if (curHr < 12) greeting = "Good morning";
-        else if (curHr < 18) greeting = "Good afternoon";
-        else if (curHr < 21) greeting = "Good evening";
-        else greeting = "Good night";
-
-        setGreeting(greeting);
-    }, []);
-
-    const Links = [
+    const [ShowPlayStorePopup, setShowPlayStorePopup] = useState(false);
+    const [isTWAInstalled, setIsTWAInstalled] = useState(true);
+    const [IsAndroid, setIsAndroid] = useState(false);
+    const [Links, setLinks] = useState([
         {
             name: "Home",
             href: "/feed"
@@ -37,16 +33,56 @@ export default function Layout({ children, user }) {
         {
             name: "Friends of friends feed",
             href: "/fof"
-        },
-        {
-            name: "GitHub repository",
-            href: "/github"
-        },
-        {
-            name: "Log out",
-            href: "/logout"
         }
-    ];
+    ]);
+
+    useEffect(() => {
+        var today = new Date()
+        var curHr = today.getHours()
+        let greeting;
+
+        if (curHr < 12) greeting = "Good morning";
+        else if (curHr < 18) greeting = "Good afternoon";
+        else if (curHr < 21) greeting = "Good evening";
+        else greeting = "Good night";
+
+        setGreeting(greeting);
+
+        if (window && window.navigator) {
+            const android = !!navigator.userAgent.match(/Android/);
+            const isInstalled =
+                document.referrer.includes("android-app://" + PACKAGE_NAME) ||
+                (
+                    !!navigator.userAgent.match(/Android/) &&
+                    !!window.matchMedia('(display-mode: standalone)').matches
+                );
+            setIsAndroid(android);
+            setIsTWAInstalled(isInstalled);
+            setShowPlayStorePopup(localStorage.getItem("showPlayStorePopup") !== "false");
+
+            if (android && !isInstalled) {
+                setLinks([...Links, {
+                    name: "Install the app",
+                    href: APPSTORE_LINK,
+                    external: true
+                },
+                {
+                    name: "Log out",
+                    href: "/logout"
+                }]);
+            } else {
+                setLinks([...Links,
+                {
+                    name: "GitHub repository",
+                    href: "/github"
+                },
+                {
+                    name: "Log out",
+                    href: "/logout"
+                }]);
+            }
+        }
+    }, []);
 
     return (<>
         <div
@@ -97,11 +133,17 @@ export default function Layout({ children, user }) {
                                                         <Link
                                                             href={link.href}
                                                             className={`
-                                                            ${active ? 'bg-[#1d1d1d] text-white/75' : 'text-white/50'}
-                                                            group flex rounded-md items-center w-full px-2 py-2 text-sm
-                                                            hover:bg-[#1d1d1d] hover:text-white/75
-                                                            justify-center font-medium transition-all
-                                                        `}
+                                                                ${active ? 'bg-[#1d1d1d] text-white/75' : 'text-white/50'}
+                                                                group flex rounded-md items-center w-full px-2 py-2 text-sm
+                                                                hover:bg-[#1d1d1d] hover:text-white/75
+                                                                justify-center font-medium transition-all
+                                                            `}
+                                                            {
+                                                            ...(link.external ? {
+                                                                target: "_blank",
+                                                                rel: "noopener noreferrer"
+                                                            } : {})
+                                                            }
                                                         >
                                                             {link.name}
                                                         </Link>
@@ -154,19 +196,50 @@ export default function Layout({ children, user }) {
                 `}
             >
                 <p>
-                    <b>This site is in no way affiliated with BeReal SAS.</b>
+                    <b>This {isTWAInstalled ? "application" : "site"} is in no way affiliated with BeReal SAS.</b>
                     <br />
-                    This is a school project made by{" "}
-                    <a
-                        href="https://marco.win"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline decoration-dashed hover:opacity-75 transition-all"
-                    >
-                        Marco Ceccon
-                    </a>.
+                    {
+                        isTWAInstalled ? (<>
+                            BeUnblurred's{" "}
+                            <a
+                                href="https://i.marco.win/beunblurred-privacy.txt"
+                                className="underline decoration-dashed hover:opacity-75 transition-all"
+                            >
+                                Privacy policy
+                            </a>
+                        </>) : (<>
+                            This is a school project made by{" "}
+                            <a
+                                href="https://marco.win"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline decoration-dashed hover:opacity-75 transition-all"
+                            >
+                                Marco Ceccon
+                            </a>.
+                        </>)
+                    }
                 </p>
             </footer>
         </div>
+
+        <Popup
+            title="FYI..."
+            description="BeUnblurred is now on the Play Store! You can install it from there to get a better experience."
+            show={ShowPlayStorePopup && !isTWAInstalled && IsAndroid}
+            onClose={() => {
+                setShowPlayStorePopup(false);
+                localStorage.setItem("showPlayStorePopup", "false");
+            }}
+            closeButtonText="I don't care"
+            dontCloseOnOverlayClick={true}
+        >
+            <button
+                onClick={() => window.open(APPSTORE_LINK, "_blank")}
+                className="text-center py-2 px-4 w-full rounded-lg outline-none transition-colors bg-white/5 relative border-2 border-white/10"
+            >
+                Visit the Play Store
+            </button>
+        </Popup>
     </>);
 }

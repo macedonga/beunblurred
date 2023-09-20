@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ExifReader from "exifreader";
 import { format } from "timeago.js";
 import Link from "next/link";
 
@@ -15,7 +16,58 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     const [PostIndex, setPostIndex] = useState(0);
     const [ShowMain, setShowMain] = useState(true);
     const [ShowSecondary, setShowSecondary] = useState(true);
+    const [BlobUrlPrimary, setBlobUrlPrimary] = useState(null);
+    const [BlobUrlSecondary, setBlobUrlSecondary] = useState(null);
+    const [IsAndroid, setIsAndroid] = useState(null);
     const RealMojisContainer = useRef(null);
+
+    const fetchImages = async (postIndex) => {
+        setBlobUrlPrimary(null);
+        setBlobUrlSecondary(null);
+
+        fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url), {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        }).catch((e) => {
+            setBlobUrlPrimary(false);
+            console.error("Couldn't load primary image.", e);
+        }).then(res => res.blob()).then(async blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            setBlobUrlPrimary(blobUrl);
+
+            const arrayBuffer = await blob.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            try {
+                const tags = await ExifReader.load(buffer, { expanded: true });
+                setIsAndroid(true);
+            } catch (error) {
+                setIsAndroid(false);
+            }
+        }).catch((e) => {
+            setBlobUrlPrimary(false);
+            console.error("Something happened converting the blob to blobUrl.", e);   
+        });
+
+        fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url), {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        }).catch((e) => {
+            setBlobUrlSecondary(false);
+            console.error("Couldn't load secondary image.", e);
+        }).then(res => res.blob()).then(async blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            setBlobUrlSecondary(blobUrl);
+        }).catch((e) => {
+            setBlobUrlSecondary(false);
+            console.error("Something happened converting the blob to blobUrl.", e);
+        });;
+    };
 
     useEffect(() => {
         if (!RealMojisContainer.current) return;
@@ -29,6 +81,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         };
 
         RealMojisContainer.current.addEventListener("wheel", onScroll);
+        fetchImages(PostIndex);
     }, [RealMojisContainer]);
 
     const fetchLocation = async (postIndex) => {
@@ -42,7 +95,9 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         url.searchParams.append("forStorage", "false");
         url.searchParams.append("f", "pjson");
 
-        const locationData = await fetch(url).then((res) => res.json());
+        const locationData = await fetch(url).then((res) => res.json()).catch((e) => {
+            console.error("Couldn't fetch location data.", e);
+        });
         const locationName = locationData.address.Match_addr;
 
         setPostData((prev) => {
@@ -54,11 +109,11 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     };
 
     useEffect(() => {
+        fetchImages(PostIndex);
         if ((isDiscovery ? PostData : PostData.posts[PostIndex]).location && !(isDiscovery ? PostData : PostData.posts[PostIndex]).location.name) {
             fetchLocation(PostIndex);
         }
     }, [PostIndex]);
-
 
     return (<>
         <div
@@ -71,7 +126,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                 `
             }
         >
-            <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4" : "hidden"}>
+            <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
                 {
                     PostData.user.profilePicture?.url ?
                         <img
@@ -92,8 +147,14 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                         Posted {(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && "late"} {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt)}
                         {
                             (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
-                                &nbsp;•&nbsp;
+                                <br />
                                 {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} retake{(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 && "s"}
+                            </>
+                        }
+                        {
+                            typeof IsAndroid === "boolean" && <>
+                                <br />
+                                Posted from an {IsAndroid ? "Android" : "iOS"} device
                             </>
                         }
                     </span>
@@ -117,23 +178,118 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                 )
             }
 
-            <div className="relative mx-auto">
-                <img
-                    src={ShowMain ? (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url) : (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url)}
-                    alt={PostData.user.username}
-                    className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
-                    onClick={() => setShowSecondary(!ShowSecondary)}
-                />
+            <div className="relative mx-auto w-full">
+                {
+                    typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "string" ? (
+                        <img
+                            // file deepcode ignore DOMXSS
+                            src={ShowMain ? BlobUrlPrimary : BlobUrlSecondary}
+                            alt={PostData.user.username}
+                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
+                            onClick={() => setShowSecondary(!ShowSecondary)}
+                        />
+                    ) : typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "boolean" ? (
+                        <div
+                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/5"
+                            onClick={() => setShowSecondary(!ShowSecondary)}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <p className="text-center text-sm opacity-80 max-w-[13em]">
+                                    Couldn't load this image.
+                                    <br />
+                                    BeReal is probably having some issues.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div
+                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10 animate-pulse"
+                            onClick={() => setShowMain(!ShowMain)}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <svg
+                                    className="animate-spin h-5 w-5 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx={12}
+                                        cy={12}
+                                        r={10}
+                                        stroke="currentColor"
+                                        strokeWidth={4}
+                                    />
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                    )
+                }
 
-                <img
-                    src={ShowMain ? (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url) : (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url)}
-                    alt={PostData.user.username}
-                    className={`
-                        rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-white/10
-                        ${!ShowSecondary ? "hidden" : "block"}
-                    `}
-                    onClick={() => setShowMain(!ShowMain)}
-                />
+                {
+                    typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "string" ? (
+                        <img
+                            src={ShowMain ? BlobUrlSecondary : BlobUrlPrimary}
+                            alt={PostData.user.username}
+                            className={`
+                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-white/10
+                                ${!ShowSecondary ? "hidden" : "block"}
+                            `}
+                            onClick={() => setShowMain(!ShowMain)}
+                        />
+                    ) : typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "boolean" ? (
+                        <div
+                            className={`
+                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]
+                                ${!ShowSecondary ? "hidden" : "block"}
+                            `}
+                            onClick={() => setShowMain(!ShowMain)}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <p className="text-center text-sm opacity-80">
+                                    Couldn't load this image.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div
+                            className={`
+                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919] animate-pulse
+                                ${!ShowSecondary ? "hidden" : "block"}
+                            `}
+                            onClick={() => setShowMain(!ShowMain)}
+                        >
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <svg
+                                    className="animate-spin h-5 w-5 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx={12}
+                                        cy={12}
+                                        r={10}
+                                        stroke="currentColor"
+                                        strokeWidth={4}
+                                    />
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                    )
+                }
 
                 {
                     !isDiscovery && (<>

@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 
+import { useEffect } from "react";
 import App from "next/app";
 import Script from "next/script";
 import { DefaultSeo } from "next-seo";
@@ -17,16 +18,20 @@ Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
 function Root({ Component, pageProps, userData }) {
+  useEffect(() => {
+    console.log("Made by Marco Ceccon https://marco.win\nThe official website is https://beunblurred.co");
+  }, []);
+
   return (<>
     <Script src="https://www.googletagmanager.com/gtag/js?id=G-BFT79HZ7RH" />
     <Script id="google-analytics">
       {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
- 
-          gtag('config', 'G-BFT79HZ7RH');
-        `}
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-BFT79HZ7RH');
+      `}
     </Script>
 
     <Layout user={userData || {}}>
@@ -82,7 +87,7 @@ Root.getInitialProps = async (appContext) => {
         userData = JSON.parse(getCookie("user", cookieOptions));
       } catch {
         requiredCookies.map(c => deleteCookie(c, cookieOptions));
-        
+
         userData = { notLoggedIn: true };
       }
     }

@@ -28,6 +28,14 @@ export default function Document() {
         <meta name="msapplication-TileColor" content="#0d0d0d" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
         <meta name="theme-color" content="#0d0d0d" />
+
+        <Script
+          id="Adsense-id"
+          data-ad-client="ca-pub-5089978270400571"
+          async strategy="afterInteractive"
+          onError={(e) => { console.error('Script failed to load', e) }}
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5089978270400571"
+        />
       </Head>
       <body>
         <Main />

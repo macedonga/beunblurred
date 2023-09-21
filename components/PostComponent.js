@@ -9,9 +9,15 @@ import {
     MusicalNoteIcon,
     PlusIcon,
     MapPinIcon,
+    Bars3Icon,
 } from "@heroicons/react/20/solid";
+import Popup from "./Popup";
 
 export default function PostComponent({ data, isDiscovery, isMemory }) {
+    const RealMojisContainer = useRef(null);
+    const CanvasRef = useRef(null);
+    const PostRef = useRef(0);
+
     const [PostData, setPostData] = useState({ ...data });
     const [PostIndex, setPostIndex] = useState(0);
     const [ShowMain, setShowMain] = useState(true);
@@ -19,7 +25,110 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     const [BlobUrlPrimary, setBlobUrlPrimary] = useState(null);
     const [BlobUrlSecondary, setBlobUrlSecondary] = useState(null);
     const [IsAndroid, setIsAndroid] = useState(null);
-    const RealMojisContainer = useRef(null);
+    const [ShowOptionsMenu, setShowOptionsMenu] = useState(false);
+    const [PostOptions, setPostOptions] = useState([
+        {
+            id: "main-download",
+            name: "Download main image",
+            action: () => downloadImage(true),
+        },
+        {
+            id: "secondary-download",
+            name: "Download secondary image",
+            action: () => downloadImage(false),
+        },
+        {
+            id: "combined-download",
+            name: "Download combined image",
+            action: () => downloadCombinedImage(),
+        }
+    ]);
+    const [LoadingOptionIndex, setLoadingOptionIndex] = useState([]);
+
+    const downloadImage = async (main) => {
+        const url = main ? (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url) : (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url);
+        setLoadingOptionIndex(o => [
+            ...o,
+            main ? "main-download" : "secondary-download"
+        ]);
+
+        const date = new Date(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostRef.current].takenAt);
+        const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
+        const fileName = `${PostData.user.username}-${formattedDate}-${main ? "main" : "secondary"}.webp`;
+
+        const response = await fetch("/api/cors?endpoint=" + url);
+        const blobImage = await response.blob();
+        const href = URL.createObjectURL(blobImage);
+        const anchorElement = document.createElement("a");
+        anchorElement.href = href;
+        anchorElement.download = fileName;
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+        document.body.removeChild(anchorElement);
+        window.URL.revokeObjectURL(href);
+
+        setLoadingOptionIndex(o => o.filter(i => i !== (main ? "main-download" : "secondary-download")));
+    };
+
+    const downloadCombinedImage = async () => {
+        setLoadingOptionIndex(o => [
+            ...o,
+            "combined-download"
+        ]);
+
+        const date = new Date(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostRef.current].takenAt);
+        const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
+        const fileName = `${PostData.user.username}-${formattedDate}.webp`;
+
+        const mainRes = await fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url));
+        const secondaryRes = await fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url));
+        const mainBlob = await mainRes.blob();
+        const secondaryBlob = await secondaryRes.blob();
+
+        // Stole and modified from: https://github.com/s-alad/toofake/blob/main/new/client/pages/memories/index.tsx#L206
+        let primaryImage = await createImageBitmap(await mainBlob);
+        let secondaryImage = await createImageBitmap(await secondaryBlob);
+
+        const canvas = CanvasRef.current;
+        canvas.width = primaryImage.width;
+        canvas.height = primaryImage.height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(primaryImage, 0, 0)
+        let width = secondaryImage.width * 0.3;
+        let height = secondaryImage.height * 0.3;
+        let x = primaryImage.width * 0.025;
+        let y = primaryImage.height * 0.02;
+        let radius = 30;
+
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.lineWidth = 10;
+        ctx.stroke();
+        ctx.clip();
+
+        ctx.drawImage(secondaryImage, x, y, width, height);
+
+        const href = canvas.toDataURL("image/webp");
+        const anchorElement = document.createElement("a");
+        anchorElement.href = href;
+        anchorElement.download = fileName;
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+        document.body.removeChild(anchorElement);
+        window.URL.revokeObjectURL(href);
+
+        setLoadingOptionIndex(o => o.filter(i => i !== "combined-download"));
+    };
 
     const fetchImages = async (postIndex) => {
         setBlobUrlPrimary(null);
@@ -48,7 +157,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
             }
         }).catch((e) => {
             setBlobUrlPrimary(false);
-            console.error("Something happened converting the blob to blobUrl.", e);   
+            console.error("Something happened converting the blob to blobUrl.", e);
         });
 
         fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url), {
@@ -109,6 +218,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     };
 
     useEffect(() => {
+        PostRef.current = PostIndex;
         fetchImages(PostIndex);
         if ((isDiscovery ? PostData : PostData.posts[PostIndex]).location && !(isDiscovery ? PostData : PostData.posts[PostIndex]).location.name) {
             fetchLocation(PostIndex);
@@ -116,6 +226,45 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     }, [PostIndex]);
 
     return (<>
+        <canvas
+            id="combined-render-canvas"
+            className="hidden"
+            ref={CanvasRef}
+        />
+
+        <Popup
+            title="Post options"
+            show={ShowOptionsMenu}
+            onClose={() => {
+                if (LoadingOptionIndex.length === 0)
+                    setShowOptionsMenu(false);
+            }}
+            loadingDisabled={LoadingOptionIndex.length !== 0}
+        >
+            <div className="grid gap-2">
+                {
+                    PostOptions.map((option, index) => (
+                        <button
+                            key={index}
+                            onClick={option.action}
+                            disabled={LoadingOptionIndex.includes(option.id)}
+                            className={`
+                                text-center py-2 px-4 w-full rounded-lg outline-none transition-colors bg-white/5 relative border-2 border-white/10
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                                ${LoadingOptionIndex === index ? "animate-pulse" : ""}
+                            `}
+                        >
+                            {
+                                LoadingOptionIndex.includes(option.id) ?
+                                    "Loading..."
+                                    : option.name
+                            }
+                        </button>
+                    ))
+                }
+            </div>
+        </Popup>
+
         <div
             className={
                 isMemory ? "relative" : `
@@ -126,40 +275,49 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                 `
             }
         >
-            <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
-                {
-                    PostData.user.profilePicture?.url ?
-                        <img
-                            src={PostData.user.profilePicture?.url}
-                            alt={PostData.user.username}
-                            className="w-14 h-14 border-black border-2 rounded-full"
-                        />
-                        :
-                        <div className="w-14 h-14 bg-white/5 relative rounded-full border-full border-black justify-center align-middle flex">
-                            <div className="m-auto text-2xl uppercase font-bold">{PostData.user.username.slice(0, 1)}</div>
-                        </div>
-                }
+            <div className="flex">
+                <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
+                    {
+                        PostData.user.profilePicture?.url ?
+                            <img
+                                src={PostData.user.profilePicture?.url}
+                                alt={PostData.user.username}
+                                className="w-14 h-14 border-black border-2 rounded-full"
+                            />
+                            :
+                            <div className="w-14 h-14 bg-white/5 relative rounded-full border-full border-black justify-center align-middle flex">
+                                <div className="m-auto text-2xl uppercase font-bold">{PostData.user.username.slice(0, 1)}</div>
+                            </div>
+                    }
 
-                <p className="text-sm leading-[1.175] my-auto">
-                    <span className="font-semibold">{PostData.user.username}</span>
-                    <br />
-                    <span className="text-xs text-white/50">
-                        Posted {(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && "late"} {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt)}
-                        {
-                            (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
-                                <br />
-                                {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} retake{(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 && "s"}
-                            </>
-                        }
-                        {
-                            typeof IsAndroid === "boolean" && <>
-                                <br />
-                                Posted from an {IsAndroid ? "Android" : "iOS"} device
-                            </>
-                        }
-                    </span>
-                </p>
-            </Link>
+                    <p className="text-sm leading-[1.175] my-auto">
+                        <span className="font-semibold">{PostData.user.username}</span>
+                        <br />
+                        <span className="text-xs text-white/50">
+                            Posted {(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && "late"} {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt)}
+                            {
+                                (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
+                                    <br />
+                                    {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} retake{(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 && "s"}
+                                </>
+                            }
+                            {
+                                typeof IsAndroid === "boolean" && <>
+                                    <br />
+                                    Posted from an {IsAndroid ? "Android" : "iOS"} device
+                                </>
+                            }
+                        </span>
+                    </p>
+                </Link>
+
+                <button
+                    className={!isMemory ? "ml-auto my-auto p-2 rounded-lg bg-white/5 border-2 border-white/10" : "hidden"}
+                    onClick={() => setShowOptionsMenu(true)}
+                >
+                    <Bars3Icon className="h-6 w-6" />
+                </button>
+            </div>
 
             {
                 isMemory && (

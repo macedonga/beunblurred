@@ -104,7 +104,7 @@ export default function Layout({ children, user }) {
                         </header>
                     </Link>
                 ) : (
-                    <header className="p-8 border-b-2 flex items-center justify-between lg:border-x-2 lg:rounded-b-lg border-white/10 bg-[#0d0d0d] z-50">
+                    <header className="p-8 border-b-2 flex items-center justify-between lg:border-x-2 lg:rounded-b-lg border-white/10 bg-[#0d0d0d] z-[70]">
                         <Menu as="div" className="inline-block text-left">
                             <Menu.Button className="p-2 rounded-lg bg-white/5 border-2 border-white/10">
                                 <Bars3Icon className="h-6 w-6" />

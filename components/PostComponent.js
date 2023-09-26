@@ -15,6 +15,8 @@ import Popup from "./Popup";
 
 export default function PostComponent({ data, isDiscovery, isMemory }) {
     const RealMojisContainer = useRef(null);
+    const ImageContainerRef = useRef(null);
+    const PostContainerRef = useRef(null);
     const CanvasRef = useRef(null);
     const PostRef = useRef(0);
 
@@ -178,21 +180,6 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         });;
     };
 
-    useEffect(() => {
-        if (!RealMojisContainer.current) return;
-
-        const onScroll = (e) => {
-            e.preventDefault();
-
-            RealMojisContainer.current.scrollBy({
-                "left": e.deltaY < 0 ? -50 : 50,
-            });
-        };
-
-        RealMojisContainer.current.addEventListener("wheel", onScroll);
-        fetchImages(PostIndex);
-    }, [RealMojisContainer]);
-
     const fetchLocation = async (postIndex) => {
         const url = new URL("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode");
         url.searchParams.append("location", `
@@ -218,6 +205,21 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     };
 
     useEffect(() => {
+        if (!RealMojisContainer.current) return;
+
+        const onScroll = (e) => {
+            e.preventDefault();
+
+            RealMojisContainer.current.scrollBy({
+                "left": e.deltaY < 0 ? -50 : 50,
+            });
+        };
+
+        RealMojisContainer.current.addEventListener("wheel", onScroll);
+        fetchImages(PostIndex);
+    }, [RealMojisContainer]);
+
+    useEffect(() => {
         PostRef.current = PostIndex;
         fetchImages(PostIndex);
         if ((isDiscovery ? PostData : PostData.posts[PostIndex]).location && !(isDiscovery ? PostData : PostData.posts[PostIndex]).location.name) {
@@ -225,10 +227,56 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         }
     }, [PostIndex]);
 
+    useEffect(() => {
+        if (!PostContainerRef.current || !ImageContainerRef.current) return;
+
+        const onScroll = (e) => {
+            if (e.target.ignoreScroll) {
+                e.target.ignoreScroll = false;
+                return;
+            }
+
+            let atSnappingPoint = e.target.scrollLeft % e.target.offsetWidth === 0;
+            let timeOut = atSnappingPoint ? 0 : 150;
+
+            if (e.target.scrollTimeout) clearTimeout(e.target.scrollTimeout);
+
+            e.target.scrollTimeout = setTimeout(() => {
+                if (!timeOut) {
+                    console.log("Snapping point");
+                    const add = ImageContainerRef.current.offsetLeft !== 0 ? PostContainerRef.current.scrollLeft / ImageContainerRef.current.offsetLeft === 2 : true;
+
+                    if (add) {
+                        if (PostRef.current !== (isDiscovery ? PostData : PostData.posts.length - 1)) setPostIndex(PostRef.current + 1);
+                    } else {
+                        if (PostRef.current !== 0) setPostIndex(PostRef.current - 1);
+                    }
+
+                    clearTimeout(e.target.scrollTimeout);
+                    e.target.scrollTimeout = null;
+
+                    setTimeout(() => {
+                        e.target.ignoreScroll = true;
+                        e.target.scrollLeft = ImageContainerRef.current.offsetLeft;
+                    }, 70);
+                }
+            }, timeOut);
+        };
+
+        PostContainerRef.current.scrollLeft = ImageContainerRef.current.offsetLeft;
+        PostContainerRef.current.addEventListener("scroll", onScroll);
+
+        return () => {
+            PostContainerRef.current.removeEventListener("scroll", onScroll);
+        }
+    }, [PostContainerRef]);
+
     return (<>
         <canvas
             id="combined-render-canvas"
             className="hidden"
+            width={1500}
+            height={2000}
             ref={CanvasRef}
         />
 
@@ -336,33 +384,15 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                 )
             }
 
-            <div className="relative mx-auto w-full">
+            <div
+                className="relative mx-auto w-full overflow-x-scroll flex snap-mandatory snap-x snap-start scrollbar-hide"
+                ref={PostContainerRef}
+            >
                 {
-                    typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "string" ? (
-                        <img
-                            // file deepcode ignore DOMXSS
-                            src={ShowMain ? BlobUrlPrimary : BlobUrlSecondary}
-                            alt={PostData.user.username}
-                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
-                            onClick={() => setShowSecondary(!ShowSecondary)}
-                        />
-                    ) : typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "boolean" ? (
+                    PostData.posts.length > 1 && PostRef.current > 0 &&
+                    <div className="rounded-lg w-full h-full border-2 border-black aspect-[3/4] bg-white/10 relative snap-end">
                         <div
-                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/5"
-                            onClick={() => setShowSecondary(!ShowSecondary)}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <p className="text-center text-sm opacity-80 max-w-[13em]">
-                                    Couldn't load this image.
-                                    <br />
-                                    BeReal is probably having some issues.
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div
-                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10 animate-pulse"
-                            onClick={() => setShowMain(!ShowMain)}
+                            className="rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]"
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <svg
@@ -387,41 +417,153 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                                 </svg>
                             </div>
                         </div>
-                    )
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <svg
+                                className="animate-spin h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx={12}
+                                    cy={12}
+                                    r={10}
+                                    stroke="currentColor"
+                                    strokeWidth={4}
+                                />
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                            </svg>
+                        </div>
+                    </div>
                 }
 
-                {
-                    typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "string" ? (
-                        <img
-                            src={ShowMain ? BlobUrlSecondary : BlobUrlPrimary}
-                            alt={PostData.user.username}
-                            className={`
+                <div
+                    className="min-w-full aspect-[3/4] snap-start relative"
+                    ref={ImageContainerRef}
+                >
+                    {
+                        typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "string" ? (
+                            <img
+                                // file deepcode ignore DOMXSS
+                                src={ShowMain ? BlobUrlPrimary : BlobUrlSecondary}
+                                alt={PostData.user.username}
+                                className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
+                                onClick={() => setShowSecondary(!ShowSecondary)}
+                            />
+                        ) : typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "boolean" ? (
+                            <div
+                                className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/5"
+                                onClick={() => setShowSecondary(!ShowSecondary)}
+                            >
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <p className="text-center text-sm opacity-80 max-w-[13em]">
+                                        Couldn't load this image.
+                                        <br />
+                                        BeReal is probably having some issues.
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div
+                                className="rounded-lg w-full h-full border-2 border-black aspect-[3/4] bg-white/10"
+                                onClick={() => setShowMain(!ShowMain)}
+                            >
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <svg
+                                        className="animate-spin h-5 w-5 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx={12}
+                                            cy={12}
+                                            r={10}
+                                            stroke="currentColor"
+                                            strokeWidth={4}
+                                        />
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+                        )
+                    }
+
+                    {
+                        typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "string" ? (
+                            <img
+                                src={ShowMain ? BlobUrlSecondary : BlobUrlPrimary}
+                                alt={PostData.user.username}
+                                className={`
                                 rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-white/10
                                 ${!ShowSecondary ? "hidden" : "block"}
                             `}
-                            onClick={() => setShowMain(!ShowMain)}
-                        />
-                    ) : typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "boolean" ? (
-                        <div
-                            className={`
+                                onClick={() => setShowMain(!ShowMain)}
+                            />
+                        ) : typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "boolean" ? (
+                            <div
+                                className={`
                                 rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]
                                 ${!ShowSecondary ? "hidden" : "block"}
                             `}
-                            onClick={() => setShowMain(!ShowMain)}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <p className="text-center text-sm opacity-80">
-                                    Couldn't load this image.
-                                </p>
+                                onClick={() => setShowMain(!ShowMain)}
+                            >
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <p className="text-center text-sm opacity-80">
+                                        Couldn't load this image.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <div
-                            className={`
-                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919] animate-pulse
+                        ) : (
+                            <div
+                                className={`
+                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]
                                 ${!ShowSecondary ? "hidden" : "block"}
                             `}
-                            onClick={() => setShowMain(!ShowMain)}
+                                onClick={() => setShowMain(!ShowMain)}
+                            >
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <svg
+                                        className="animate-spin h-5 w-5 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx={12}
+                                            cy={12}
+                                            r={10}
+                                            stroke="currentColor"
+                                            strokeWidth={4}
+                                        />
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+                        )
+                    }
+                </div>
+
+                {
+                    PostData.posts.length > 1 && PostRef.current < PostData.posts.length - 1 &&
+                    <div className="rounded-lg w-full h-full border-2 border-black aspect-[3/4] bg-white/10 relative snap-end">
+                        <div
+                            className="rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]"
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <svg
@@ -446,15 +588,37 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                                 </svg>
                             </div>
                         </div>
-                    )
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <svg
+                                className="animate-spin h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx={12}
+                                    cy={12}
+                                    r={10}
+                                    stroke="currentColor"
+                                    strokeWidth={4}
+                                />
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                            </svg>
+                        </div>
+                    </div>
                 }
 
                 {
                     !isDiscovery && (<>
                         <div
                             className={`
-                                absolute right-2 inset-y-0 flex
-                                ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "block"}
+                                absolute right-2 inset-y-0 hidden
+                                ${!(!ShowSecondary || PostData.posts.length == 1) && "lg:flex"}
                             `}
                         >
                             <button
@@ -471,8 +635,8 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
 
                         <div
                             className={`
-                                absolute left-2 inset-y-0 flex
-                                ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "block"}
+                                absolute left-2 inset-y-0 hidden
+                                ${!(!ShowSecondary || PostData.posts.length == 1) && "lg:flex"}
                             `}
                         >
                             <button

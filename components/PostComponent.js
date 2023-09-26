@@ -41,6 +41,22 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
             id: "combined-download",
             name: "Download combined image",
             action: () => downloadCombinedImage(),
+        },
+        {
+            id: "copy-link-main",
+            name: "Copy main image link",
+            action: () => {
+                navigator.clipboard.writeText(isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url);
+                alert("Copied main image link to clipboard.");
+            },
+        },
+        {
+            id: "copy-link-secondary",
+            name: "Copy secondary image link",
+            action: () => {
+                navigator.clipboard.writeText(isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url);
+                alert("Copied secondary image link to clipboard.");
+            }
         }
     ]);
     const [LoadingOptionIndex, setLoadingOptionIndex] = useState([]);
@@ -178,21 +194,6 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         });;
     };
 
-    useEffect(() => {
-        if (!RealMojisContainer.current) return;
-
-        const onScroll = (e) => {
-            e.preventDefault();
-
-            RealMojisContainer.current.scrollBy({
-                "left": e.deltaY < 0 ? -50 : 50,
-            });
-        };
-
-        RealMojisContainer.current.addEventListener("wheel", onScroll);
-        fetchImages(PostIndex);
-    }, [RealMojisContainer]);
-
     const fetchLocation = async (postIndex) => {
         const url = new URL("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode");
         url.searchParams.append("location", `
@@ -216,6 +217,21 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
             return newData;
         });
     };
+
+    useEffect(() => {
+        if (!RealMojisContainer.current) return;
+
+        const onScroll = (e) => {
+            e.preventDefault();
+
+            RealMojisContainer.current.scrollBy({
+                "left": e.deltaY < 0 ? -50 : 50,
+            });
+        };
+
+        RealMojisContainer.current.addEventListener("wheel", onScroll);
+        fetchImages(PostIndex);
+    }, [RealMojisContainer]);
 
     useEffect(() => {
         PostRef.current = PostIndex;

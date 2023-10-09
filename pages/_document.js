@@ -29,13 +29,7 @@ export default function Document() {
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
         <meta name="theme-color" content="#0d0d0d" />
 
-        <Script
-          id="Adsense-id"
-          data-ad-client="ca-pub-5089978270400571"
-          async strategy="afterInteractive"
-          onError={(e) => { console.error('Script failed to load', e) }}
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5089978270400571"
-        />
+        <meta name="monetag" content="277b91f4aa72b94a0a9c99a533d6e976" />
       </Head>
       <body>
         <Main />

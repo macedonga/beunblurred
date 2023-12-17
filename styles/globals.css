@@ -14,6 +14,10 @@
   color-scheme: dark;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   @apply bg-black text-white;
 }

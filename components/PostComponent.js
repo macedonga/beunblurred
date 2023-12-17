@@ -12,13 +12,16 @@ import {
     Bars3Icon,
 } from "@heroicons/react/20/solid";
 import Popup from "./Popup";
+import BTSIcon from "@/assets/BTSIcon";
 
 export default function PostComponent({ data, isDiscovery, isMemory }) {
     const RealMojisContainer = useRef(null);
     const CanvasRef = useRef(null);
+    const BTSVideoRef = useRef(null);
     const PostRef = useRef(0);
 
     const [PostData, setPostData] = useState({ ...data });
+    const [ViewBTS, setViewBTS] = useState(false);
     const [PostIndex, setPostIndex] = useState(0);
     const [ShowMain, setShowMain] = useState(true);
     const [ShowSecondary, setShowSecondary] = useState(true);
@@ -41,6 +44,11 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
             id: "combined-download",
             name: "Download combined image",
             action: () => downloadCombinedImage(),
+        },
+        {
+            id: "bts-download",
+            name: "Download BTS video",
+            action: () => downloadBTSVideo(),
         },
         {
             id: "copy-link-main",
@@ -146,6 +154,30 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         setLoadingOptionIndex(o => o.filter(i => i !== "combined-download"));
     };
 
+    const downloadBTSVideo = async () => {
+        setLoadingOptionIndex(o => [
+            ...o,
+            "bts-download"
+        ]);
+
+        const date = new Date(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostRef.current].takenAt);
+        const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
+        const fileName = `${PostData.user.username}-${formattedDate}-bts.mp4`;
+
+        const response = await fetch("/api/cors?endpoint=" + PostData.posts[PostRef.current].btsMedia?.url);
+        const blobImage = await response.blob();
+        const href = URL.createObjectURL(blobImage);
+        const anchorElement = document.createElement("a");
+        anchorElement.href = href;
+        anchorElement.download = fileName;
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+        document.body.removeChild(anchorElement);
+        window.URL.revokeObjectURL(href);
+
+        setLoadingOptionIndex(o => o.filter(i => i !== "bts-download"));
+    };
+
     const fetchImages = async (postIndex) => {
         setBlobUrlPrimary(null);
         setBlobUrlSecondary(null);
@@ -218,6 +250,18 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         });
     };
 
+    const showBTS = () => {
+        setViewBTS(true);
+        BTSVideoRef.current.currentTime = 0;
+        BTSVideoRef.current.play();
+    };
+
+    const hideBTS = () => {
+        setViewBTS(false);
+        BTSVideoRef.current.pause();
+        BTSVideoRef.current.currentTime = 0;
+    };
+
     useEffect(() => {
         if (!RealMojisContainer.current) return;
 
@@ -259,7 +303,11 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         >
             <div className="grid gap-2">
                 {
-                    PostOptions.map((option, index) => (
+                    (
+                        PostData.posts[PostIndex].postType !== "bts" ?
+                            PostOptions.filter(o => o.id !== "bts-download")
+                            : PostOptions
+                    ).map((option, index) => (
                         <button
                             key={index}
                             onClick={option.action}
@@ -353,6 +401,33 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
             }
 
             <div className="relative mx-auto w-full">
+                {
+                    !isDiscovery && PostData.posts[PostIndex].postType === "bts" && (<>
+                        <button
+                            className="flex items-center justify-center bg-black/50 backdrop-blur px-2 py-1 rounded-lg absolute top-4 right-4 z-40"
+                            onClick={showBTS}
+                        >
+                            <BTSIcon className="w-6 h-6 inline-block mr-2" onClick={showBTS} />
+                            View BTS
+                        </button>
+                        <video
+                            ref={BTSVideoRef}
+                            controls={false}
+                            autoPlay={false}
+                            onEnded={hideBTS}
+                            onClick={hideBTS}
+                            className={`
+                        rounded-lg w-full h-auto aspect-[3/4] bg-white/10 absolute z-50
+                        ${ViewBTS ? "block" : "hidden"}
+                    `}
+                            preload="auto"
+                        >
+                            <source src={PostData.posts[PostIndex].btsMedia?.url} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    </>)
+                }
+
                 {
                     typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "string" ? (
                         <img

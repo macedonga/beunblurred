@@ -29,7 +29,12 @@ export default function Document() {
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
         <meta name="theme-color" content="#0d0d0d" />
 
-        <meta name="monetag" content="277b91f4aa72b94a0a9c99a533d6e976" />
+        <meta name="twitter:card" content="app" />
+        <meta name="twitter:app:name:googleplay" content="BeUnblurred" />
+        <meta
+          name="twitter:app:id:googleplay"
+          content="co.beunblurred.macedonga"
+        />
       </Head>
       <body>
         <Main />

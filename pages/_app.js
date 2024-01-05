@@ -50,7 +50,6 @@ function Root({ Component, pageProps, userData }) {
         twitter={{
           handle: "@_macedonga_",
           site: "@_macedonga_",
-          cardType: "summary_large_image",
         }}
       />
 

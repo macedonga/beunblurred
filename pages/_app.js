@@ -47,10 +47,6 @@ function Root({ Component, pageProps, userData }) {
           siteName: "BeUnblurred",
           description: "View your friends' BeReals without posting your own!"
         }}
-        twitter={{
-          handle: "@_macedonga_",
-          site: "@_macedonga_",
-        }}
       />
 
       <Component {...pageProps} />

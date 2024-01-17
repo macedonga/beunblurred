@@ -8,7 +8,6 @@ export default async function handler(req, res) {
     const { otp, requestId } = req.body;
 
     try {
-        console.log("fire_otp_response")
         let fire_otp_response = await axios.post(
             "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPhoneNumber?key=" + FIREBASE_API_KEY,
             {
@@ -34,7 +33,6 @@ export default async function handler(req, res) {
         let is_new_user = fire_otp_response.data.isNewUser;
         let uid = fire_otp_response.data.localId;
 
-        console.log("firebase_refresh_response")
         let firebase_refresh_response = await axios.post(
             "https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY,
             {
@@ -56,7 +54,6 @@ export default async function handler(req, res) {
         let user_id = firebase_refresh_response.data.user_id;
         let firebase_expiration = Date.now() + firebase_refresh_response.data.expires_in * 1000;
 
-        console.log("access_grant_response")
         // deepcode ignore HardcodedNonCryptoSecret
         let access_grant_response = await axios.post(
             "https://auth.bereal.team/token?grant_type=firebase",
@@ -96,7 +93,6 @@ export default async function handler(req, res) {
         setCookie("tokenType", access_token_type, setCookieOptions);
         setCookie("tokenExpiration", Date.now() + (access_expiration * 1000), setCookieOptions);
 
-        console.log("userResponse")
         const reqOptions = {
             "headers": {
                 "Authorization": `Bearer ${access_token}`,

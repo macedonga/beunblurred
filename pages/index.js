@@ -64,7 +64,7 @@ export default function Login() {
   const requestOTP = async () => {
     setLoading(true);
 
-    if(LoginData.phoneNumber == "+393511231234") {
+    if (LoginData.phoneNumber == "+393511231234") {
       console.log("--- test mode ---")
       document.cookie = "testMode=true";
       document.cookie = "refreshToken=111";
@@ -186,6 +186,12 @@ export default function Login() {
                     max={9}
                     onKeyDown={(e) => {
                       if (e.key === "Backspace") {
+                        if (!e.target.value) {
+                          const previousSibling = e.target.previousSibling;
+                          if (previousSibling) {
+                            previousSibling.focus();
+                          }
+                        }
                         setLoginData({
                           ...LoginData,
                           otp: [
@@ -194,11 +200,6 @@ export default function Login() {
                             ...LoginData.otp.slice(i + 1)
                           ]
                         });
-
-                        const previousSibling = e.target.previousSibling;
-                        if (previousSibling) {
-                          previousSibling.focus();
-                        }
                       } else if (e.key === "ArrowLeft") {
                         const previousSibling = e.target.previousSibling;
                         if (previousSibling) {
@@ -229,6 +230,21 @@ export default function Login() {
                           ]
                         });
                       }
+                    }}
+                    onPaste={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+
+                      let clipboardData = e?.clipboardData || window?.clipboardData;
+                      let pastedData = clipboardData.getData("Text").trim();
+
+                      if (pastedData && pastedData.length !== 6) return;
+                      if (pastedData && pastedData.match(/^[0-9]+$/) === null) return;
+
+                      setLoginData({
+                        ...LoginData,
+                        otp: pastedData.split("")
+                      });
                     }}
                   />
                 ))

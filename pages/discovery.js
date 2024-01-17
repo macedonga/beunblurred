@@ -10,9 +10,10 @@ export default function Discovery(props) {
     const [Greeting, setGreeting] = useState("Good morning");
     const [Data, setData] = useState([]);
     const [Loading, setLoading] = useState(false);
+    const [FirstLoadNotWorking, setFirstLoadNotWorking] = useState(false);
 
     const fetchDiscovery = async () => {
-        if (Loading) return;
+        if (Loading || FirstLoadNotWorking) return;
         try {
             setLoading(true);
             const { data: { data } } = await axios.get("/api/discovery");
@@ -28,7 +29,8 @@ export default function Discovery(props) {
         } catch (error) {
             console.log(error);
             setLoading(false);
-            alert("An error occurred while fetching discovery feed.");
+            if (Data.length === 0) setFirstLoadNotWorking(true);
+            else alert("An error occurred while fetching discovery feed.");
         }
     };
 
@@ -103,6 +105,19 @@ export default function Discovery(props) {
                         <div className="w-8 h-8 border-2 border-white/50 rounded-full animate-spin" />
                     </div>
                 )
+            }
+
+            {
+                FirstLoadNotWorking && (<>
+                    <p className="text-white/75 text-center">
+                        <b>
+                            BeReal servers returned no BeReals for your Discovery feed.
+                        </b>
+                    </p>
+                    <p className="text-white/75 text-center">
+                        This is probably because BeReal deprecated the old Discovery feed backend for the Friends of Friends feed.
+                    </p>
+                </>)
             }
         </div>
     </>)

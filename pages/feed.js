@@ -64,7 +64,14 @@ export default function Feed(props) {
 }
 
 const fetchData = async (token) => {
-    const reqOptions = { "headers": { "Authorization": `Bearer ${token}`, } };
+    const reqOptions = {
+        "headers": {
+            "Authorization": `Bearer ${token}`,
+            "bereal-app-version-code": "14549",
+            "bereal-signature": "berealsignature",
+            "bereal-device-id": "berealdeviceid",
+        }
+    };
     const feedResponse = await axios.get("https://mobile.bereal.com/api/feeds/friends-v1", reqOptions);
 
     return {
@@ -156,7 +163,10 @@ export async function getServerSideProps({ req, res }) {
                     "Accept": "*/*",
                     "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "bereal-app-version-code": "14549",
+                    "bereal-signature": "berealsignature",
+                    "bereal-device-id": "berealdeviceid",
                 }
             }
         );

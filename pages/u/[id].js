@@ -178,7 +178,14 @@ export default function User(props) {
 }
 
 const fetchData = async (token, profileId) => {
-    const reqOptions = { "headers": { "Authorization": `Bearer ${token}`, } };
+    const reqOptions = {
+        "headers": {
+            "Authorization": `Bearer ${token}`,
+            "bereal-app-version-code": "14549",
+            "bereal-signature": "berealsignature",
+            "bereal-device-id": "berealdeviceid",
+        }
+    };
     let url;
     if (profileId == "me") url = "https://mobile.bereal.com/api/person/me";
     else url = "https://mobile.bereal.com/api/person/profiles/" + profileId;
@@ -251,7 +258,10 @@ export async function getServerSideProps({ req, res, params }) {
                     "Accept": "*/*",
                     "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "bereal-app-version-code": "14549",
+                    "bereal-signature": "berealsignature",
+                    "bereal-device-id": "berealdeviceid",
                 }
             }
         );

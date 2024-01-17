@@ -19,7 +19,10 @@ export default async function handler(req, res) {
                     "Accept": "*/*",
                     "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "bereal-app-version-code": "14549",
+                    "bereal-signature": "berealsignature",
+                    "bereal-device-id": "berealdeviceid",
                 }
             }
         );
@@ -32,6 +35,7 @@ export default async function handler(req, res) {
         });
         return;
     } catch (error) {
+        console.log(error.response.data, error.stack)
         return res.status(500).json({ error: "Internal server error", success: false });
     }
 };

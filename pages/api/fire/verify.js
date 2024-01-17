@@ -8,6 +8,7 @@ export default async function handler(req, res) {
     const { otp, requestId } = req.body;
 
     try {
+        console.log("fire_otp_response")
         let fire_otp_response = await axios.post(
             "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPhoneNumber?key=" + FIREBASE_API_KEY,
             {
@@ -18,14 +19,13 @@ export default async function handler(req, res) {
             {
                 "headers": {
                     "content-type": "application/json",
-                    "x-firebase-client": "apple-platform/ios apple-sdk/19F64 appstore/true deploy/cocoapods device/iPhone9,1 fire-abt/8.15.0 fire-analytics/8.15.0 fire-auth/8.15.0 fire-db/8.15.0 fire-dl/8.15.0 fire-fcm/8.15.0 fire-fiam/8.15.0 fire-fst/8.15.0 fire-fun/8.15.0 fire-install/8.15.0 fire-ios/8.15.0 fire-perf/8.15.0 fire-rc/8.15.0 fire-str/8.15.0 firebase-crashlytics/8.15.0 os-version/14.7.1 xcode/13F100",
                     "accept": "*/*",
-                    "x-client-version": "iOS/FirebaseSDK/8.15.0/FirebaseCore-iOS",
-                    "x-firebase-client-log-type": "0",
+                    "x-client-version": "iOS/FirebaseSDK/9.6.0/FirebaseCore-iOS",
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "accept-language": "en",
-                    "user-agent": "FirebaseAuth.iOS/8.15.0 AlexisBarreyat.BeReal/0.22.4 iPhone/14.7.1 hw/iPhone9_1",
+                    "user-agent": "FirebaseAuth.iOS/9.6.0 AlexisBarreyat.BeReal/0.31.0 iPhone/14.7.1 hw/iPhone9_1",
                     "x-firebase-locale": "en",
+                    "x-firebase-gmpid": "1:405768487586:ios:28c4df089ca92b89",
                 }
             }
         );
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
         let is_new_user = fire_otp_response.data.isNewUser;
         let uid = fire_otp_response.data.localId;
 
+        console.log("firebase_refresh_response")
         let firebase_refresh_response = await axios.post(
             "https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY,
             {
@@ -55,6 +56,7 @@ export default async function handler(req, res) {
         let user_id = firebase_refresh_response.data.user_id;
         let firebase_expiration = Date.now() + firebase_refresh_response.data.expires_in * 1000;
 
+        console.log("access_grant_response")
         // deepcode ignore HardcodedNonCryptoSecret
         let access_grant_response = await axios.post(
             "https://auth.bereal.team/token?grant_type=firebase",
@@ -69,7 +71,10 @@ export default async function handler(req, res) {
                     "Accept": "application/json",
                     "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "bereal-app-version-code": "14549",
+                    "bereal-signature": "berealsignature",
+                    "bereal-device-id": "berealdeviceid",
                 }
             }
         );
@@ -91,7 +96,15 @@ export default async function handler(req, res) {
         setCookie("tokenType", access_token_type, setCookieOptions);
         setCookie("tokenExpiration", Date.now() + (access_expiration * 1000), setCookieOptions);
 
-        const reqOptions = { "headers": { "Authorization": `Bearer ${access_token}`, } };
+        console.log("userResponse")
+        const reqOptions = {
+            "headers": {
+                "Authorization": `Bearer ${access_token}`,
+                "bereal-app-version-code": "14549",
+                "bereal-signature": "berealsignature",
+                "bereal-device-id": "berealdeviceid",
+            }
+        };
         const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
         setCookie("user", JSON.stringify(userResponse.data), setCookieOptions);
 
@@ -99,7 +112,7 @@ export default async function handler(req, res) {
             success: true,
         });
     } catch (e) {
-        console.log(e?.response?.data)
+        console.log(e?.response?.data, e.stack)
         return res.status(500).json({ error: "Internal server error", success: false });
     }
 };

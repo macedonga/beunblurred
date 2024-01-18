@@ -128,7 +128,15 @@ export default async function handler(req, res) {
             success: true,
         });
     } catch (e) {
-        console.log(e?.response?.data)
-        return res.status(500).json({ error: "Internal server error", success: false });
+        const errorCodes = {
+            "INVALID_CODE": "The code is incorrect.",
+            "SESSION_EXPIRED": "The SMS code has expired. Please re-send the verification code to try again.",
+        };
+
+        return res.status(500).json({
+            error: errorCodes[e?.response?.data?.error?.message] || "Internal server error",
+            code: e?.response?.data?.error?.message || "SERVER_ERROR",
+            success: false
+        });
     }
 };

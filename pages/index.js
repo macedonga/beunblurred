@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import { hasCookie } from "cookies-next";
+import Notification from "@/components/Notification";
 
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -9,6 +10,7 @@ export default function Login() {
   const router = useRouter();
 
   const verifyOtpButtonRef = useRef(null);
+  const [ErrorData, setErrorData] = useState({ show: false });
   const [Loading, setLoading] = useState(false);
   const [LoginData, setLoginData] = useState({
     phoneNumber: "",
@@ -75,25 +77,39 @@ export default function Login() {
 
       return;
     }
-    if (!isValidPhoneNumber(LoginData.phoneNumber)) return alert("Invalid phone number");
+    if (!isValidPhoneNumber(LoginData.phoneNumber)) {
+      setErrorData({
+        show: true,
+        message: "Invalid phone number."
+      });
+      setLoading(false);
+      return;
+    }
 
     try {
-      const data = await requestFire();
+      try {
+        const data = await requestFire();
 
-      setLoginData({
-        ...LoginData,
-        showCodeInput: true,
-        requestId: data.requestId,
-        type: data.type,
-      });
+        setLoginData({
+          ...LoginData,
+          showCodeInput: true,
+          requestId: data.requestId,
+          type: data.type,
+        });
+      } catch {
+        const data = await requestVonage();
+
+        setLoginData({
+          ...LoginData,
+          showCodeInput: true,
+          requestId: data.requestId,
+          type: data.type,
+        });
+      }
     } catch {
-      const data = await requestVonage();
-
-      setLoginData({
-        ...LoginData,
-        showCodeInput: true,
-        requestId: data.requestId,
-        type: data.type,
+      setErrorData({
+        show: true,
+        message: "An error occurred. Please try again later. (500)"
       });
     }
 
@@ -112,15 +128,31 @@ export default function Login() {
       })
     });
 
+    const data = await res.json();
     if (res.status !== 200) {
       setLoading(false);
-      return alert("Internal server error");
+      if (data.code == "SESSION_EXPIRED") {
+        setLoginData(o => ({
+          ...o,
+          showCodeInput: false,
+          requestId: null,
+          otp: []
+        }));
+      }
+      setErrorData({
+        show: true,
+        message: data.error || "An error occurred. Please try again later. (500)"
+      });
+      return;
     }
 
-    const data = await res.json();
     if (!data.success) {
       setLoading(false);
-      return alert(data.error);
+      setErrorData({
+        show: true,
+        message: data.error
+      });
+      return;
     }
 
     router.push("/feed");
@@ -138,15 +170,31 @@ export default function Login() {
       })
     });
 
+    const data = await res.json();
     if (res.status !== 200) {
       setLoading(false);
-      return alert("Internal server error");
+      if (data.code == "SESSION_EXPIRED") {
+        setLoginData(o => ({
+          ...o,
+          showCodeInput: false,
+          requestId: null,
+          otp: []
+        }));
+      }
+      setErrorData({
+        show: true,
+        message: data.error || "An error occurred. Please try again later. (500)"
+      });
+      return;
     }
 
-    const data = await res.json();
     if (!data.success) {
       setLoading(false);
-      return alert(data.error);
+      setErrorData({
+        show: true,
+        message: data.error
+      });
+      return;
     }
 
     router.push("/feed");
@@ -162,7 +210,15 @@ export default function Login() {
     }
   };
 
-  return (
+  return (<>
+    <Notification
+      type={"error"}
+      message={ErrorData.message}
+      show={ErrorData.show}
+      timeout={3}
+      exit={() => setErrorData(o => ({ ...o, show: false }))}
+    />
+
     <div className="flex flex-col gap-y-2">
       <div className="mx-1 flex flex-col gap-y-2">
         <h1 className="text-xl font-medium">Login with your phone number</h1>
@@ -349,7 +405,7 @@ export default function Login() {
         BeUnblurred is a side project, and it takes time to reverse engineer the BeReal app and implement all the latest features, so you'll have to be patient for when a new feature is added.
       </p>
     </div>
-  )
+  </>);
 }
 
 export async function getServerSideProps({ req, res }) {

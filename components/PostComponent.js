@@ -20,7 +20,12 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     const BTSVideoRef = useRef(null);
     const PostRef = useRef(0);
 
-    const [PostData, setPostData] = useState({ ...data });
+    const [PostData, setPostData] = useState({
+        ...data,
+        posts: data.posts.sort((a, b) => {
+            return new Date(b.takenAt) - new Date(a.takenAt);
+        })
+    });
     const [ViewBTS, setViewBTS] = useState(false);
     const [PostIndex, setPostIndex] = useState(0);
     const [ShowMain, setShowMain] = useState(true);
@@ -358,7 +363,25 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                         <span className="font-semibold">{PostData.user.username}</span>
                         <br />
                         <span className="text-xs text-white/50">
-                            Posted {(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && "late"} {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt)}
+                            {
+                                PostData.posts[PostIndex].origin === "repost" ?
+                                    "Reposted"
+                                    : "Posted"
+                            }{" "}{(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && "late"} {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt)}
+
+                            {
+                                PostData.posts[PostIndex].origin === "repost" ?
+                                    <>
+                                        {" "}
+                                        <a
+                                            href={`/u/${PostData.posts[PostIndex].parentPostUserId}`}
+                                            className="underline decoration-dashed hover:opacity-75 transition-all"
+                                        >
+                                            from @{PostData.posts[PostIndex].parentPostUsername}
+                                        </a>
+                                    </>
+                                    : ""
+                            }
                             {
                                 (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
                                     <br />

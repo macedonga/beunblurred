@@ -10,9 +10,10 @@ export default function Feed(props) {
     const [Greeting, setGreeting] = useState("Good morning");
     const [Data, setData] = useState({
         ...props.feed,
+        // really lazy way to fix the sorting issue lol
         friendsPosts: props.feed.friendsPosts.sort((a, b) => {
-            return new Date(b.posts[0].takenAt) - new Date(a.posts[0].takenAt);
-        })
+            return new Date(b.posts[b.posts.length - 1].takenAt) + new Date(a.posts[a.posts.length - 1].takenAt);
+        }).reverse()
     });
 
     useEffect(() => {

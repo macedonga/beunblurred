@@ -70,8 +70,9 @@ export default async function handler(req, res) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "berealsignature",
-                    "bereal-device-id": "berealdeviceid",
+                    "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
+                    "bereal-device-id": "937v3jb942b0h6u9",
+                    "bereal-timezone": "Europe/Paris",
                 }
             }
         );
@@ -97,8 +98,9 @@ export default async function handler(req, res) {
             "headers": {
                 "Authorization": `Bearer ${access_token}`,
                 "bereal-app-version-code": "14549",
-                "bereal-signature": "berealsignature",
-                "bereal-device-id": "berealdeviceid",
+                "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
+                "bereal-device-id": "937v3jb942b0h6u9",
+                "bereal-timezone": "Europe/Paris",
             }
         };
         const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
@@ -112,7 +114,7 @@ export default async function handler(req, res) {
             "INVALID_CODE": "The code is incorrect.",
             "SESSION_EXPIRED": "The SMS code has expired. Please re-send the verification code to try again.",
         };
-        
+
         return res.status(500).json({
             error: errorCodes[e?.response?.data?.error?.message] || "Internal server error",
             code: e?.response?.data?.error?.message || "SERVER_ERROR",

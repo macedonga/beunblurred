@@ -182,8 +182,9 @@ const fetchData = async (token, profileId) => {
         "headers": {
             "Authorization": `Bearer ${token}`,
             "bereal-app-version-code": "14549",
-            "bereal-signature": "berealsignature",
-            "bereal-device-id": "berealdeviceid",
+            "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
+            "bereal-device-id": "937v3jb942b0h6u9",
+                  "bereal-timezone": "Europe/Paris",
         }
     };
     let url;
@@ -260,8 +261,9 @@ export async function getServerSideProps({ req, res, params }) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "berealsignature",
-                    "bereal-device-id": "berealdeviceid",
+                    "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
+                    "bereal-device-id": "937v3jb942b0h6u9",
+                  "bereal-timezone": "Europe/Paris",
                 }
             }
         );

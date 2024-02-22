@@ -22,8 +22,9 @@ export default async function handler(req, res) {
                     "x-firebase-locale": "en",
                     "x-firebase-gmpid": "1:405768487586:ios:28c4df089ca92b89",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "berealsignature",
-                    "bereal-device-id": "berealdeviceid",
+                    "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
+                    "bereal-device-id": "937v3jb942b0h6u9",
+                    "bereal-timezone": "Europe/Paris",
                 }
             },
         );
@@ -46,8 +47,9 @@ export default async function handler(req, res) {
                     "x-firebase-locale": "en",
                     "x-firebase-gmpid": "1:405768487586:ios:28c4df089ca92b89",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "berealsignature",
-                    "bereal-device-id": "berealdeviceid",
+                    "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
+                    "bereal-device-id": "937v3jb942b0h6u9",
+                    "bereal-timezone": "Europe/Paris",
                 }
             }
         );

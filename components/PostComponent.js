@@ -612,29 +612,22 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                         rounded-lg cursor-pointer border-2 border-black
                     `}
                     style={{
-                        backgroundImage: `url(${(isDiscovery ? PostData : PostData.posts[PostIndex]).music?.artwork})`,
+                        backgroundImage: `url(${(isDiscovery ? PostData : PostData.posts[PostIndex])?.music?.artwork})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                     }}
-                    onClick={() => {
-                        const audio = document.getElementById(`audio-${(isDiscovery ? PostData : PostData.posts[PostIndex]).id}`);
-                        if (audio.paused) {
-                            audio.play();
-                        } else {
-                            audio.pause();
-                        }
-                    }}
+                    onClick={() => window.open((isDiscovery ? PostData : PostData.posts[PostIndex])?.music?.openUrl, "_blank")}
                 >
-                    <audio
-                        src={(isDiscovery ? PostData : PostData.posts[PostIndex]).music?.preview}
-                        id={`audio-${(isDiscovery ? PostData : PostData.posts[PostIndex]).id}`}
-                        loop
-                    />
                     <div
                         className="bg-black/50 p-4 rounded backdrop-blur"
                     >
-                        <p className="text-sm text-white text-center">
-                            <MusicalNoteIcon className="h-4 w-4 mr-1 inline-flex" /> <span className="font-medium">{(isDiscovery ? PostData : PostData.posts[PostIndex]).music?.track}</span>
+                        <p className="text-sm text-white text-center relative items-center flex justify-center">
+                            <MusicalNoteIcon className="h-5 w-5 inline-flex absolute left-0" />
+                            {" "}
+                            <span className="font-medium">
+                                {(isDiscovery ? PostData : PostData.posts[PostIndex])?.music?.track}{" - "}
+                                {(isDiscovery ? PostData : PostData.posts[PostIndex])?.music?.artist}
+                            </span>
                         </p>
                     </div>
                 </div>
@@ -697,7 +690,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                     target="_blank"
                     rel="noreferrer"
                 >
-                    <div className="bg-white/5 rounded-lg cursor-pointer p-2 relative items-center">
+                    <div className="bg-white/5 rounded-lg cursor-pointer p-4 relative items-center">
                         <MapPinIcon className="h-5 w-5 inline-flex absolute" />
                         <p className="text-sm text-white text-center">
                             {(isDiscovery ? PostData : PostData.posts[PostIndex]).location.name || "Open on Google Maps"}

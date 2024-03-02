@@ -134,7 +134,7 @@ Root.getInitialProps = async (appContext) => {
     ...appProps,
     userData: {
       ...userData,
-      locale: appContext.ctx.locale
+      locale: appContext.ctx.locale || "en"
     },
   };
 };

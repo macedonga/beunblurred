@@ -25,6 +25,11 @@ import { FormatIcu } from "@tolgee/format-icu";
 
 import enLocale from "../i18n/en.json";
 import itLocale from "../i18n/it.json";
+import deLocale from "../i18n/de.json";
+import esLocale from "../i18n/es.json";
+import frLocale from "../i18n/fr.json";
+import nlLocale from "../i18n/nl.json";
+import plLocale from "../i18n/pl.json";
 
 Router.events.on("routeChangeStart", () => NProgress.start());
 Router.events.on("routeChangeComplete", () => NProgress.done());
@@ -41,6 +46,11 @@ const tolgee = Tolgee()
     staticData: {
       en: enLocale,
       it: itLocale,
+      de: deLocale,
+      es: esLocale,
+      fr: frLocale,
+      nl: nlLocale,
+      pl: plLocale
     },
   });
 

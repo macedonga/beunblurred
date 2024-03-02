@@ -5,9 +5,11 @@ import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 import PostComponent from "../components/PostComponent";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
+import { T, useTranslate } from "@tolgee/react";
 
 export default function Feed(props) {
-    const [Greeting, setGreeting] = useState("Good morning");
+    const { t } = useTranslate();
+    const [Greeting, setGreeting] = useState(t("gm"));
     const [Data, setData] = useState({});
     const [ShowNoBeRealWarning, setShowNoBeRealWarning] = useState(false);
     const [Loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export default function Feed(props) {
         } catch (error) {
             console.log(error);
             setLoading(false);
-            alert("An error occurred while fetching FoF feed.");
+            alert(t("fofFetchError"));
         }
     };
 
@@ -51,10 +53,10 @@ export default function Feed(props) {
         var curHr = today.getHours()
         let greeting;
 
-        if (curHr < 12) greeting = "Good morning";
-        else if (curHr < 18) greeting = "Good afternoon";
-        else if (curHr < 21) greeting = "Good evening";
-        else greeting = "Good night";
+        if (curHr < 12) greeting = t("gm");
+        else if (curHr < 18) greeting = t("ga");
+        else if (curHr < 21) greeting = t("ge");
+        else greeting = t("gn");
 
         setGreeting(greeting);
         fetchData();
@@ -75,7 +77,7 @@ export default function Feed(props) {
             <div className="z-[2] relative">
                 <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
                 <p className="text-sm text-white/70">
-                    Check out BeReals from your friends of friends.
+                    <T keyName="fofBerealFeed" />
                 </p>
             </div>
         </div>
@@ -88,6 +90,7 @@ export default function Feed(props) {
                     <PostComponent
                         key={index}
                         data={friendPost}
+                        locale={props.locale}
                     />
                 ))
             }
@@ -104,17 +107,14 @@ export default function Feed(props) {
                 ShowNoBeRealWarning && (<>
                     <p className="text-white/75 text-center">
                         <b>
-                            BeReal servers returned no BeReals for your Friends of Friends feed.
+                            <T keyName="noBeRealWarningFoF" />
                         </b>
                     </p>
                     <p className="text-white/75 text-center">
-                        To use this feature, <b>you need to have posted a BeReal shared with friends</b>.
-                        I know this defeats the purpose of this page, but there's nothing I can do about it, and since it was already implemented when BeReal
-                        made this change, I decided to keep it.
+                        <T keyName="noBeRealWarningFoFDesc" params={{ b: <b /> }} />
                     </p>
                     <p className="text-white/75 text-center">
-                        But if you're seeing this message after posting a BeReal shared with friends, the reason is probably that you don't have enough friends on BeReal
-                        or that your friends don't have enough friends on BeReal.
+                        <T keyName="noBeRealWarningFoFDesc2" />
                     </p>
                 </>)
             }
@@ -132,7 +132,7 @@ export default function Feed(props) {
                         `}
                         disabled={Loading}
                     >
-                        Load more
+                        {t("loadMore")}
                     </button>
                 )
             }

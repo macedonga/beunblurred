@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import ExifReader from "exifreader";
-import { format } from "timeago.js";
+import { format, register } from "timeago.js";
+import * as TimeAgoLanguages from "timeago.js/lib/lang/";
 import Link from "next/link";
+import { T, useTranslate } from "@tolgee/react";
 
 import {
     ChevronLeftIcon,
@@ -14,7 +16,13 @@ import {
 import Popup from "./Popup";
 import BTSIcon from "@/assets/BTSIcon";
 
-export default function PostComponent({ data, isDiscovery, isMemory }) {
+export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
+    const { t } = useTranslate();
+
+    for (const lang in TimeAgoLanguages) {
+        register(lang, TimeAgoLanguages[lang]);
+    }
+    
     const RealMojisContainer = useRef(null);
     const CanvasRef = useRef(null);
     const BTSVideoRef = useRef(null);
@@ -37,27 +45,27 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
     const [PostOptions, setPostOptions] = useState([
         {
             id: "main-download",
-            name: "Download main image",
+            name: t("mainImageDownload"),
             action: () => downloadImage(true),
         },
         {
             id: "secondary-download",
-            name: "Download secondary image",
+            name: t("secondaryImageDownload"),
             action: () => downloadImage(false),
         },
         {
             id: "combined-download",
-            name: "Download combined image",
+            name: t("combinedImageDownload"),
             action: () => downloadCombinedImage(),
         },
         {
             id: "bts-download",
-            name: "Download BTS video",
+            name: t("btsDownload"),
             action: () => downloadBTSVideo(),
         },
         {
             id: "copy-link-main",
-            name: "Copy main image link",
+            name: t("copyMainImage"),
             action: () => {
                 navigator.clipboard.writeText(isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url);
                 alert("Copied main image link to clipboard.");
@@ -65,7 +73,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         },
         {
             id: "copy-link-secondary",
-            name: "Copy secondary image link",
+            name: t("copySecondaryImage"),
             action: () => {
                 navigator.clipboard.writeText(isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url);
                 alert("Copied secondary image link to clipboard.");
@@ -298,7 +306,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
         />
 
         <Popup
-            title="Post options"
+            title={"postOptions"}
             show={ShowOptionsMenu}
             onClose={() => {
                 if (LoadingOptionIndex.length === 0)
@@ -325,7 +333,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                         >
                             {
                                 LoadingOptionIndex.includes(option.id) ?
-                                    "Loading..."
+                                    t("loading")
                                     : option.name
                             }
                         </button>
@@ -365,9 +373,10 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                         <span className="text-xs text-white/50">
                             {
                                 PostData.posts[PostIndex].origin === "repost" ?
-                                    "Reposted"
-                                    : "Posted"
-                            }{" "}{(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && "late"} {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt)}
+                                    t("reposted")
+                                    : t("posted")
+                            }{" "}{(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && t("late")}{" "}
+                            {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt, locale)}
 
                             {
                                 PostData.posts[PostIndex].origin === "repost" ?
@@ -377,7 +386,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                                             href={`/u/${PostData.posts[PostIndex].parentPostUserId}`}
                                             className="underline decoration-dashed hover:opacity-75 transition-all"
                                         >
-                                            from @{PostData.posts[PostIndex].parentPostUsername}
+                                            <T keyName={"from"} /> @{PostData.posts[PostIndex].parentPostUsername}
                                         </a>
                                     </>
                                     : ""
@@ -385,13 +394,23 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                             {
                                 (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
                                     <br />
-                                    {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} retake{(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 && "s"}
+                                    {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} {
+                                        (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 ?
+                                            <T keyName="retakes" />
+                                            :
+                                            <T keyName="retake" />
+                                    }
                                 </>
                             }
                             {
                                 typeof IsAndroid === "boolean" && <>
                                     <br />
-                                    Posted from an {IsAndroid ? "Android" : "iOS"} device
+                                    {
+                                        IsAndroid ?
+                                            <T keyName="postedFromAndroid" />
+                                            :
+                                            <T keyName="postedFromiOS" />
+                                    }
                                 </>
                             }
                         </span>
@@ -411,7 +430,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                     <div className="absolute bottom-0 inset-x-0 z-50 p-8 bg-gradient-to-t from-black/75 to-transparent">
                         <p>
                             <span className="text-4xl font-black">
-                                {new Date(PostData.memoryDay).toLocaleDateString("en-US", {
+                                {new Date(PostData.memoryDay).toLocaleDateString(locale, {
                                     day: "numeric",
                                     month: "long",
                                 })}
@@ -431,7 +450,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                             onClick={showBTS}
                         >
                             <BTSIcon className="w-6 h-6 inline-block mr-2" onClick={showBTS} />
-                            View BTS
+                            <T keyName="viewBTS" />
                         </button>
                         <video
                             ref={BTSVideoRef}
@@ -440,13 +459,13 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                             onEnded={hideBTS}
                             onClick={hideBTS}
                             className={`
-                        rounded-lg w-full h-auto aspect-[3/4] bg-white/10 absolute z-50
-                        ${ViewBTS ? "block" : "hidden"}
-                    `}
+                                rounded-lg w-full h-auto aspect-[3/4] bg-white/10 absolute z-50
+                                ${ViewBTS ? "block" : "hidden"}
+                            `}
                             preload="auto"
                         >
                             <source src={PostData.posts[PostIndex].btsMedia?.url} type="video/mp4" />
-                            Your browser does not support the video tag.
+                            <T keyName="videoNotSupported" />
                         </video>
                     </>)
                 }
@@ -637,7 +656,7 @@ export default function PostComponent({ data, isDiscovery, isMemory }) {
                 PostData.user.relationship?.commonFriends &&
                 <div className="bg-white/5 rounded-lg divide-y-2 divide-white/10 flex flex-col">
                     <p className="px-4 py-2 font-medium opacity-75">
-                        Common Friends
+                        <T keyName="commonFriends" />
                     </p>
                     {
                         PostData.user.relationship?.commonFriends?.map((friend, index) => (

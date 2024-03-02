@@ -1,18 +1,18 @@
 import { useRouter } from "next/router";
+import { T } from "@tolgee/react";
 
 function Error() {
     const router = useRouter();
 
     return (<>
         <h1 className="text-3xl font-semibold text-center">
-            Error 500
+            <T keyName="error500Title" />
         </h1>
         <p className="text-center mt-2">
-            Looks like something went wrong on the server side.
-            <br />
-            This usually means that your token cookie has expired, and it couldn't be refreshed.
-            <br />
-            Try reloading this tab, or if that doesn't work, logging out and logging back in.
+            <T
+                keyName="error500Desc"
+                params={{ br: <br /> }}
+            />
         </p>
 
         <button
@@ -24,7 +24,7 @@ function Error() {
             `}
             onClick={() => router.push("/feed")}
         >
-            Go to feed
+            <T keyName="backToFeed" />
         </button>
 
         <button
@@ -36,7 +36,7 @@ function Error() {
             `}
             onClick={() => router.push("/logout")}
         >
-            Logout
+            <T keyName="logOut" />
         </button>
     </>);
 }

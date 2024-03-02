@@ -5,9 +5,11 @@ import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 import PostComponent from "../components/PostComponent";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
+import { T, useTranslate } from "@tolgee/react";
 
 export default function Discovery(props) {
-    const [Greeting, setGreeting] = useState("Good morning");
+    const { t } = useTranslate();
+    const [Greeting, setGreeting] = useState(t("gm"));
     const [Data, setData] = useState([]);
     const [Loading, setLoading] = useState(false);
     const [FirstLoadNotWorking, setFirstLoadNotWorking] = useState(false);
@@ -30,7 +32,7 @@ export default function Discovery(props) {
             console.log(error);
             setLoading(false);
             if (Data.length === 0) setFirstLoadNotWorking(true);
-            else alert("An error occurred while fetching discovery feed.");
+            else alert(t("discoveryFetchError"));
         }
     };
 
@@ -39,10 +41,10 @@ export default function Discovery(props) {
         var curHr = today.getHours()
         let greeting;
 
-        if (curHr < 12) greeting = "Good morning";
-        else if (curHr < 18) greeting = "Good afternoon";
-        else if (curHr < 21) greeting = "Good evening";
-        else greeting = "Good night";
+        if (curHr < 12) greeting = t("gm");
+        else if (curHr < 18) greeting = t("ga");
+        else if (curHr < 21) greeting = t("ge");
+        else greeting = t("gn");
 
         setGreeting(greeting);
         fetchDiscovery();
@@ -81,7 +83,7 @@ export default function Discovery(props) {
             <div className="z-[2] relative">
                 <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
                 <p className="text-sm text-white/70">
-                    Check out BeReals from today's discovery feed.
+                    <T keyName="discoveryFeedSubtitle" />
                 </p>
             </div>
         </div>
@@ -95,6 +97,7 @@ export default function Discovery(props) {
                         key={index}
                         data={post}
                         isDiscovery={true}
+                        locale={props.locale}
                     />
                 ))
             }
@@ -111,11 +114,11 @@ export default function Discovery(props) {
                 FirstLoadNotWorking && (<>
                     <p className="text-white/75 text-center">
                         <b>
-                            BeReal servers returned no BeReals for your Discovery feed.
+                            {t("discoveryFetchError")}
                         </b>
                     </p>
                     <p className="text-white/75 text-center">
-                        This is probably because BeReal deprecated the old Discovery feed backend for the Friends of Friends feed.
+                        {t("discoveryFetchErrorSub")}
                     </p>
                 </>)
             }

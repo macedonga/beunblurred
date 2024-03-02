@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Menu, Transition } from '@headlessui/react'
 import { Bars3Icon } from "@heroicons/react/20/solid";
+import { T, useTranslate } from "@tolgee/react";
 
 import Popup from "./Popup";
 
@@ -13,26 +14,32 @@ const PACKAGE_NAME = "co.beunblurred.macedonga";
 const APPSTORE_LINK = "https://play.app.goo.gl/?link=https://play.google.com/store/apps/details?id=" + PACKAGE_NAME + "&ddl=1&pcampaignid=web_ddl_1";
 
 export default function Layout({ children, user }) {
+    const { t } = useTranslate();
+
     const [Greeting, setGreeting] = useState("Good morning");
     const [ShowPlayStorePopup, setShowPlayStorePopup] = useState(false);
     const [isTWAInstalled, setIsTWAInstalled] = useState(true);
     const [IsAndroid, setIsAndroid] = useState(false);
     const [Links, setLinks] = useState([
         {
-            name: "Home",
+            name: t("home"),
             href: "/feed"
         },
         {
-            name: "Your profile",
+            name: t("yourProfile"),
             href: "/u/me"
         },
         {
-            name: "Discovery feed",
+            name: t("discoveryFeed"),
             href: "/discovery"
         },
         {
-            name: "Friends of friends feed",
+            name: t("fofFeed"),
             href: "/fof"
+        },
+        {
+            name: t("languageSelector"),
+            href: "/language"
         }
     ]);
 
@@ -41,10 +48,10 @@ export default function Layout({ children, user }) {
         var curHr = today.getHours()
         let greeting;
 
-        if (curHr < 12) greeting = "Good morning";
-        else if (curHr < 18) greeting = "Good afternoon";
-        else if (curHr < 21) greeting = "Good evening";
-        else greeting = "Good night";
+        if (curHr < 12) greeting = t("gm");
+        else if (curHr < 18) greeting = t("ga");
+        else if (curHr < 21) greeting = t("ge");
+        else greeting = t("gn");
 
         setGreeting(greeting);
 
@@ -62,22 +69,22 @@ export default function Layout({ children, user }) {
 
             if (android && !isInstalled) {
                 setLinks([...Links, {
-                    name: "Install the app",
+                    name: t("installAppHeader"),
                     href: APPSTORE_LINK,
                     external: true
                 },
                 {
-                    name: "Log out",
+                    name: t("logOut"),
                     href: "/logout"
                 }]);
             } else {
                 setLinks([...Links,
                 {
-                    name: "GitHub repository",
+                    name: t("github"),
                     href: "/github"
                 },
                 {
-                    name: "Log out",
+                    name: t("logOut"),
                     href: "/logout"
                 }]);
             }
@@ -99,7 +106,7 @@ export default function Layout({ children, user }) {
                                 BeUnblurred.
                             </h1>
                             <p className="text-center mt-1 opacity-75">
-                                View your friends' BeReal without posting one.
+                                <T keyName="titleSubtitle" />
                             </p>
                         </header>
                     </Link>
@@ -196,7 +203,7 @@ export default function Layout({ children, user }) {
                 `}
             >
                 <p>
-                    <b>This {isTWAInstalled ? "application" : "site"} is in no way affiliated with BeReal SAS.</b>
+                    <b><T keyName={isTWAInstalled ? "footerWarningApp" : "footerWarningWebsite"} /></b>
                     <br />
                     {
                         isTWAInstalled ? (<>
@@ -208,7 +215,7 @@ export default function Layout({ children, user }) {
                                 Privacy policy
                             </a>
                         </>) : (<>
-                            This is a school project made by{" "}
+                            <T keyName={"schoolProject"} />{" "}
                             <a
                                 href="https://marco.win"
                                 target="_blank"
@@ -224,21 +231,21 @@ export default function Layout({ children, user }) {
         </div>
 
         <Popup
-            title="FYI..."
-            description="BeUnblurred is now on the Play Store! You can install it from there to get a better experience."
+            title={"fyiPopup"}
+            description={"fyiPopupDesc"}
             show={ShowPlayStorePopup && !isTWAInstalled && IsAndroid}
             onClose={() => {
                 setShowPlayStorePopup(false);
                 localStorage.setItem("showPlayStorePopup", "false");
             }}
-            closeButtonText="I don't care"
+            closeButtonText={"dontCare"}
             dontCloseOnOverlayClick={true}
         >
             <button
                 onClick={() => window.open(APPSTORE_LINK, "_blank")}
                 className="text-center py-2 px-4 w-full rounded-lg outline-none transition-colors bg-white/5 relative border-2 border-white/10"
             >
-                Visit the Play Store
+                <T keyName="visitPlayStore" />
             </button>
         </Popup>
     </>);

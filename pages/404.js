@@ -1,14 +1,15 @@
 import { useRouter } from "next/router";
+import { T } from "@tolgee/react";
 
 export default function Error({ statusCode }) {
     const router = useRouter();
 
     return (<>
         <h1 className="text-3xl font-semibold text-center">
-            Error 404
+            <T keyName="error404Title" />
         </h1>
         <p className="text-center mt-2">
-            Looks like this page doesn't exist.
+            <T keyName="error404Desc" />
         </p>
 
         <button
@@ -20,7 +21,7 @@ export default function Error({ statusCode }) {
             `}
             onClick={() => router.push("/feed")}
         >
-            Go to feed
+            <T keyName="backToFeed" />
         </button>
 
         <button
@@ -32,7 +33,7 @@ export default function Error({ statusCode }) {
             `}
             onClick={() => router.push("/logout")}
         >
-            Logout
+            <T keyName="logOut" />
         </button>
     </>);
 }

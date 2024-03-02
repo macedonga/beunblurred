@@ -5,8 +5,10 @@ import Notification from "@/components/Notification";
 
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import { T, useTranslate } from "@tolgee/react";
 
 export default function Login() {
+  const { t } = useTranslate();
   const router = useRouter();
 
   const verifyOtpButtonRef = useRef(null);
@@ -221,7 +223,7 @@ export default function Login() {
 
     <div className="flex flex-col gap-y-2">
       <div className="mx-1 flex flex-col gap-y-2">
-        <h1 className="text-xl font-medium">Login with your phone number</h1>
+        <h1 className="text-xl font-medium"><T keyName="loginTitle" /></h1>
         {
           LoginData.showCodeInput ? (<>
             <div className="flex justify-between">
@@ -317,11 +319,11 @@ export default function Login() {
               disabled={LoginData.otp.join("")?.length !== 6 || Loading}
               onClick={verifyOTP}
             >
-              {Loading ? "Loading..." : "Verify code"}
+              {Loading ? <T keyName={"loading"} /> : <T keyName={"verifyOTP"} />}
             </button>
           </>) : (<>
             <PhoneInput
-              placeholder="Enter a phone number"
+              placeholder={t("enterPhoneNumber")}
               value={LoginData.phoneNumber}
               disabled={Loading}
               onChange={(v) => {
@@ -347,62 +349,47 @@ export default function Login() {
               disabled={!isValidPhoneNumber(LoginData.phoneNumber || "") || Loading}
               onClick={requestOTP}
             >
-              {Loading ? "Loading..." : "Send code"}
+                {Loading ? <T keyName={"loading"} /> : <T keyName={"sendOTP"} />}
             </button>
           </>)
         }
       </div>
 
       <h2 className="text-xl font-bold mt-4">
-        What's BeUnblurred?
+        <T keyName={"whatBeunblurred"} />
       </h2>
 
       <p className="text-white/75">
-        BeUnblurred is a custom BeReal client that lets you see your friends' BeReals without posting one.
+        <T keyName={"whatBeunblurredDesc"} />
       </p>
       <p className="text-white/75 font-bold">
-        BeUnblurred is not affiliated with BeReal SAS in any way.
+        <T keyName={"noAffliliation"} />
       </p>
 
       <h2 className="text-xl font-bold mt-4">
-        Why do I need to login?
+        <T keyName={"whyLogin"} />
       </h2>
       <p className="text-white/75">
-        BeUnblurred needs to log in to your account to retrieve your friends on BeReal.
+        <T keyName={"whyLoginDesc"} />
       </p>
       <p className="text-white/75">
-        If you're not comfortable with that, you can check out{" "}
-
-        <a
-          href="/github"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline decoration-dashed hover:opacity-75 transition-all"
-        >
-          the source code on GitHub
-        </a>, or, of course, you can always use the official BeReal app.
+        <T
+          keyName={"whyLoginDesc2"}
+        />
       </p>
 
       <h2 className="text-xl font-bold mt-4">
-        Found a bug, or want a feature to be added?
+        <T keyName={"foundABug"} />
       </h2>
       <p className="text-white/75">
-        Feel free to open an issue on{" "}
-        <a
-          href="/github"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline decoration-dashed hover:opacity-75 transition-all"
-        >
-          GitHub
-        </a>, or if you're more tech savvy, you can fork the repository and open a pull request.
+        <T keyName={"foundABugDesc"} />
       </p>
 
       <h2 className="text-xl font-bold mt-4">
-        Why doesn't BeUnblurred have all the features of BeReal?
+        <T keyName={"newFeature"} />
       </h2>
       <p className="text-white/75">
-        BeUnblurred is a side project, and it takes time to reverse engineer the BeReal app and implement all the latest features, so you'll have to be patient for when a new feature is added.
+        <T keyName={"newFeatureDesc"} />
       </p>
     </div>
   </>);

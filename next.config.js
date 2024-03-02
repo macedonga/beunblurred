@@ -8,6 +8,12 @@ module.exports = withPWA({
   skipWaiting: true,
 })({
   reactStrictMode: true,
+  i18n: {
+    locales: ["default", "en", "it", "de", "es", "fr", "nl", "pl"],
+    localeDetection: false,
+    defaultLocale: "default",
+  },
+  trailingSlash: true,
 });
 
 // Injected content via Sentry wizard below

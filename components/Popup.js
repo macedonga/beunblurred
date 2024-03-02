@@ -1,5 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect } from "react";
+import { T, useTranslate } from "@tolgee/react";
 
 export default function Popup({
     title,
@@ -13,6 +14,8 @@ export default function Popup({
     dontCloseOnOverlayClick,
     loadingDisabled
 }) {
+    const { t } = useTranslate();
+
     useEffect(() => {
         if (!window) return;
 
@@ -62,12 +65,12 @@ export default function Popup({
                                         as="h2"
                                         className={"m-0 text-center text-2xl font-bold"}
                                     >
-                                        {title}
+                                        {t(title)}
                                     </Dialog.Title>
                                     <p
                                         className={"m-0 text-center opacity-75 text-sm mt-2"}
                                     >
-                                        {description}
+                                        {t(description)}
                                     </p>
                                 </div>
 
@@ -82,7 +85,7 @@ export default function Popup({
                                         `}
                                         onClick={onClose}
                                     >
-                                        {closeButtonText || "Close"}
+                                        {closeButtonText || t("close")}
                                     </button>
                                 </div>
                             </Dialog.Panel>

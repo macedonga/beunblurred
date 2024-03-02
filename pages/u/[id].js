@@ -1,13 +1,21 @@
 import axios from "axios";
-import { format } from "timeago.js";
+import { format, register } from "timeago.js";
+import * as TimeAgoLanguages from "timeago.js/lib/lang/";
 import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 import PostComponent from "@/components/PostComponent";
 import { CheckBadgeIcon } from "@heroicons/react/20/solid";
+import { T, useTranslate } from "@tolgee/react";
 
 export default function User(props) {
+    const { t } = useTranslate();
+
+    for (const lang in TimeAgoLanguages) {
+        register(lang, TimeAgoLanguages[lang]);
+    }
+
     return (<>
         <NextSeo title={`${props.user.username}'s profile`} />
 
@@ -48,27 +56,27 @@ export default function User(props) {
             <p className="text-base text-center opacity-75 mt-2">
                 {
                     props.user.biography && <>
-                        Bio: {props.user.biography}<br />
+                        <T keyName={"bio"} />: {props.user.biography}<br />
                     </>
                 }
                 {
                     props.user.location && <>
-                        Location: {props.user.location}<br />
+                        <T keyName={"location"} />: {props.user.location}<br />
                     </>
                 }
                 {
                     props.user.createdAt && <>
-                        Joined: {format(props.user.createdAt)}<br />
+                        <T keyName={"joined"} />: {format(props.user.createdAt, props.locale)}<br />
                     </>
                 }
                 {
                     props.user.birthdate && <>
-                        Birthdate: {new Date(props.user.birthdate).toLocaleDateString()}<br />
+                        <T keyName={"birthdate"} />: {new Date(props.user.birthdate).toLocaleDateString(props.locale)}<br />
                     </>
                 }
                 {
                     props.user.relationship?.friendedAt && <>
-                        Friended: {format(props.user.relationship.friendedAt)}<br />
+                        <T keyName={"friended"} />: {format(props.user.relationship.friendedAt, props.locale)}<br />
                     </>
                 }
             </p>
@@ -85,13 +93,14 @@ export default function User(props) {
                     `}
                 >
                     <h2 className="text-lg font-medium text-center">
-                        {props.pinnedMemories.length} pinned memories
+                        {props.pinnedMemories.length} <T keyName={"pinnedMemories"} />
                     </h2>
 
                     {
                         props.pinnedMemories.map((memory, index) => (
                             <PostComponent
                                 key={index}
+                                locale={props.locale}
                                 isMemory={true}
                                 data={{
                                     posts: [
@@ -131,7 +140,13 @@ export default function User(props) {
                     `}
                 >
                     <h2 className="text-lg font-medium text-center">
-                        {(props.user?.relationship?.commonFriends || props.friends)?.total} {props.user?.relationship?.commonFriends && "common"} friend{(props.user?.relationship?.commonFriends?.sample || props?.friends?.data)?.length !== 1 && "s"}
+                        {(props.user?.relationship?.commonFriends || props.friends)?.total}{" "}
+                        {!props.user?.relationship?.commonFriends
+                            ?
+                            props?.friends?.data?.length !== 1 ? <T keyName={"friends"} /> : <T keyName={"friend"} />
+                            :
+                            props.user?.relationship?.commonFriends?.sample?.length !== 1 ? <T keyName={"commonFriends"} /> : <T keyName={"commonFriend"} />
+                        }
                     </h2>
 
                     {
@@ -184,7 +199,7 @@ const fetchData = async (token, profileId) => {
             "bereal-app-version-code": "14549",
             "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
             "bereal-device-id": "937v3jb942b0h6u9",
-                  "bereal-timezone": "Europe/Paris",
+            "bereal-timezone": "Europe/Paris",
         }
     };
     let url;
@@ -263,7 +278,7 @@ export async function getServerSideProps({ req, res, params }) {
                     "bereal-app-version-code": "14549",
                     "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
                     "bereal-device-id": "937v3jb942b0h6u9",
-                  "bereal-timezone": "Europe/Paris",
+                    "bereal-timezone": "Europe/Paris",
                 }
             }
         );

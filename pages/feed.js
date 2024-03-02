@@ -5,9 +5,11 @@ import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 import PostComponent from "../components/PostComponent";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
+import { T, useTranslate } from "@tolgee/react";
 
 export default function Feed(props) {
-    const [Greeting, setGreeting] = useState("Good morning");
+    const { t } = useTranslate();
+    const [Greeting, setGreeting] = useState(t("gm"));
     const [Data, setData] = useState({
         ...props.feed,
         // really lazy way to fix the sorting issue lol
@@ -21,10 +23,10 @@ export default function Feed(props) {
         var curHr = today.getHours()
         let greeting;
 
-        if (curHr < 12) greeting = "Good morning";
-        else if (curHr < 18) greeting = "Good afternoon";
-        else if (curHr < 21) greeting = "Good evening";
-        else greeting = "Good night";
+        if (curHr < 12) greeting = t("gm");
+        else if (curHr < 18) greeting = t("ga");
+        else if (curHr < 21) greeting = t("ge");
+        else greeting = t("gn");
 
         setGreeting(greeting);
     }, []);
@@ -44,7 +46,7 @@ export default function Feed(props) {
             <div className="z-[2] relative">
                 <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
                 <p className="text-sm text-white/70">
-                    {Data.friendsPosts.length} friends posted a BeReal today.
+                    {Data.friendsPosts.length} <T keyName="friendsPostedBereal" />
                 </p>
             </div>
         </div>
@@ -57,6 +59,7 @@ export default function Feed(props) {
                     <PostComponent
                         key={index}
                         data={friendPost}
+                        locale={props.locale}
                     />
                 ))
             }

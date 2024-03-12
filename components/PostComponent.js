@@ -317,7 +317,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             <div className="grid gap-2">
                 {
                     (
-                        PostData.posts[PostIndex].postType !== "bts" ?
+                        !PostData.posts[PostIndex].btsMedia ?
                             PostOptions.filter(o => o.id !== "bts-download")
                             : PostOptions
                     ).map((option, index) => (
@@ -444,7 +444,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
             <div className="relative mx-auto w-full">
                 {
-                    !isDiscovery && PostData.posts[PostIndex].postType === "bts" && (<>
+                    !isDiscovery && PostData.posts[PostIndex].btsMedia && (<>
                         <button
                             className="flex items-center justify-center bg-black/50 backdrop-blur px-2 py-1 rounded-lg absolute top-4 right-4 z-40"
                             onClick={showBTS}

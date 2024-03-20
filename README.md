@@ -1,9 +1,8 @@
 # BeUnblurred
 
-![Website](https://img.shields.io/website?url=https%3A%2F%2Fwww.beunblurred.co&style=for-the-badge&logoColor=white&labelColor=1a1a1a)
-[![Play Store](https://img.shields.io/badge/Google_Play-1a1a1a?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=co.beunblurred.macedonga)
-
 BeUnblurred is a custom BeReal client that lets you see your friends' BeReals without posting one.[^1]
+
+[Visit the website!](https://www.beunblurred.co/)
 
 ## Screenshots
 

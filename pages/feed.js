@@ -68,20 +68,25 @@ export default function Feed(props) {
 }
 
 const fetchData = async (token) => {
-    const reqOptions = {
-        "headers": {
-            "Authorization": `Bearer ${token}`,
-            "bereal-app-version-code": "14549",
-            "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
-            "bereal-device-id": "937v3jb942b0h6u9",
-            "bereal-timezone": "Europe/Paris",
-        }
-    };
-    const feedResponse = await axios.get("https://mobile.bereal.com/api/feeds/friends-v1", reqOptions);
+    try {
+        const reqOptions = {
+            "headers": {
+                "Authorization": `Bearer ${token}`,
+                "bereal-app-version-code": "14549",
+                "bereal-signature": "MToxNzEwOTU0MTc2OmPlM3WPWqPWRq7EseRiT98fErcmwWg1yUatGmYZnzaH",
+                "bereal-device-id": "937v3jb942b0h6u9",
+                "bereal-timezone": "Europe/Paris",
+            }
+        };
+        const feedResponse = await axios.get("https://mobile.bereal.com/api/feeds/friends-v1", reqOptions);
 
-    return {
-        feed: feedResponse.data,
-    };
+        return {
+            feed: feedResponse.data,
+        };
+    } catch (e) {
+        console.log("Response: ", e.response.data)
+        throw e;
+    }
 };
 
 export async function getServerSideProps({ req, res }) {
@@ -170,7 +175,7 @@ export async function getServerSideProps({ req, res }) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "MToxNzA3NDgwMjI4OvR2hbFOdgnyAz1bfiCp68ul5sVZiHnv+NAZNySEcBfD",
+                    "bereal-signature": "MToxNzEwOTU0MTc2OmPlM3WPWqPWRq7EseRiT98fErcmwWg1yUatGmYZnzaH",
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }

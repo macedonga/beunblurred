@@ -197,7 +197,7 @@ const fetchData = async (token, profileId) => {
         "headers": {
             "Authorization": `Bearer ${token}`,
             "bereal-app-version-code": "14549",
-            "bereal-signature": "MToxNzEwOTU0MTc2OmPlM3WPWqPWRq7EseRiT98fErcmwWg1yUatGmYZnzaH",
+            "bereal-signature": "MToxNzExNTU5NzM4Os1y+W0KM2Zwwevvjsl3DsUyRkXieKaCdPK127Ub0cfr",
             "bereal-device-id": "937v3jb942b0h6u9",
             "bereal-timezone": "Europe/Paris",
         }
@@ -276,7 +276,7 @@ export async function getServerSideProps({ req, res, params }) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "MToxNzEwOTU0MTc2OmPlM3WPWqPWRq7EseRiT98fErcmwWg1yUatGmYZnzaH",
+                    "bereal-signature": "MToxNzExNTU5NzM4Os1y+W0KM2Zwwevvjsl3DsUyRkXieKaCdPK127Ub0cfr",
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }

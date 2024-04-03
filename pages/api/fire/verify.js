@@ -70,7 +70,7 @@ export default async function handler(req, res) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "MToxNzExNTU5NzM4Os1y+W0KM2Zwwevvjsl3DsUyRkXieKaCdPK127Ub0cfr",
+                    "bereal-signature": "MToxNzEyMTY2NzczOvl1SHcS47AGyc37sOQn/a9BZPOuhM2pDajsGQz0I6rF",
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }
@@ -98,7 +98,7 @@ export default async function handler(req, res) {
             "headers": {
                 "Authorization": `Bearer ${access_token}`,
                 "bereal-app-version-code": "14549",
-                "bereal-signature": "MToxNzExNTU5NzM4Os1y+W0KM2Zwwevvjsl3DsUyRkXieKaCdPK127Ub0cfr",
+                "bereal-signature": "MToxNzEyMTY2NzczOvl1SHcS47AGyc37sOQn/a9BZPOuhM2pDajsGQz0I6rF",
                 "bereal-device-id": "937v3jb942b0h6u9",
                 "bereal-timezone": "Europe/Paris",
             }

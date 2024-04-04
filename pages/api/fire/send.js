@@ -1,6 +1,8 @@
 import axios from "axios";
 import { isValidPhoneNumber } from "react-phone-number-input";
 
+import { SIG } from "@/utils/requests";
+
 export default async function handler(req, res) {
     try {
         const { phone } = req.body;
@@ -22,7 +24,7 @@ export default async function handler(req, res) {
                     "x-firebase-locale": "en",
                     "x-firebase-gmpid": "1:405768487586:ios:28c4df089ca92b89",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "MToxNzEyMTY2NzczOvl1SHcS47AGyc37sOQn/a9BZPOuhM2pDajsGQz0I6rF",
+                    "bereal-signature": SIG,
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }
@@ -47,7 +49,7 @@ export default async function handler(req, res) {
                     "x-firebase-locale": "en",
                     "x-firebase-gmpid": "1:405768487586:ios:28c4df089ca92b89",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "MToxNzEyMTY2NzczOvl1SHcS47AGyc37sOQn/a9BZPOuhM2pDajsGQz0I6rF",
+                    "bereal-signature": SIG,
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }

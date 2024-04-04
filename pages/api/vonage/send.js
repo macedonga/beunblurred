@@ -1,5 +1,6 @@
 import axios from "axios";
 import { isValidPhoneNumber } from "react-phone-number-input";
+import { SIG } from "@/utils/requests";
 
 export default async function handler(req, res) {
     try {
@@ -21,7 +22,7 @@ export default async function handler(req, res) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": "MToxNzEyMTY2NzczOvl1SHcS47AGyc37sOQn/a9BZPOuhM2pDajsGQz0I6rF",
+                    "bereal-signature": SIG,
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }

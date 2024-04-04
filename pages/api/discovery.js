@@ -1,24 +1,15 @@
-import axios from "axios";
-import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
+import checkAuth from "@/utils/checkAuth";
+import { requestAuthenticated } from "@/utils/requests";
+import { hasCookie } from "cookies-next";
 
 export default async function handler(req, res) {
-    const requiredCookies = [
-        "token",
-        "refreshToken",
-        "tokenType",
-        "tokenExpiration"
-    ];
-    const data = [];
-
-    if (!hasCookie("testMode", { req, res }) && requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
+    const authCheck = await checkAuth(req, res);
+    if (authCheck) {
         return res.status(401).json({
             error: "Unauthorized",
             success: false
         });
     }
-
-    requiredCookies.forEach(n => data[n] = getCookie(n, { req, res }));
-
     let feedResponse;
 
     if (hasCookie("testMode", { req, res })) {
@@ -69,57 +60,7 @@ export default async function handler(req, res) {
             }
         };
     } else {
-        if (data.tokenExpiration < Date.now()) {
-            // deepcode ignore HardcodedNonCryptoSecret
-            const refreshData = await axios.post(
-                "https://auth.bereal.team/token?grant_type=refresh_token",
-                {
-                    "grant_type": "refresh_token",
-                    "client_id": "ios",
-                    "client_secret": "962D357B-B134-4AB6-8F53-BEA2B7255420",
-                    "refresh_token": data.refreshToken
-                },
-                {
-                    headers: {
-                        "Accept": "*/*",
-                        "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
-                        "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                        "Content-Type": "application/json",
-                        "bereal-app-version-code": "14549",
-                        "bereal-signature": "MToxNzEyMTY2NzczOvl1SHcS47AGyc37sOQn/a9BZPOuhM2pDajsGQz0I6rF",
-                        "bereal-device-id": "937v3jb942b0h6u9",
-                        "bereal-timezone": "Europe/Paris",
-                    }
-                }
-            );
-
-            const setCookieOptions = {
-                req,
-                res,
-                maxAge: 60 * 60 * 24 * 7 * 3600,
-                path: "/",
-            };
-
-            setCookie("token", refreshData.data.access_token, setCookieOptions);
-            setCookie("refreshToken", refreshData.data.refresh_token, setCookieOptions);
-            setCookie("tokenExpiration", Date.now() + (refreshData.data.expires_in * 1000), setCookieOptions);
-
-            data.token = refreshData.data.access_token;
-            data.refreshToken = refreshData.data.refresh_token;
-        }
-
-        feedResponse = await axios.get(
-            "https://mobile.bereal.com/api/feeds/discovery?limit=100",
-            {
-                "headers": {
-                    "Authorization": `Bearer ${data.token}`,
-                    "bereal-app-version-code": "14549",
-                    "bereal-signature": "MToxNzEyMTY2NzczOvl1SHcS47AGyc37sOQn/a9BZPOuhM2pDajsGQz0I6rF",
-                    "bereal-device-id": "937v3jb942b0h6u9",
-                    "bereal-timezone": "Europe/Paris",
-                }
-            }
-        );
+        feedResponse = await requestAuthenticated("feeds/discovery?limit=100", req, res);
     }
 
     return res.status(200).json({

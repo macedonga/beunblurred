@@ -1,9 +1,12 @@
 import axios from "axios";
 import { getCookie, setCookie } from "cookies-next";
 
-const SIGNATURE = "MToxNzEyMzIxODU1OnLW4m91RLUqnl9yL4o4LmQVLDg/CM9t2tiJNsYV2Srw";
+const fetchSignature = async () => {
+    const res = await axios.get("https://sig.beunblurred.co/get?token=i1w3j4DHDDS82j12");
+    return res.data;
+};
 
-export const requestAuthenticated = async (endpoint, request, response) => {
+const requestAuthenticated = async (endpoint, request, response) => {
     const data = [];
     const requiredCookies = [
         "token",
@@ -13,6 +16,7 @@ export const requestAuthenticated = async (endpoint, request, response) => {
     ];
 
     requiredCookies.forEach(n => data[n] = getCookie(n, { req: request, res: response }));
+    let SIGNATURE = await fetchSignature();
 
     const options = {
         "headers": {
@@ -71,4 +75,7 @@ export const requestAuthenticated = async (endpoint, request, response) => {
     }
 };
 
-export const SIG = SIGNATURE;
+export {
+    fetchSignature,
+    requestAuthenticated
+}

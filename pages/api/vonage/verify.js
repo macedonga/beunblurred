@@ -1,7 +1,7 @@
 import axios from "axios";
 import { serialize } from "cookie";
 import { setCookie } from "cookies-next";
-import { SIG } from "@/utils/requests";
+import { fetchSignature } from "@/utils/requests";
 
 const FIREBASE_API_KEY = "AIzaSyCgNTZt6gzPMh-2voYXOvrt_UR_gpGl83Q";
 
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": SIG,
+                    "bereal-signature": (await fetchSignature()),
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
                     "bereal-app-version-code": "14549",
-                    "bereal-signature": SIG,
+                    "bereal-signature": (await fetchSignature()),
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
                 }

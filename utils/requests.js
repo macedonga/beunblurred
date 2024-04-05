@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getCookie, setCookie } from "cookies-next";
 
-const SIGNATURE = "MToxNzEyMjUxNjgwOtzpf4PxSgWtLJmqKUfdW7Jy2tCWnMPBwcDef7iR/Mvd";
+const SIGNATURE = "MToxNzEyMzIxODU1OnLW4m91RLUqnl9yL4o4LmQVLDg/CM9t2tiJNsYV2Srw";
 
 export const requestAuthenticated = async (endpoint, request, response) => {
     const data = [];

@@ -3,7 +3,7 @@ import { serialize } from "cookie";
 import { setCookie } from "cookies-next";
 import { SIG } from "@/utils/requests";
 
-const FIREBASE_API_KEY = "AIzaSyDwjfEeparokD7sXPVQli9NsTuhT6fJ6iA";
+const FIREBASE_API_KEY = "AIzaSyCgNTZt6gzPMh-2voYXOvrt_UR_gpGl83Q";
 
 export default async function handler(req, res) {
     const { otp, requestId } = req.body;

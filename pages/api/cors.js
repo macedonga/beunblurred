@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         });
     }
 
-    const regexPattern = '^https://cdn(-[a-z0-9]+)?\\.bereal\\.network.*';
+    const regexPattern = "^https:\/\/cdn(-[a-z0-9]+)?\.bereal\.network\/.*";
     const regex = new RegExp(regexPattern);
 
     if (!regex.test(endpoint.toString())) {

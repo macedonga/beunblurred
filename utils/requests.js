@@ -67,7 +67,7 @@ const requestAuthenticated = async (endpoint, request, response) => {
         setCookie("refreshToken", refreshData.data.refresh_token, setCookieOptions);
         setCookie("tokenExpiration", Date.now() + (refreshData.data.expires_in * 1000), setCookieOptions);
 
-        options["Authorization"] = `Bearer ${refreshData.data.access_token}`;
+        options.headers["Authorization"] = `Bearer ${refreshData.data.access_token}`;
 
         const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
 

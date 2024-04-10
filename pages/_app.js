@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import App from "next/app";
 import Script from "next/script";
 import { DefaultSeo } from "next-seo";
@@ -13,6 +13,7 @@ import Layout from "@/components/Layout";
 
 import axios from "axios";
 import { deleteCookie, getCookie, hasCookie, setCookie } from "cookies-next";
+import cookieCutter from "cookie-cutter";
 
 import {
   TolgeeProvider,
@@ -30,10 +31,7 @@ import esLocale from "../i18n/es.json";
 import frLocale from "../i18n/fr.json";
 import nlLocale from "../i18n/nl.json";
 import plLocale from "../i18n/pl.json";
-
-Router.events.on("routeChangeStart", () => NProgress.start());
-Router.events.on("routeChangeComplete", () => NProgress.done());
-Router.events.on("routeChangeError", () => NProgress.done());
+import Loading from "@/components/Loading";
 
 const tolgee = Tolgee()
   .use(FormatIcu())
@@ -54,13 +52,63 @@ const tolgee = Tolgee()
     },
   });
 
-function Root({ Component, pageProps, userData }) {
-  useEffect(() => {
-    console.log(`                    :--:                    \n                .:=++++++=-.                \n             :-=+++++=-++++++-:             \n         .:=+++++=-.    .-=+++++=-.         \n      .-=++++=-:            :-++++++-:      \n  .:=+++++=-.                  .-=+++++=:.  \n.=+++++-:.                         :=++++++.\n.+++=.      .                  .      .=+++:\n:+++-    :-+++:              :+++=:    =+++:\n:+++-    +++++++:          :+++++++    =+++:\n:+++-    +++++++++:      :+++++++++    =+++:\n:+++-    ++++.-+++++:  :+++++-:++++    =+++:\n:+++-    ++++   -++++++++++-.  ++++    =+++:\n:+++-    ++++     -++++++-     ++++::=+++++:\n:+++-    ++++       :++-       +++++++++=:. \n:+=:     ++++                  ++++++-:     \n       .-++++                  ++=:.      :.\n    :-++++++=                  .      .-+**:\n :=++++++=.                        :=+++**+:\n  .-=+++++=-.                  .-=++++*+-.  \n     .:=++++++-:            :-++++++=-.     \n         .-=+++++=:.    .:=++++++-:         \n             :=++++++--++++++=:.            \n                .-++++++++-:                \n                  .:==-.\n\nBeUnblurred https://beunblurred.co/\nBy Marco Ceccon (https://marco.win)`); if (!window.location.href.includes("beun" + "bl" + String.fromCharCode(85).toLowerCase() + "rred") && !window.location.href.includes("localhost")) { alert("The author of this website is using stolen code."); window.location.href = "https://www." + ("beun" + "bl" + String.fromCharCode(85).toLowerCase() + "rred") + ".co"; }
-  }, []);
-  
+function Root({ Component, pageProps }) {
   const router = useRouter();
+  const [userData, setUserData] = useState({
+    locale: router.locale || "en",
+    loading: true
+  })
   const ssrTolgee = useTolgeeSSR(tolgee, router.locale);
+
+  Router.events.on("routeChangeStart", () => {
+    NProgress.start();
+    setUserData(o => ({ ...o, loading: true }));
+  });
+  Router.events.on("routeChangeComplete", () => {
+    NProgress.done();
+    setUserData(o => ({ ...o, loading: false }));
+  });
+  Router.events.on("routeChangeError", () => {
+    NProgress.done();
+    setUserData(o => ({ ...o, loading: false }));
+  });
+
+  useEffect(() => {
+    const requiredCookies = [
+      "token",
+      "refreshToken",
+      "tokenType",
+      "user"
+    ];
+    const data = {};
+    let ud;
+
+    for (let c of requiredCookies) {
+      data[c] = cookieCutter.get(c);
+    }
+
+    if (!data["token"] || !data["refreshToken"]) {
+      ud = { notLoggedIn: true };
+    } else {
+      if (!data["user"]) {
+        ud = { notLoggedIn: true };
+      } else {
+        try {
+          ud = JSON.parse(data["user"]);
+        } catch {
+          ud = { notLoggedIn: true };
+        }
+      }
+    }
+
+    setUserData({
+      ...ud,
+      locale: router.locale || "en",
+      loading: false
+    });
+
+    console.log(`                    :--:                    \n                .:=++++++=-.                \n             :-=+++++=-++++++-:             \n         .:=+++++=-.    .-=+++++=-.         \n      .-=++++=-:            :-++++++-:      \n  .:=+++++=-.                  .-=+++++=:.  \n.=+++++-:.                         :=++++++.\n.+++=.      .                  .      .=+++:\n:+++-    :-+++:              :+++=:    =+++:\n:+++-    +++++++:          :+++++++    =+++:\n:+++-    +++++++++:      :+++++++++    =+++:\n:+++-    ++++.-+++++:  :+++++-:++++    =+++:\n:+++-    ++++   -++++++++++-.  ++++    =+++:\n:+++-    ++++     -++++++-     ++++::=+++++:\n:+++-    ++++       :++-       +++++++++=:. \n:+=:     ++++                  ++++++-:     \n       .-++++                  ++=:.      :.\n    :-++++++=                  .      .-+**:\n :=++++++=.                        :=+++**+:\n  .-=+++++=-.                  .-=++++*+-.  \n     .:=++++++-:            :-++++++=-.     \n         .-=+++++=:.    .:=++++++-:         \n             :=++++++--++++++=:.            \n                .-++++++++-:                \n                  .:==-.\n\nBeUnblurred ${"https://www." + ("beun" + "bl" + String.fromCharCode(85).toLowerCase() + "rred") + ".co"}\nBy Marco Ceccon (https://marco.win)`);
+  }, []);
 
   return (<>
     <TolgeeProvider tolgee={ssrTolgee} options={{ useSuspense: false }}>
@@ -74,6 +122,11 @@ function Root({ Component, pageProps, userData }) {
         gtag('config', 'G-BFT79HZ7RH');
       `}
       </Script>
+
+      <Loading
+        show={userData.loading}
+        // show={true}
+      />
 
       <Layout user={userData || {}}>
         <DefaultSeo
@@ -95,48 +148,5 @@ function Root({ Component, pageProps, userData }) {
     </TolgeeProvider>
   </>);
 }
-
-Root.getInitialProps = async (appContext) => {
-  const appProps = await App.getInitialProps(appContext);
-
-  const requiredCookies = [
-    "token",
-    "refreshToken",
-    "tokenType",
-    "user"
-  ];
-  const data = [];
-  const cookieOptions = {
-    req: appContext.ctx.req,
-    res: appContext.ctx.res
-  };
-  let userData;
-
-  if (!hasCookie("token", cookieOptions) || !hasCookie("refreshToken", cookieOptions)) {
-    userData = { notLoggedIn: true };
-  } else {
-    if (!hasCookie("user", cookieOptions)) {
-      requiredCookies.map(c => deleteCookie(c, cookieOptions));
-
-      userData = { notLoggedIn: true };
-    } else {
-      try {
-        userData = JSON.parse(getCookie("user", cookieOptions));
-      } catch {
-        requiredCookies.map(c => deleteCookie(c, cookieOptions));
-
-        userData = { notLoggedIn: true };
-      }
-    }
-  }
-
-  return {
-    ...appProps,
-    userData: {
-      ...userData,
-      locale: appContext.ctx.locale || "en"
-    },
-  };
-};
 
 export default Root;

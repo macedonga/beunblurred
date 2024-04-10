@@ -90,7 +90,7 @@ function Root({ Component, pageProps, userData }) {
           }}
         />
 
-        <Component {...pageProps} locale={userData.locale} />
+        <Component {...pageProps} locale={userData?.locale || "en"} />
       </Layout>
     </TolgeeProvider>
   </>);

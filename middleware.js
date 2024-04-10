@@ -37,14 +37,14 @@ export async function middleware(req) {
     if (!!preferredLanguage) {
         if (urlLocale != preferredLanguage) {
             return NextResponse.redirect(
-                new URL(`/${preferredLanguage}${req.nextUrl.pathname}${req.nextUrl.search}`, req.url)
+                new URL(`/${preferredLanguage}${req.nextUrl.pathname}${req.nextUrl.search || ""}`, req.url)
             );
         }
         return;
     } else {
         if (urlLocale !== browserLanguage) {
             return NextResponse.redirect(
-                new URL(`/${browserLanguage}${req.nextUrl.pathname}${req.nextUrl.search}`, req.url)
+                new URL(`/${browserLanguage}${req.nextUrl.pathname}${req.nextUrl.search || ""}`, req.url)
             );
         }
         return;

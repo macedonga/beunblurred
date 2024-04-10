@@ -18,7 +18,7 @@ export default function Layout({ children, user }) {
 
     const [Greeting, setGreeting] = useState("Good morning");
     const [ShowPlayStorePopup, setShowPlayStorePopup] = useState(false);
-    const [isTWAInstalled, setIsTWAInstalled] = useState(true);
+    const [isTWAInstalled, setIsTWAInstalled] = useState(false);
     const [IsAndroid, setIsAndroid] = useState(false);
     const [Links, setLinks] = useState([
         {
@@ -123,11 +123,11 @@ export default function Layout({ children, user }) {
                             <Transition
                                 as={Fragment}
                                 enter="transition ease-out duration-100"
-                                enterFrom="transform opacity-0 scale-95"
-                                enterTo="transform opacity-100 scale-100"
+                                enterFrom="transform opacity-0 -translate-y-10"
+                                enterTo="transform opacity-100 translate-y-0"
                                 leave="transition ease-in duration-75"
-                                leaveFrom="transform opacity-100 scale-100"
-                                leaveTo="transform opacity-0 scale-95"
+                                leaveFrom="transform opacity-100 translate-y-0"
+                                leaveTo="transform opacity-0 -translate-y-10"
                             >
                                 <Menu.Items
                                     className={`

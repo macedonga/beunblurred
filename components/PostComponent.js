@@ -699,7 +699,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             }
 
             {
-                (isDiscovery ? PostData : PostData.posts[PostIndex]).location &&
+                !isMemory && (isDiscovery ? PostData : PostData.posts[PostIndex]).location &&
                 <a
                     href={`
                         https://www.google.com/maps/search/?api=1&query=

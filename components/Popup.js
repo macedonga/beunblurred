@@ -43,10 +43,10 @@ export default function Popup({
                     <div className="flex min-h-full items-center justify-center text-center">
                         <Transition.Child
                             as={Fragment}
-                            enter="ease-out duration-300"
+                            enter="ease-out duration-100"
                             enterFrom="bottom-0 opacity-0 lg:scale-95 translate-y-10 lg:translate-y-0 translate-x-0"
                             enterTo="opacity-100 lg:scale-100 translate-y-0 translate-x-0"
-                            leave="ease-in duration-200"
+                            leave="ease-in duration-75"
                             leaveFrom="opacity-100 lg:scale-100 translate-y-0 translate-x-0"
                             leaveTo="opacity-0 lg:scale-95 translate-y-10 lg:translate-y-0 translate-x-0"
                         >

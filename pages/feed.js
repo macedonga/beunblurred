@@ -15,7 +15,7 @@ export default function Feed(props) {
     const [Data, setData] = useState({
         ...props.feed,
         // really lazy way to fix the sorting issue lol
-        friendsPosts: props.feed.friendsPosts.sort((a, b) => {
+        friendsPosts: (props?.feed?.friendsPosts || [])?.sort((a, b) => {
             return new Date(b.posts[b.posts.length - 1].takenAt) + new Date(a.posts[a.posts.length - 1].takenAt);
         }).reverse()
     });
@@ -39,16 +39,16 @@ export default function Feed(props) {
         <div
             className="relative p-4 rounded-lg"
             style={{
-                backgroundImage: `url(${props.user.profilePicture?.url})`,
+                backgroundImage: `url(${props?.user?.profilePicture?.url})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}
         >
             <div className="backdrop-blur-3xl bg-black/25 absolute inset-0 rounded-lg z-[1]" />
             <div className="z-[2] relative">
-                <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
+                <h1 className="text-xl font-medium">{Greeting} {props?.user?.fullname || props?.user?.username}!</h1>
                 <p className="text-sm text-white/70">
-                    {Data.friendsPosts.length} <T keyName="friendsPostedBereal" />
+                    {Data?.friendsPosts?.length} <T keyName="friendsPostedBereal" />
                 </p>
             </div>
         </div>
@@ -57,7 +57,7 @@ export default function Feed(props) {
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}
         >
             {
-                Data.friendsPosts.map((friendPost, index) => (
+                Data?.friendsPosts?.map((friendPost, index) => (
                     <PostComponent
                         key={index}
                         data={friendPost}

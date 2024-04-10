@@ -74,14 +74,14 @@ export default function Discovery(props) {
         <div
             className="relative p-4 rounded-lg"
             style={{
-                backgroundImage: `url(${props.user.profilePicture?.url})`,
+                backgroundImage: `url(${props?.user?.profilePicture?.url})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}
         >
             <div className="backdrop-blur-3xl bg-black/25 absolute inset-0 rounded-lg z-[1]" />
             <div className="z-[2] relative">
-                <h1 className="text-xl font-medium">{Greeting} {props.user.fullname || props.user.username}!</h1>
+                <h1 className="text-xl font-medium">{Greeting} {props?.user?.fullname || props?.user?.username}!</h1>
                 <p className="text-sm text-white/70">
                     <T keyName="discoveryFeedSubtitle" />
                 </p>

@@ -29,10 +29,10 @@ export default function User(props) {
                 rounded-lg lg:p-6 p-4 min-w-0
             `}
         >
-            {props.user.profilePicture?.url ?
+            {props?.user?.profilePicture?.url ?
                 <img
                     className="w-48 h-48 rounded-lg mx-auto border-black border-2"
-                    src={props.user.profilePicture?.url}
+                    src={props?.user?.profilePicture?.url}
                     alt="Profile picture"
                 />
                 :

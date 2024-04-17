@@ -55,7 +55,7 @@ const tolgee = Tolgee()
 function Root({ Component, pageProps }) {
   const router = useRouter();
   const [userData, setUserData] = useState({
-    locale: router.locale || "en",
+    locale: router.locale,
     loading: true
   })
   const ssrTolgee = useTolgeeSSR(tolgee, router.locale);
@@ -72,6 +72,29 @@ function Root({ Component, pageProps }) {
     NProgress.done();
     setUserData(o => ({ ...o, loading: false }));
   });
+
+  useEffect(() => {
+    // Detect the browser's preferred language
+    const browserLang = navigator.language || navigator.userLanguage;
+    const supportedLocales = ["en", "it", "de", "es", "fr", "nl", "pl"];
+    const preferredLanguage = getCookie("preferredLanguage");
+    let detectedLocale = "en"; // fallback to "en" if the browser's language is not supported
+
+    if (preferredLanguage) {
+      if (supportedLocales.includes(preferredLanguage)) {
+        detectedLocale = preferredLanguage;
+      }
+    } else {
+      if (supportedLocales.includes(browserLang)) {
+        detectedLocale = browserLang;
+      }
+    }
+
+    if (router.locale !== detectedLocale) {
+      setUserData(o => ({ ...o, locale: detectedLocale }));
+      router.push(router.pathname, router.pathname, { locale: detectedLocale });
+    }
+  }, [router.pathname]);
 
   useEffect(() => {
     const requiredCookies = [
@@ -103,7 +126,6 @@ function Root({ Component, pageProps }) {
 
     setUserData({
       ...ud,
-      locale: router.locale || "en",
       loading: false
     });
 

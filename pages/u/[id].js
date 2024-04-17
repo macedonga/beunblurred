@@ -230,8 +230,6 @@ export async function getServerSideProps({ req, res, params }) {
         }
     }
 
-    console.log(props)
-
     return {
         props: JSON.parse(JSON.stringify(props))
     };

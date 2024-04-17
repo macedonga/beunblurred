@@ -10,8 +10,6 @@ import { T, useTranslate } from "@tolgee/react";
 import checkAuth from "@/utils/checkAuth";
 
 export default function Memories(props) {
-
-    console.log(props)
     const { t } = useTranslate();
     const [Greeting, setGreeting] = useState(t("gm"));
     const [Data, setData] = useState(

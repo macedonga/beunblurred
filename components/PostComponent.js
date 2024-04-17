@@ -641,9 +641,9 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                         className="bg-black/50 p-4 rounded backdrop-blur"
                     >
                         <p className="text-sm text-white text-center relative items-center flex justify-center">
-                            <MusicalNoteIcon className="h-5 w-5 inline-flex absolute left-0" />
+                            <MusicalNoteIcon className="h-5 w-5 inline-flex" />
                             {" "}
-                            <span className="font-medium">
+                            <span className="font-medium flex-grow">
                                 {(isDiscovery ? PostData : PostData.posts[PostIndex])?.music?.track}{" - "}
                                 {(isDiscovery ? PostData : PostData.posts[PostIndex])?.music?.artist}
                             </span>
@@ -709,9 +709,9 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     target="_blank"
                     rel="noreferrer"
                 >
-                    <div className="bg-white/5 rounded-lg cursor-pointer p-4 relative items-center">
-                        <MapPinIcon className="h-5 w-5 inline-flex absolute" />
-                        <p className="text-sm text-white text-center">
+                    <div className="bg-white/5 rounded-lg cursor-pointer p-4 relative items-center flex">
+                        <MapPinIcon className="h-5 w-5 inline-flex" />
+                        <p className="text-sm text-white text-center flex-grow">
                             {(isDiscovery ? PostData : PostData.posts[PostIndex]).location.name || "Open on Google Maps"}
                         </p>
                     </div>

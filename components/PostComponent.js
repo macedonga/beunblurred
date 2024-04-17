@@ -3,6 +3,7 @@ import ExifReader from "exifreader";
 import { format, register } from "timeago.js";
 import * as TimeAgoLanguages from "timeago.js/lib/lang/";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { T, useTranslate } from "@tolgee/react";
 
 import {
@@ -18,11 +19,12 @@ import BTSIcon from "@/assets/BTSIcon";
 
 export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     const { t } = useTranslate();
+    const router = useRouter();
 
     for (const lang in TimeAgoLanguages) {
         register(lang, TimeAgoLanguages[lang]);
     }
-    
+
     const RealMojisContainer = useRef(null);
     const CanvasRef = useRef(null);
     const BTSVideoRef = useRef(null);
@@ -307,6 +309,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
         <Popup
             title={"postOptions"}
+            titleParams={{ username: PostData.user.username }}
             show={ShowOptionsMenu}
             onClose={() => {
                 if (LoadingOptionIndex.length === 0)
@@ -754,7 +757,10 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                         (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.map((realmoji, index) => (
                             <div
                                 key={index}
-                                className="w-20"
+                                className="w-20 cursor-pointer"
+                                onClick={() => {
+                                    router.push(`/u/${PostData.user.id}`);
+                                }}
                             >
                                 <div className="relative overflow-visible w-20 h-20">
                                     <img
@@ -764,7 +770,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                         className="rounded-full border-2 border-white/50 aspect-square"
                                     />
 
-                                    <span className="absolute text-4xl -bottom-2 -right-2">
+                                    <span className="absolute text-3xl -bottom-2 -right-1">
                                         {realmoji.emoji}
                                     </span>
                                 </div>

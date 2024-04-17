@@ -12,7 +12,8 @@ export default function Popup({
     customPanelClassname,
     closeButtonText,
     dontCloseOnOverlayClick,
-    loadingDisabled
+    loadingDisabled,
+    titleParams = {}
 }) {
     const { t } = useTranslate();
 
@@ -65,12 +66,12 @@ export default function Popup({
                                         as="h2"
                                         className={"m-0 text-center text-2xl font-bold"}
                                     >
-                                        {t(title)}
+                                        <T keyName={title} params={titleParams} />
                                     </Dialog.Title>
                                     <p
                                         className={"m-0 text-center opacity-75 text-sm mt-2"}
                                     >
-                                        {t(description)}
+                                        <T keyName={description} />
                                     </p>
                                 </div>
 

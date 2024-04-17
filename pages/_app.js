@@ -92,7 +92,8 @@ function Root({ Component, pageProps }) {
 
     if (router.locale !== detectedLocale) {
       setUserData(o => ({ ...o, locale: detectedLocale }));
-      router.push(router.pathname, router.pathname, { locale: detectedLocale });
+      // get actual url 
+      router.push(router.asPath, router.asPath, { locale: detectedLocale });
     }
   }, [router.pathname]);
 

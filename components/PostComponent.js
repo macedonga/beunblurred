@@ -759,7 +759,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                 key={index}
                                 className="w-20 cursor-pointer"
                                 onClick={() => {
-                                    router.push(`/u/${PostData.user.id}`);
+                                    router.push(`/u/${realmoji.user.id}`);
                                 }}
                             >
                                 <div className="relative overflow-visible w-20 h-20">

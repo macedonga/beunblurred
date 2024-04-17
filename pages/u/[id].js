@@ -194,9 +194,21 @@ export default function User(props) {
     </>)
 }
 
-export async function getServerSideProps({ req, res, params }) {
+export async function getServerSideProps({ req, res, params, ...ctx }) {
     const authCheck = await checkAuth(req, res);
     if (authCheck) return authCheck;
+
+    const loggedInUser = JSON.parse(getCookie("user", { req, res }));
+
+    if (params.id == loggedInUser.id) {
+        return {
+            redirect: {
+                destination: "/u/me",
+                permanent: false,
+                locale: ctx.locale
+            },
+        };
+    }
 
     let props;
     if (hasCookie("testMode", { req, res })) {

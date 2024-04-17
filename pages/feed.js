@@ -25,10 +25,10 @@ export default function Feed(props) {
         var curHr = today.getHours()
         let greeting;
 
-        if (curHr < 12) greeting = t("gm");
-        else if (curHr < 18) greeting = t("ga");
-        else if (curHr < 21) greeting = t("ge");
-        else greeting = t("gn");
+        if (curHr < 12) greeting = "gm";
+        else if (curHr < 18) greeting = "ga";
+        else if (curHr < 21) greeting = "ge";
+        else greeting = "gn";
 
         setGreeting(greeting);
     }, []);
@@ -46,7 +46,7 @@ export default function Feed(props) {
         >
             <div className="backdrop-blur-3xl bg-black/25 absolute inset-0 rounded-lg z-[1]" />
             <div className="z-[2] relative">
-                <h1 className="text-xl font-medium">{Greeting} {props?.user?.fullname || props?.user?.username}!</h1>
+                <h1 className="text-xl font-medium"><T keyName={Greeting} /> {props?.user?.fullname || props?.user?.username}!</h1>
                 <p className="text-sm text-white/70">
                     {Data?.friendsPosts?.length} <T keyName="friendsPostedBereal" />
                 </p>

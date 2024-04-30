@@ -5,6 +5,8 @@ import * as TimeAgoLanguages from "timeago.js/lib/lang/";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { T, useTranslate } from "@tolgee/react";
+import cookieCutter from "cookie-cutter";
+import Notification from "./Notification";
 
 import {
     ChevronLeftIcon,
@@ -83,6 +85,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         }
     ]);
     const [LoadingOptionIndex, setLoadingOptionIndex] = useState([]);
+    const [ErrorData, setErrorData] = useState({ show: false });
+    const [LoadingPostingComment, setLoadingPostingComment] = useState(false);
 
     const downloadImage = async (main) => {
         const url = main ? (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url) : (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url);
@@ -124,7 +128,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const mainBlob = await mainRes.blob();
         const secondaryBlob = await secondaryRes.blob();
 
-        // Stole and modified from: https://github.com/s-alad/toofake/blob/main/new/client/pages/memories/index.tsx#L206
+        // Stolen and modified from: https://github.com/s-alad/toofake/blob/main/new/client/pages/memories/index.tsx#L206
         let primaryImage = await createImageBitmap(await mainBlob);
         let secondaryImage = await createImageBitmap(await secondaryBlob);
 
@@ -277,6 +281,65 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         BTSVideoRef.current.currentTime = 0;
     };
 
+    const sendComment = async (e) => {
+        e.preventDefault();
+
+        let newPostData = { ...PostData };
+        if (!isDiscovery) {
+            newPostData = PostData.posts[PostIndex];
+        }
+
+        const comment = e.target.comment.value;
+        const user = JSON.parse(cookieCutter.get("user"));
+
+        if (!comment)
+            return setErrorData({
+                show: true,
+                message: "Please enter a comment."
+            });
+
+        try {
+            setLoadingPostingComment(true);
+            await fetch("/api/comment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    postId: newPostData.id,
+                    postUserId: PostData.user.id,
+                    comment: comment
+                })
+            });
+            setLoadingPostingComment(false);
+
+            newPostData.comments.push({
+                id: new Date().getTime(),
+                user: {
+                    username: user.username,
+                },
+                content: comment
+            });
+
+            setPostData((prev) => {
+                let newData = { ...prev };
+                if (!isDiscovery) newData.posts[PostIndex] = newPostData;
+                else newData = newPostData;
+                return newData;
+            });
+
+            e.target.comment.value = "";
+
+        } catch (e) {
+            setLoadingPostingComment(false);
+            setErrorData({
+                show: true,
+                message: e.response?.data?.error || "An error occurred while trying to post the comment. Please try again later."
+            });
+            console.error("Error occured while commenting!", e);
+        }
+    };
+
     useEffect(() => {
         if (!RealMojisContainer.current) return;
 
@@ -301,6 +364,15 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     }, [PostIndex]);
 
     return (<>
+        <Notification
+            type={"error"}
+            message={ErrorData.message}
+            show={ErrorData.show}
+            timeout={3}
+            exit={() => setErrorData(o => ({ ...o, show: false }))}
+        />
+
+
         <canvas
             id="combined-render-canvas"
             className="hidden"
@@ -721,15 +793,14 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 </a>
             }
 
-            {
-                ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || (isDiscovery ? PostData : PostData.posts[PostIndex])?.comments?.length > 0) &&
-                <div className="bg-white/5 rounded-lg py-2 px-4">
+            <div className="bg-white/5 rounded-lg">
+                <div className="py-2 px-4">
                     <p className="text-sm text-white">
                         <span className="font-semibold">{PostData.user.username}</span>{" "}
                         <span className={!(isDiscovery ? PostData : PostData.posts[PostIndex]).caption ? "italic opacity-80 font-light" : "not-italic"}>
                             <span dangerouslySetInnerHTML={{
                                 __html:
-                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || "No caption")
+                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || t("noCaption"))
                                         .replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>"
                                         )
                             }} />
@@ -745,7 +816,24 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                         ))
                     }
                 </div>
-            }
+
+                <form
+                    onSubmit={sendComment}
+                    className="bg-white/5 rounded-b-lg relative flex border-t-2 border-white/10 divide-x-2 divide-white/10"
+                >
+                    <input
+                        id="comment"
+                        placeholder={t("commentPlaceholder")}
+                        className={`
+                            bg-transparent placeholder:text-white/50 text-sm py-2 px-4 w-full
+                            outline-none focus:placeholder:text-white/75 transition-colors
+                        `}
+                    />
+                    <button className={`px-4 text-sm font-semibold${LoadingPostingComment ? " animate-pulse": ""}`} type="submit" disabled={LoadingPostingComment}>
+                        <T keyName={LoadingPostingComment ? "loading" : "comment"} />
+                    </button>
+                </form>
+            </div>
 
             {
                 (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0 &&

@@ -6,7 +6,7 @@ const fetchSignature = async () => {
     return res.data;
 };
 
-const requestAuthenticated = async (endpoint, request, response) => {
+const requestAuthenticated = async (endpoint, request, response, method = "get", body = null) => {
     const data = [];
     const requiredCookies = [
         "token",
@@ -29,7 +29,12 @@ const requestAuthenticated = async (endpoint, request, response) => {
     };
 
     try {
-        const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
+        const res = await axios({
+            "method": method,
+            "url": "https://mobile.bereal.com/api/" + endpoint,
+            "headers": options.headers,
+            "data": body
+        });
 
         return res;
     } catch (e) {

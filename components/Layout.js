@@ -2,8 +2,8 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
-import { Menu, Transition } from '@headlessui/react'
-import { Bars3Icon } from "@heroicons/react/20/solid";
+import { Menu, Transition } from "@headlessui/react";
+import { Bars3Icon, ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { T, useTranslate } from "@tolgee/react";
 
 import Popup from "./Popup";
@@ -15,12 +15,7 @@ const APPSTORE_LINK = "https://play.app.goo.gl/?link=https://play.google.com/sto
 
 export default function Layout({ children, user }) {
     const { t } = useTranslate();
-
-    const [Greeting, setGreeting] = useState("Good morning");
-    const [ShowPlayStorePopup, setShowPlayStorePopup] = useState(false);
-    const [isTWAInstalled, setIsTWAInstalled] = useState(false);
-    const [IsAndroid, setIsAndroid] = useState(false);
-    const [Links, setLinks] = useState([
+    const BASE_LINKS = [
         {
             name: t("home"),
             href: "/feed"
@@ -45,7 +40,13 @@ export default function Layout({ children, user }) {
             name: t("languageSelector"),
             href: "/language"
         }
-    ]);
+    ];
+
+    const [Greeting, setGreeting] = useState("Good morning");
+    const [ShowPlayStorePopup, setShowPlayStorePopup] = useState(false);
+    const [isTWAInstalled, setIsTWAInstalled] = useState(false);
+    const [IsAndroid, setIsAndroid] = useState(false);
+    const [Links, setLinks] = useState(BASE_LINKS);
 
     useEffect(() => {
         var today = new Date()
@@ -72,7 +73,7 @@ export default function Layout({ children, user }) {
             setShowPlayStorePopup(localStorage.getItem("showPlayStorePopup") !== "false");
 
             if (android && !isInstalled) {
-                setLinks([...Links, {
+                setLinks([...BASE_LINKS, {
                     name: t("installAppHeader"),
                     href: APPSTORE_LINK,
                     external: true
@@ -82,7 +83,7 @@ export default function Layout({ children, user }) {
                     href: "/logout"
                 }]);
             } else {
-                setLinks([...Links,
+                setLinks([...BASE_LINKS,
                 {
                     name: t("github"),
                     href: "/github"
@@ -180,7 +181,7 @@ export default function Layout({ children, user }) {
                         </Menu>
 
                         <Link href="/feed">
-                            <h1 className="lg:text-4xl text-2xl font-bold text-center mx-auto">
+                            <h1 className={`lg:text-4xl text-2xl font-bold text-center mx-auto ${isTWAInstalled ? "font-comic-sans" : ""}`}>
                                 BeUnblurred.
                             </h1>
                         </Link>
@@ -196,14 +197,27 @@ export default function Layout({ children, user }) {
                 )
             }
             <main className="lg:px-0 px-4 py-8">
-                {children}
+                {
+                    isTWAInstalled && (
+                        <div className="p-4 rounded-lg bg-red-500/70 text-white/80 flex flex-col items-center">
+                            <ExclamationTriangleIcon className="h-12 w-12" />
+                            <p className="text-center mt-2">
+                                <T keyName="footerWarningApp" />
+                            </p>
+                        </div>
+                    )
+                }
+
+                <div className={isTWAInstalled ? "mt-4" : ""}>
+                    {children}
+                </div>
             </main>
 
             <footer
                 className={`
                     mt-auto lg:max-w-xl mx-auto w-full bg-[#0d0d0d]
-                    py-8 lg:px-8 px-4 text-sm text-center lg:rounded-t-lg
-                    border-t-2 lg:border-x-2 border-white/10 ${inter.className}
+                    py-8 lg:px-8 px-4 text-center lg:rounded-t-lg
+                    border-t-2 lg:border-x-2 border-white/10 ${isTWAInstalled ? "font-comic-sans" : inter.className}
                 `}
             >
                 <p>
@@ -211,7 +225,6 @@ export default function Layout({ children, user }) {
                     <br />
                     {
                         isTWAInstalled ? (<>
-                            BeUnblurred's{" "}
                             <a
                                 href="https://i.marco.win/beunblurred-privacy.txt"
                                 className="underline decoration-dashed hover:opacity-75 transition-all"

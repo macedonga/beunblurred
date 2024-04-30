@@ -29,3 +29,7 @@ body {
 #__next {
   @apply min-h-screen flex flex-col lg:justify-start justify-between;
 }
+
+.font-comic-sans {
+  font-family: 'Comic Sans MS', sans-serif;
+}

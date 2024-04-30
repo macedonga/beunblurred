@@ -86,7 +86,7 @@ export default function Popup({
                                         `}
                                         onClick={onClose}
                                     >
-                                        {closeButtonText || t("close")}
+                                        <T keyName={closeButtonText || "close"} />
                                     </button>
                                 </div>
                             </Dialog.Panel>

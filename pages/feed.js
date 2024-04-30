@@ -16,8 +16,8 @@ export default function Feed(props) {
         ...props.feed,
         // really lazy way to fix the sorting issue lol
         friendsPosts: (props?.feed?.friendsPosts || [])?.sort((a, b) => {
-            return new Date(b.posts[b.posts.length - 1].takenAt) + new Date(a.posts[a.posts.length - 1].takenAt);
-        }).reverse()
+            return new Date(b.posts[b.posts.length - 1].takenAt) - new Date(a.posts[a.posts.length - 1].takenAt);
+        })
     });
 
     useEffect(() => {

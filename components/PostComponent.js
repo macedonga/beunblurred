@@ -246,6 +246,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     };
 
     const fetchLocation = async (postIndex) => {
+        if (isMemory) return;
+        
         const url = new URL("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode");
         url.searchParams.append("location", `
             ${isDiscovery ? PostData.location._longitude : PostData.posts[PostIndex].location.longitude},

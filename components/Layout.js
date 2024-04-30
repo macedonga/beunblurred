@@ -17,27 +17,27 @@ export default function Layout({ children, user }) {
     const { t } = useTranslate();
     const BASE_LINKS = [
         {
-            name: t("home"),
+            name: "home",
             href: "/feed"
         },
         {
-            name: t("yourProfile"),
+            name: "yourProfile",
             href: "/u/me"
         },
         {
-            name: t("memoriesFeed"),
+            name: "memoriesFeed",
             href: "/memories"
         },
         {
-            name: t("discoveryFeed"),
+            name: "discoveryFeed",
             href: "/discovery"
         },
         {
-            name: t("fofFeed"),
+            name: "fofFeed",
             href: "/fof"
         },
         {
-            name: t("languageSelector"),
+            name: "languageSelector",
             href: "/language"
         }
     ];
@@ -53,10 +53,10 @@ export default function Layout({ children, user }) {
         var curHr = today.getHours()
         let greeting;
 
-        if (curHr < 12) greeting = t("gm");
-        else if (curHr < 18) greeting = t("ga");
-        else if (curHr < 21) greeting = t("ge");
-        else greeting = t("gn");
+        if (curHr < 12) greeting = "gm";
+        else if (curHr < 18) greeting = "ga";
+        else if (curHr < 21) greeting = "ge";
+        else greeting = "gn";
 
         setGreeting(greeting);
 
@@ -74,22 +74,22 @@ export default function Layout({ children, user }) {
 
             if (android && !isInstalled) {
                 setLinks([...BASE_LINKS, {
-                    name: t("installAppHeader"),
+                    name: "installAppHeader",
                     href: APPSTORE_LINK,
                     external: true
                 },
                 {
-                    name: t("logOut"),
+                    name: "logOut",
                     href: "/logout"
                 }]);
             } else {
                 setLinks([...BASE_LINKS,
                 {
-                    name: t("github"),
+                    name: "github",
                     href: "/github"
                 },
                 {
-                    name: t("logOut"),
+                    name: "logOut",
                     href: "/logout"
                 }]);
             }
@@ -107,7 +107,7 @@ export default function Layout({ children, user }) {
                 user.notLoggedIn ? (
                     <Link href="/feed">
                         <header className="py-8 border-b-2 px-4 lg:border-x-2 lg:rounded-b-lg border-white/10 bg-[#0d0d0d]">
-                            <h1 className="text-4xl font-bold text-center">
+                            <h1 className={`text-4xl font-bold text-center ${isTWAInstalled ? "font-comic-sans" : ""}`}>
                                 BeUnblurred.
                             </h1>
                             <p className="text-center mt-1 opacity-75">
@@ -137,7 +137,7 @@ export default function Layout({ children, user }) {
                                     `}
                                 >
                                     <div className="lg:mx-0 mx-4 bg-[#0d0d0d] p-2 rounded-lg border-2 border-white/10">
-                                        <h1 className="text-xl font-medium text-center my-4">👋 {Greeting} {user.fullname || user.username}!</h1>
+                                        <h1 className="text-xl font-medium text-center my-4">👋 <T keyName={Greeting} /> {user.fullname || user.username}!</h1>
                                         {
                                             Links.map((link, index) => (
                                                 <Menu.Item key={index}>
@@ -157,7 +157,7 @@ export default function Layout({ children, user }) {
                                                             } : {})
                                                             }
                                                         >
-                                                            {link.name}
+                                                            <T keyName={link.name} />
                                                         </Link>
                                                     )}
                                                 </Menu.Item>

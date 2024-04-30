@@ -31,6 +31,7 @@ import esLocale from "../i18n/es.json";
 import frLocale from "../i18n/fr.json";
 import nlLocale from "../i18n/nl.json";
 import plLocale from "../i18n/pl.json";
+import heLocale from "../i18n/he.json";
 import Loading from "@/components/Loading";
 
 const tolgee = Tolgee()
@@ -48,7 +49,8 @@ const tolgee = Tolgee()
       es: esLocale,
       fr: frLocale,
       nl: nlLocale,
-      pl: plLocale
+      pl: plLocale,
+      he: heLocale
     },
   });
 
@@ -76,7 +78,7 @@ function Root({ Component, pageProps }) {
   useEffect(() => {
     // Detect the browser's preferred language
     const browserLang = navigator.language || navigator.userLanguage;
-    const supportedLocales = ["en", "it", "de", "es", "fr", "nl", "pl"];
+    const supportedLocales = ["en", "it", "de", "es", "fr", "nl", "pl", "he"];
     const preferredLanguage = getCookie("preferredLanguage");
     let detectedLocale = "en"; // fallback to "en" if the browser's language is not supported
 

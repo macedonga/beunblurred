@@ -8,7 +8,8 @@ import {
     ES,
     FR,
     NL,
-    PL
+    PL,
+    IL
 } from "country-flag-icons/react/3x2";
 
 export default function Error({ statusCode }) {
@@ -57,6 +58,12 @@ export default function Error({ statusCode }) {
             "name": "Polish",
             "nativeName": "Polski",
             "flag": PL
+        },
+        {
+            "code": "he",
+            "name": "Hebrew",
+            "nativeName": "עברית",
+            "flag": IL
         }
     ];
 

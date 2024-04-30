@@ -793,47 +793,50 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 </a>
             }
 
-            <div className="bg-white/5 rounded-lg">
-                <div className="py-2 px-4">
-                    <p className="text-sm text-white">
-                        <span className="font-semibold">{PostData.user.username}</span>{" "}
-                        <span className={!(isDiscovery ? PostData : PostData.posts[PostIndex]).caption ? "italic opacity-80 font-light" : "not-italic"}>
-                            <span dangerouslySetInnerHTML={{
-                                __html:
-                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || t("noCaption"))
-                                        .replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>"
-                                        )
-                            }} />
-                        </span>
-                    </p>
+            {
+                !isMemory &&
+                <div className="bg-white/5 rounded-lg">
+                    <div className="py-2 px-4">
+                        <p className="text-sm text-white">
+                            <span className="font-semibold">{PostData.user.username}</span>{" "}
+                            <span className={!(isDiscovery ? PostData : PostData.posts[PostIndex]).caption ? "italic opacity-80 font-light" : "not-italic"}>
+                                <span dangerouslySetInnerHTML={{
+                                    __html:
+                                        ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || t("noCaption"))
+                                            .replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>"
+                                            )
+                                }} />
+                            </span>
+                        </p>
 
-                    {
-                        (isDiscovery ? PostData : PostData.posts[PostIndex]).comments?.map(c => (
-                            <p className="text-sm text-white ml-4" key={c.id}>
-                                <span className="font-semibold">{c.user?.username}</span>{" "}
-                                <span dangerouslySetInnerHTML={{ __html: c.content.replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>") }} />
-                            </p>
-                        ))
-                    }
+                        {
+                            (isDiscovery ? PostData : PostData.posts[PostIndex]).comments?.map(c => (
+                                <p className="text-sm text-white ml-4" key={c.id}>
+                                    <span className="font-semibold">{c.user?.username}</span>{" "}
+                                    <span dangerouslySetInnerHTML={{ __html: c.content.replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>") }} />
+                                </p>
+                            ))
+                        }
+                    </div>
+
+                    <form
+                        onSubmit={sendComment}
+                        className="bg-white/5 rounded-b-lg relative flex border-t-2 border-white/10 divide-x-2 divide-white/10"
+                    >
+                        <input
+                            id="comment"
+                            placeholder={t("commentPlaceholder")}
+                            className={`
+                                bg-transparent placeholder:text-white/50 text-sm py-2 px-4 w-full
+                                outline-none focus:placeholder:text-white/75 transition-colors
+                            `}
+                        />
+                        <button className={`px-4 text-sm font-semibold${LoadingPostingComment ? " animate-pulse" : ""}`} type="submit" disabled={LoadingPostingComment}>
+                            <T keyName={LoadingPostingComment ? "loading" : "comment"} />
+                        </button>
+                    </form>
                 </div>
-
-                <form
-                    onSubmit={sendComment}
-                    className="bg-white/5 rounded-b-lg relative flex border-t-2 border-white/10 divide-x-2 divide-white/10"
-                >
-                    <input
-                        id="comment"
-                        placeholder={t("commentPlaceholder")}
-                        className={`
-                            bg-transparent placeholder:text-white/50 text-sm py-2 px-4 w-full
-                            outline-none focus:placeholder:text-white/75 transition-colors
-                        `}
-                    />
-                    <button className={`px-4 text-sm font-semibold${LoadingPostingComment ? " animate-pulse": ""}`} type="submit" disabled={LoadingPostingComment}>
-                        <T keyName={LoadingPostingComment ? "loading" : "comment"} />
-                    </button>
-                </form>
-            </div>
+            }
 
             {
                 (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0 &&

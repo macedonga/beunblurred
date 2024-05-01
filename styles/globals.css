@@ -35,3 +35,7 @@ body {
 .font-comic-sans {
   font-family: 'Comic Sans MS', sans-serif !important;
 }
+
+.link {
+  @apply underline decoration-dashed hover:opacity-75 transition-all;
+}

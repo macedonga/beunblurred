@@ -40,6 +40,10 @@ export default function Layout({ children, user }) {
         {
             name: "languageSelector",
             href: "/language"
+        },
+        {
+            name: "donate",
+            href: "/donate"
         }
     ];
 
@@ -231,7 +235,7 @@ export default function Layout({ children, user }) {
                         isTWAInstalled ? (<>
                             <a
                                 href="https://i.marco.win/beunblurred-privacy.txt"
-                                className="underline decoration-dashed hover:opacity-75 transition-all"
+                                className="link"
                             >
                                 Privacy policy
                             </a>
@@ -241,7 +245,7 @@ export default function Layout({ children, user }) {
                                 href="https://marco.win"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="underline decoration-dashed hover:opacity-75 transition-all"
+                                className="link"
                             >
                                 Marco Ceccon
                             </a>.

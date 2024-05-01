@@ -12,6 +12,7 @@ import checkAuth from "@/utils/checkAuth";
 export default function Feed(props) {
     const { t } = useTranslate();
     const [Greeting, setGreeting] = useState(t("gm"));
+    const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
     const [Data, setData] = useState({
         ...props.feed,
         // really lazy way to fix the sorting issue lol
@@ -21,6 +22,14 @@ export default function Feed(props) {
     });
 
     useEffect(() => {
+        if (window) {
+            if (localStorage.getItem("donationDismissed")) {
+                setShouldShowDonationBox(false);
+            } else {
+                setShouldShowDonationBox(true);
+            }
+        }
+
         var today = new Date()
         var curHr = today.getHours()
         let greeting;
@@ -35,6 +44,40 @@ export default function Feed(props) {
 
     return (<>
         <NextSeo title="Friends - Feed" />
+
+
+        {
+            ShouldShowDonationBox && (
+                <div className="rounded-lg bg-white/5 border-2 border-white/10 flex flex-col items-center mb-8">
+                    <div className="p-4">
+                        <p className="text-center text-xl font-semibold">
+                            <T keyName="donationTitleFeed" />
+                        </p>
+
+                        <p className="text-center mt-2">
+                            <T keyName="donationTitle" />
+                        </p>
+                    </div>
+                    <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
+                        <Link
+                            href="/donate"
+                            className="bg-white/5 p-2 rounded-bl-md text-center w-full"
+                        >
+                            <T keyName="donateNow" />
+                        </Link>
+                        <button
+                            onClick={() => {
+                                localStorage.setItem("donationDismissed", "true");
+                                setShouldShowDonationBox(false);
+                            }}
+                            className="bg-white/5 p-2 rounded-br-md text-center w-full"
+                        >
+                            <T keyName="dontDonate" />
+                        </button>
+                    </div>
+                </div>
+            )
+        }
 
         <div
             className="relative p-4 rounded-lg"

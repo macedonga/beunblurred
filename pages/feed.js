@@ -45,23 +45,22 @@ export default function Feed(props) {
     return (<>
         <NextSeo title="Friends - Feed" />
 
-
         {
             ShouldShowDonationBox && (
-                <div className="rounded-lg bg-white/5 border-2 border-white/10 flex flex-col items-center mb-8">
+                <div className="rounded-lg bg-white/5 border-2 border-white/10 flex flex-col items-center lg:mb-8 mb-4">
                     <div className="p-4">
                         <p className="text-center text-xl font-semibold">
                             <T keyName="donationTitleFeed" />
                         </p>
 
-                        <p className="text-center mt-2">
+                        <p className="text-center text-sm mt-2">
                             <T keyName="donationTitle" />
                         </p>
                     </div>
                     <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
                         <Link
                             href="/donate"
-                            className="bg-white/5 p-2 rounded-bl-md text-center w-full"
+                            className="bg-white/5 p-2 rounded-bl-md text-center w-full grid place-items-center text-sm font-semibold"
                         >
                             <T keyName="donateNow" />
                         </Link>
@@ -70,7 +69,7 @@ export default function Feed(props) {
                                 localStorage.setItem("donationDismissed", "true");
                                 setShouldShowDonationBox(false);
                             }}
-                            className="bg-white/5 p-2 rounded-br-md text-center w-full"
+                            className="bg-white/5 p-2 rounded-br-md text-center w-full grid place-items-center text-sm"
                         >
                             <T keyName="dontDonate" />
                         </button>

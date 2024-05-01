@@ -216,7 +216,7 @@ export default function Layout({ children, user }) {
                     )
                 }
 
-                <div className={isTWAInstalled ? "mt-4" : ""}>
+                <div className={isTWAInstalled ? "mt-8" : ""}>
                     {children}
                 </div>
             </main>

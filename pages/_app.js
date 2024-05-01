@@ -35,9 +35,9 @@ import heLocale from "../i18n/he.json";
 import Loading from "@/components/Loading";
 
 const tolgee = Tolgee()
-  .use(FormatIcu())
   .use(DevTools())
   .use(FormatSimple())
+  .use(FormatIcu())
   .init({
     defaultLanguage: "en",
     apiKey: process.env.NEXT_PUBLIC_TOLGEE_API_KEY,

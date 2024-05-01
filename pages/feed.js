@@ -39,7 +39,7 @@ export default function Feed(props) {
         <div
             className="relative p-4 rounded-lg"
             style={{
-                backgroundImage: `url(${props?.user?.profilePicture?.url})`,
+                backgroundImage: `url(/_next/image?url=${props?.user?.profilePicture?.url}&q=1&w=128)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}

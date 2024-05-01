@@ -10,4 +10,4 @@ liberapay: # Replace with a single Liberapay username
 issuehunt: # Replace with a single IssueHunt username
 otechie: # Replace with a single Otechie username
 lfx_crowdfunding: # Replace with a single LFX Crowdfunding project-name e.g., cloud-foundry
-custom: ["https://www.marco.win/donate", "https://paypal.me/macedonga"]
+custom: ["https://www.marco.win/donate", "https://paypal.me/macedonga", "https://www.buymeacoffee.com/macedonga"]

@@ -10,6 +10,7 @@ import { CheckBadgeIcon } from "@heroicons/react/20/solid";
 import { T, useTranslate } from "@tolgee/react";
 import { requestAuthenticated } from "@/utils/requests";
 import checkAuth from "@/utils/checkAuth";
+import Image from "next/image";
 
 export default function User(props) {
     const { t } = useTranslate();
@@ -30,10 +31,13 @@ export default function User(props) {
             `}
         >
             {props?.user?.profilePicture?.url ?
-                <img
+                <Image
                     className="w-48 h-48 rounded-lg mx-auto border-black border-2"
                     src={props?.user?.profilePicture?.url}
                     alt="Profile picture"
+                    width={192}
+                    height={192}
+                    loading="eager"
                 />
                 :
                 <div className="w-48 h-48 rounded-lg bg-white/5 relative border-full border-black justify-center align-middle flex mx-auto">
@@ -160,8 +164,10 @@ export default function User(props) {
                                 <div className="bg-white/5 rounded-lg py-2 px-4 mt-2 flex items-center">
                                     {
                                         friend.profilePicture?.url ?
-                                            <img
+                                            <Image
                                                 className="w-12 h-12 rounded-lg border-black border-2 mr-4"
+                                                height={48}
+                                                width={48}
                                                 src={friend.profilePicture?.url}
                                                 alt="Profile picture"
                                                 onError={(e) => {

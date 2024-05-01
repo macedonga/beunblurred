@@ -18,6 +18,7 @@ import {
 } from "@heroicons/react/20/solid";
 import Popup from "./Popup";
 import BTSIcon from "@/assets/BTSIcon";
+import Image from "next/image";
 
 export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     const { t } = useTranslate();
@@ -433,10 +434,13 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
                     {
                         PostData.user.profilePicture?.url ?
-                            <img
+                            <Image
                                 src={PostData.user.profilePicture?.url}
                                 alt={PostData.user.username}
                                 className="w-14 h-14 border-black border-2 rounded-full"
+                                width={56}
+                                height={56}
+                                loading="eager"
                             />
                             :
                             <div className="w-14 h-14 bg-white/5 relative rounded-full border-full border-black justify-center align-middle flex">
@@ -856,11 +860,13 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                 }}
                             >
                                 <div className="relative overflow-visible w-20 h-20">
-                                    <img
+                                    <Image
                                         src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
                                         alt={`${PostData.user.username} realmoji's`}
                                         title={`Reacted ${format(realmoji.postedAt)}`}
                                         className="rounded-full border-2 border-white/50 aspect-square"
+                                        width={80}
+                                        height={80}
                                     />
 
                                     <span className="absolute text-3xl -bottom-2 -right-1">

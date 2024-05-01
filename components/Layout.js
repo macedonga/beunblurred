@@ -7,6 +7,7 @@ import { Bars3Icon, ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { T, useTranslate } from "@tolgee/react";
 
 import Popup from "./Popup";
+import Image from 'next/image';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -187,10 +188,13 @@ export default function Layout({ children, user }) {
                         </Link>
 
                         <Link href="/u/me">
-                            <img
+                            <Image
                                 src={user.profilePicture?.url}
                                 alt="Avatar"
                                 className="rounded-lg h-12 w-12"
+                                width={48}
+                                height={48}
+                                loading="eager"
                             />
                         </Link>
                     </header>

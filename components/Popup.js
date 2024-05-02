@@ -13,7 +13,8 @@ export default function Popup({
     closeButtonText,
     dontCloseOnOverlayClick,
     loadingDisabled,
-    titleParams = {}
+    titleParams = {},
+    descriptionParams = {}
 }) {
     const { t } = useTranslate();
 
@@ -71,7 +72,7 @@ export default function Popup({
                                     <p
                                         className={"m-0 text-center opacity-75 text-sm mt-2"}
                                     >
-                                        <T keyName={description} />
+                                        <T keyName={description} params={descriptionParams} />
                                     </p>
                                 </div>
 

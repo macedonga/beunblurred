@@ -47,6 +47,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     const [BlobUrlSecondary, setBlobUrlSecondary] = useState(null);
     const [IsAndroid, setIsAndroid] = useState(null);
     const [ShowOptionsMenu, setShowOptionsMenu] = useState(false);
+    const [ShowRealmojisMenu, setShowRealmojisMenu] = useState(false);
+    const [SelectedRealmojiIndex, setSelectedRealmojiIndex] = useState(0);
     const [PostOptions, setPostOptions] = useState([
         {
             id: "main-download",
@@ -248,7 +250,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
     const fetchLocation = async (postIndex) => {
         if (isMemory) return;
-        
+
         const url = new URL("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode");
         url.searchParams.append("location", `
             ${isDiscovery ? PostData.location._longitude : PostData.posts[PostIndex].location.longitude},
@@ -344,19 +346,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     };
 
     useEffect(() => {
-        if (!RealMojisContainer.current) return;
-
-        const onScroll = (e) => {
-            e.preventDefault();
-
-            RealMojisContainer.current.scrollBy({
-                "left": e.deltaY < 0 ? -50 : 50,
-            });
-        };
-
-        RealMojisContainer.current.addEventListener("wheel", onScroll);
         fetchImages(PostIndex);
-    }, [RealMojisContainer]);
+    }, []);
 
     useEffect(() => {
         PostRef.current = PostIndex;
@@ -420,7 +411,120 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             </div>
         </Popup>
 
+        <Popup
+            title={"realmojisMenu"}
+            description={"realmojisMenuDescription"}
+            titleParams={{ username: PostData.user.username }}
+            descriptionParams={{ count: (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length }}
+            show={ShowRealmojisMenu}
+            onClose={() => setShowRealmojisMenu(false)}
+        >
+            <div className="grid gap-2">
+                {
+                    (() => {
+                        const realmojiArray = (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis;
+
+                        return (<>
+                            <div className="grid place-content-center">
+                                <div className="relative overflow-visible my-4">
+                                    <Image
+                                        src={isDiscovery ? realmojiArray[SelectedRealmojiIndex]?.uri : realmojiArray[SelectedRealmojiIndex]?.media?.url}
+                                        alt={`${realmojiArray[SelectedRealmojiIndex]?.user?.username} realmoji's`}
+                                        className="rounded-full border-2 border-white/20 aspect-square"
+                                        width={192}
+                                        height={192}
+                                    />
+                                    <span className="absolute text-5xl bottom-2 -right-4 select-none">
+                                        {realmojiArray[SelectedRealmojiIndex]?.emoji}
+                                    </span>
+                                </div>
+
+                                <Link href={`/u/${realmojiArray[SelectedRealmojiIndex]?.user?.id}`}>
+                                    <p className="text-center text-white text-lg font-semibold">
+                                        {realmojiArray[SelectedRealmojiIndex]?.user?.username}
+                                    </p>
+                                </Link>
+
+                                <p className="text-center text-white/75 font-medium text-sm">
+                                    <T keyName={"reacted"} />{" "}{format(realmojiArray[SelectedRealmojiIndex]?.postedAt, locale)}
+                                </p>
+                            </div>
+
+                            <div className="relative overflow-hidden">
+                                {
+                                    realmojiArray.length > 4 && (
+                                        <div className="lg:grid items-center absolute inset-0 hidden z-10 pointer-events-none">
+                                            <button
+                                                className="absolute h-full left-0 pr-2 bg-gradient-to-r from-[#0d0d0d] to-transparent pointer-events-auto"
+                                                onClick={() => {
+                                                    RealMojisContainer.current.scrollBy({
+                                                        "left": -200,
+                                                        "behavior": "smooth"
+                                                    });
+                                                }}
+                                            >
+                                                <ChevronLeftIcon className="h-6 w-6" />
+                                            </button>
+                                            <button
+                                                className="absolute h-full right-0 pl-2 bg-gradient-to-l from-[#0d0d0d] to-transparent pointer-events-auto"
+                                                onClick={() => {
+                                                    RealMojisContainer.current.scrollBy({
+                                                        "left": 200,
+                                                        "behavior": "smooth"
+                                                    });
+                                                }}
+                                            >
+                                                <ChevronRightIcon className="h-6 w-6" />
+                                            </button>
+                                        </div>
+                                    )
+                                }
+
+                                <div
+                                    ref={RealMojisContainer}
+                                    className={`
+                                        flex mt-4 mb-2 overflow-x-auto scrollbar-hide
+                                        ${realmojiArray.length > 4 ? "lg:px-8" : "justify-evenly"}
+                                    `}
+                                >
+                                    {
+                                        realmojiArray.map((realmoji, index) => (<>
+                                            <div
+                                                key={index}
+                                                className={`w-[72px] cursor-pointer ${index === 0 ? "mr-2" : "mx-2"}`}
+                                                onClick={() => {
+                                                    setSelectedRealmojiIndex(index);
+                                                }}
+                                            >
+                                                <div className="relative overflow-visible w-[72px]">
+                                                    <Image
+                                                        src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
+                                                        alt={`${PostData.user.username} realmoji's`}
+                                                        title={`Reacted ${format(realmoji.postedAt)}`}
+                                                        className="rounded-full border-2 border-white/50 aspect-square"
+                                                        width={72}
+                                                        height={72}
+                                                    />
+
+                                                    <span className="absolute text-2xl -right-2 bottom-0">
+                                                        {realmoji.emoji}
+                                                    </span>
+                                                </div>
+
+                                                <div className={`border-2 ${index === SelectedRealmojiIndex ? "border-white/50" : "border-transparent"} rounded-lg w-1 h-1 mx-auto mt-2`} />
+                                            </div>
+                                        </>))
+                                    }
+                                </div>
+                            </div>
+                        </>);
+                    })()
+                }
+            </div>
+        </Popup>
+
         <div
+            suppressHydrationWarning={true}
             className={
                 isMemory ? "relative" : `
                     flex flex-col lg:gap-y-6 gap-y-4
@@ -430,8 +534,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 `
             }
         >
-            <div className="flex">
-                <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
+            <div className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
+                <Link href={`/u/${PostData.user.id}`} className="flex">
                     {
                         PostData.user.profilePicture?.url ?
                             <Image
@@ -447,59 +551,59 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                 <div className="m-auto text-2xl uppercase font-bold">{PostData.user.username.slice(0, 1)}</div>
                             </div>
                     }
-
-                    <p className="text-sm leading-[1.175] my-auto">
-                        <span className="font-semibold">{PostData.user.username}</span>
-                        <br />
-                        <span className="text-xs text-white/50">
-                            {
-                                PostData.posts[PostIndex].origin === "repost" ?
-                                    t("reposted")
-                                    : t("posted")
-                            }{" "}{(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && t("late")}{" "}
-                            {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt, locale)}
-
-                            {
-                                PostData.posts[PostIndex].origin === "repost" ?
-                                    <>
-                                        {" "}
-                                        <a
-                                            href={`/u/${PostData.posts[PostIndex].parentPostUserId}`}
-                                            className="underline decoration-dashed hover:opacity-75 transition-all"
-                                        >
-                                            <T keyName={"from"} /> @{PostData.posts[PostIndex].parentPostUsername}
-                                        </a>
-                                    </>
-                                    : ""
-                            }
-                            {
-                                (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
-                                    <br />
-                                    {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} {
-                                        (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 ?
-                                            <T keyName="retakes" />
-                                            :
-                                            <T keyName="retake" />
-                                    }
-                                </>
-                            }
-                            {
-                                typeof IsAndroid === "boolean" && <>
-                                    <br />
-                                    {
-                                        IsAndroid ?
-                                            <T keyName="postedFromAndroid" />
-                                            :
-                                            <T keyName="postedFromiOS" />
-                                    }
-                                </>
-                            }
-                        </span>
-                    </p>
                 </Link>
 
+                <p className="text-sm leading-[1.175] my-auto">
+                    <span className="font-semibold">{PostData.user.username}</span>
+                    <br />
+                    <span className="text-xs text-white/50">
+                        {
+                            PostData.posts[PostIndex].origin === "repost" ?
+                                t("reposted")
+                                : t("posted")
+                        }{" "}{(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && t("late")}{" "}
+                        {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt, locale)}
+
+                        {
+                            PostData.posts[PostIndex].origin === "repost" ?
+                                <>
+                                    {" "}
+                                    <a
+                                        href={`/u/${PostData.posts[PostIndex].parentPostUserId}`}
+                                        className="underline decoration-dashed hover:opacity-75 transition-all"
+                                    >
+                                        <T keyName={"from"} /> @{PostData.posts[PostIndex].parentPostUsername}
+                                    </a>
+                                </>
+                                : ""
+                        }
+                        {
+                            (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
+                                <br />
+                                {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} {
+                                    (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 ?
+                                        <T keyName="retakes" />
+                                        :
+                                        <T keyName="retake" />
+                                }
+                            </>
+                        }
+                        {
+                            typeof IsAndroid === "boolean" && <>
+                                <br />
+                                {
+                                    IsAndroid ?
+                                        <T keyName="postedFromAndroid" />
+                                        :
+                                        <T keyName="postedFromiOS" />
+                                }
+                            </>
+                        }
+                    </span>
+                </p>
+
                 <button
-                    className={!isMemory ? "ml-auto my-auto p-2 rounded-lg bg-white/5 border-2 border-white/10" : "hidden"}
+                    className="ml-auto my-auto p-2 rounded-lg bg-white/5 border-2 border-white/10"
                     onClick={() => setShowOptionsMenu(true)}
                 >
                     <Bars3Icon className="h-6 w-6" />
@@ -702,6 +806,37 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                         </div>
                     </>)
                 }
+
+                {
+                    (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0 && (<>
+                        <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
+                            {
+                                (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.slice(0, 3).map((realmoji, index) => (
+                                    <div key={index} className={index == 0 ? "" : "-ml-4"}>
+                                        <Image
+                                            src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
+                                            alt={`${realmoji.user.username} realmoji's`}
+                                            title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
+                                            className="rounded-full border-2 border-black aspect-square"
+                                            width={48}
+                                            height={48}
+                                        />
+                                    </div>
+                                ))
+                            }
+
+                            {
+                                (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.length > 3 && (
+                                    <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
+                                        <p className="text-white/75 text-xl">
+                                            +{((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.length - 3)}
+                                        </p>
+                                    </div>
+                                )
+                            }
+                        </div>
+                    </>)
+                }
             </div>
 
             {
@@ -843,60 +978,21 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     </form>
                 </div>
             }
-
-            {
-                (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0 &&
+            
+            {/* <div>
                 <div
-                    ref={RealMojisContainer}
-                    className="flex gap-x-6 overflow-x-auto scrollbar-hide max-w-max items-center"
+                    className={`
+                        w-20 h-20 rounded-full border-2 border-current aspect-square
+                        flex items-center justify-center text-white/50 hover:text-white/75 transition-colors
+                        cursor-pointer
+                    `}
                 >
-                    {
-                        (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.map((realmoji, index) => (
-                            <div
-                                key={index}
-                                className="w-20 cursor-pointer"
-                                onClick={() => {
-                                    router.push(`/u/${realmoji.user.id}`);
-                                }}
-                            >
-                                <div className="relative overflow-visible w-20 h-20">
-                                    <Image
-                                        src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
-                                        alt={`${PostData.user.username} realmoji's`}
-                                        title={`Reacted ${format(realmoji.postedAt)}`}
-                                        className="rounded-full border-2 border-white/50 aspect-square"
-                                        width={80}
-                                        height={80}
-                                    />
-
-                                    <span className="absolute text-3xl -bottom-2 -right-1">
-                                        {realmoji.emoji}
-                                    </span>
-                                </div>
-
-                                <p className="text-sm text-center mt-2 truncate text-ellipsis overflow-hidden whitespace-nowrap">
-                                    {realmoji.user.username}
-                                </p>
-                            </div>
-                        ))
-                    }
-
-                    {/* <div>
-                        <div
-                            className={`
-                                w-20 h-20 rounded-full border-2 border-current aspect-square
-                                flex items-center justify-center text-white/50 hover:text-white/75 transition-colors
-                                cursor-pointer
-                            `}
-                        >
-                            <PlusIcon className="w-8 h-8 text-current" />
-                        </div>
-                        <p className="text-sm font-medium text-center mt-2 break-words text-white/75">
-                            React
-                        </p>
-                    </div> */}
+                    <PlusIcon className="w-8 h-8 text-current" />
                 </div>
-            }
+                <p className="text-sm font-medium text-center mt-2 break-words text-white/75">
+                    React
+                </p>
+            </div> */}
         </div>
     </>);
 }

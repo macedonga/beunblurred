@@ -357,6 +357,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         }
     }, [PostIndex]);
 
+    console.log(PostData)
+
     return (<>
         <Notification
             type={"error"}
@@ -422,7 +424,13 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             <div className="grid gap-2">
                 {
                     (() => {
-                        const realmojiArray = (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis;
+                        let realmojiArray = (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis || [];
+
+                        if (PostData.user.relationship?.commonFriends) {
+                            realmojiArray = PostData.posts[PostIndex].realmojis.sample;
+                        }
+
+                        console.log(realmojiArray);
 
                         return (<>
                             <div className="grid place-content-center">
@@ -808,10 +816,14 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 }
 
                 {
-                    (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0 && (<>
+                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0)
+                    || (PostData.user.relationship?.commonFriends && PostData.posts[PostIndex].realmojis.sample.length > 0) && (<>
                         <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
                             {
-                                (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.slice(0, 3).map((realmoji, index) => (
+                                (
+                                    (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis ||
+                                    PostData.posts[PostIndex].realmojis.sample
+                                ).slice(0, 3).map((realmoji, index) => (
                                     <div key={index} className={index == 0 ? "" : "-ml-4"}>
                                         <Image
                                             src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
@@ -826,10 +838,11 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                             }
 
                             {
-                                (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.length > 3 && (
+                                ((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis
+                                    || PostData.posts[PostIndex].realmojis.sample).length > 3 && (
                                     <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
                                         <p className="text-white/75 text-xl">
-                                            +{((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.length - 3)}
+                                            +{(((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis || PostData.posts[PostIndex].realmojis.sample).length - 3)}
                                         </p>
                                     </div>
                                 )
@@ -978,7 +991,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     </form>
                 </div>
             }
-            
+
             {/* <div>
                 <div
                     className={`

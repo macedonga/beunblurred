@@ -357,8 +357,6 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         }
     }, [PostIndex]);
 
-    console.log(PostData)
-
     return (<>
         <Notification
             type={"error"}
@@ -816,8 +814,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 }
 
                 {
-                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0)
-                    || (PostData.user.relationship?.commonFriends && PostData.posts[PostIndex].realmojis.sample.length > 0) && (<>
+                    (((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0)
+                    || (PostData.user.relationship?.commonFriends && PostData.posts[PostIndex].realmojis.sample.length > 0)) && (<>
                         <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
                             {
                                 (

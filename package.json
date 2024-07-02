@@ -21,6 +21,8 @@
     "cookies-next": "^2.1.2",
     "country-flag-icons": "^1.5.9",
     "exifreader": "^4.13.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.6.2",
     "next": "^14.1.4",
     "next-pwa": "^5.6.0",
     "next-seo": "^6.1.0",

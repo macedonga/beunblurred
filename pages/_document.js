@@ -5,9 +5,15 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <script id="hydro_config" type="text/javascript">
-          window.Hydro_tagId = "c91104f9-2853-42d3-9026-7af0f03b42d1";
-        </script>
+        <script
+          id="hydro_config"
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.Hydro_tagId = "c91104f9-2853-42d3-9026-7af0f03b42d1";
+            `,
+          }}
+        />
         <script id="hydro_script" src="https://track.hydro.online/"></script>
 
         <link

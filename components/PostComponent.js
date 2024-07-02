@@ -428,8 +428,6 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                             realmojiArray = PostData.posts[PostIndex].realmojis.sample;
                         }
 
-                        console.log(realmojiArray);
-
                         return (<>
                             <div className="grid place-content-center">
                                 <div className="relative overflow-visible my-4">

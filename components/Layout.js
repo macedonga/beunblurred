@@ -73,9 +73,13 @@ export default function Layout({ children, user }) {
                     !!navigator.userAgent.match(/Android/) &&
                     !!window.matchMedia('(display-mode: standalone)').matches
                 );
-            setIsAndroid(android);
-            setIsTWAInstalled(isInstalled);
-            setShowPlayStorePopup(localStorage.getItem("showPlayStorePopup") !== "false");
+            // setIsAndroid(android);
+            // setIsTWAInstalled(isInstalled);
+            // setShowPlayStorePopup(localStorage.getItem("showPlayStorePopup") !== "false");
+
+            setIsAndroid(false);
+            setIsTWAInstalled(false);
+            setShowPlayStorePopup(false);
 
             if (android && !isInstalled) {
                 setLinks([...BASE_LINKS, {
@@ -192,14 +196,22 @@ export default function Layout({ children, user }) {
                         </Link>
 
                         <Link href="/u/me">
-                            <Image
-                                src={user.profilePicture?.url}
-                                alt="Avatar"
-                                className="rounded-lg h-12 w-12"
-                                width={48}
-                                height={48}
-                                loading="eager"
-                            />
+                            {
+                                user.profilePicture?.url ? (
+                                    <Image
+                                        src={user.profilePicture?.url}
+                                        alt="Avatar"
+                                        className="rounded-lg h-12 w-12"
+                                        width={48}
+                                        height={48}
+                                        loading="eager"
+                                    />
+                                ) : (<>
+                                    <div className="w-12 h-12 rounded-lg bg-white/5 relative border-full border-black justify-center align-middle flex mx-auto">
+                                        <div className="m-auto text-2xl uppercase font-bold">{user?.username?.slice(0, 1)}</div>
+                                    </div>
+                                </>)
+                            }
                         </Link>
                     </header>
                 )

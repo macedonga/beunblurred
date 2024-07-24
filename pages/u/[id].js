@@ -89,7 +89,7 @@ export default function User(props) {
         </div>
 
         {
-            props.pinnedMemories && props.pinnedMemories.length > 0 && <>
+            (props.pinnedMemories && props.pinnedMemories.length > 0) && <>
                 <div
                     className={`
                         flex flex-col
@@ -136,7 +136,7 @@ export default function User(props) {
         }
 
         {
-            (props.user.relationship?.friendedAt || props.friends?.total) && <>
+            (props.user.relationship?.friendedAt || props.friends?.total) ? <>
                 <div
                     className={`
                         flex flex-col
@@ -195,7 +195,7 @@ export default function User(props) {
                         ))
                     }
                 </div>
-            </>
+            </> : <></>
         }
     </>)
 }

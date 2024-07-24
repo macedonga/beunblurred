@@ -264,7 +264,10 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const locationData = await fetch(url).then((res) => res.json()).catch((e) => {
             console.error("Couldn't fetch location data.", e);
         });
-        const locationName = locationData.address.Match_addr;
+
+        if (!locationData) return;
+        
+        const locationName = locationData?.address?.Match_addr;
 
         setPostData((prev) => {
             const newData = { ...prev };

@@ -102,7 +102,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
         const fileName = `${PostData.user.username}-${formattedDate}-${main ? "main" : "secondary"}.webp`;
 
-        const response = await fetch("/api/cors?endpoint=" + url);
+        const response = await fetch("_next/image?w=1920&q=100&url=" + url);
         const blobImage = await response.blob();
         const href = URL.createObjectURL(blobImage);
         const anchorElement = document.createElement("a");
@@ -126,8 +126,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
         const fileName = `${PostData.user.username}-${formattedDate}.webp`;
 
-        const mainRes = await fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url));
-        const secondaryRes = await fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url));
+        const mainRes = await fetch("/_next/image?w=1920&q=100&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url));
+        const secondaryRes = await fetch("/_next/image?w=1920&q=100&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url));
         const mainBlob = await mainRes.blob();
         const secondaryBlob = await secondaryRes.blob();
 
@@ -204,7 +204,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         setBlobUrlPrimary(null);
         setBlobUrlSecondary(null);
 
-        fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url), {
+        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url), {
             method: "GET",
             mode: "cors",
             headers: {
@@ -230,7 +230,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             console.error("Something happened converting the blob to blobUrl.", e);
         });
 
-        fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url), {
+        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url), {
             method: "GET",
             mode: "cors",
             headers: {
@@ -266,7 +266,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         });
 
         if (!locationData) return;
-        
+
         const locationName = locationData?.address?.Match_addr;
 
         setPostData((prev) => {
@@ -816,38 +816,38 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
                 {
                     (((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0)
-                    || (PostData.user.relationship?.commonFriends && PostData.posts[PostIndex].realmojis.sample.length > 0)) && (<>
-                        <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
-                            {
-                                (
-                                    (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis ||
-                                    PostData.posts[PostIndex].realmojis.sample
-                                ).slice(0, 3).map((realmoji, index) => (
-                                    <div key={index} className={index == 0 ? "" : "-ml-4"}>
-                                        <Image
-                                            src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
-                                            alt={`${realmoji.user.username} realmoji's`}
-                                            title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
-                                            className="rounded-full border-2 border-black aspect-square"
-                                            width={48}
-                                            height={48}
-                                        />
-                                    </div>
-                                ))
-                            }
+                        || (PostData.user.relationship?.commonFriends && PostData.posts[PostIndex].realmojis.sample.length > 0)) && (<>
+                            <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
+                                {
+                                    (
+                                        (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis ||
+                                        PostData.posts[PostIndex].realmojis.sample
+                                    ).slice(0, 3).map((realmoji, index) => (
+                                        <div key={index} className={index == 0 ? "" : "-ml-4"}>
+                                            <Image
+                                                src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
+                                                alt={`${realmoji.user.username} realmoji's`}
+                                                title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
+                                                className="rounded-full border-2 border-black aspect-square"
+                                                width={48}
+                                                height={48}
+                                            />
+                                        </div>
+                                    ))
+                                }
 
-                            {
-                                ((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis
-                                    || PostData.posts[PostIndex].realmojis.sample).length > 3 && (
-                                    <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
-                                        <p className="text-white/75 text-xl">
-                                            +{(((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis || PostData.posts[PostIndex].realmojis.sample).length - 3)}
-                                        </p>
-                                    </div>
-                                )
-                            }
-                        </div>
-                    </>)
+                                {
+                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis
+                                        || PostData.posts[PostIndex].realmojis.sample).length > 3 && (
+                                        <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
+                                            <p className="text-white/75 text-xl">
+                                                +{(((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis || PostData.posts[PostIndex].realmojis.sample).length - 3)}
+                                            </p>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        </>)
                 }
             </div>
 

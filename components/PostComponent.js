@@ -102,7 +102,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
         const fileName = `${PostData.user.username}-${formattedDate}-${main ? "main" : "secondary"}.webp`;
 
-        const response = await fetch("_next/image?w=1920&q=100&url=" + url);
+        const response = await fetch("/_next/image?w=1920&q=100&url=" + url);
         const blobImage = await response.blob();
         const href = URL.createObjectURL(blobImage);
         const anchorElement = document.createElement("a");

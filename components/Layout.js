@@ -30,6 +30,10 @@ export default function Layout({ children, user }) {
             href: "/u/me"
         },
         {
+            name: t("archiver"),
+            href: "/archiver"
+        },
+        {
             name: t("memoriesFeed"),
             href: "/memories"
         },

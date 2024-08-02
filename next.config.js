@@ -7,12 +7,21 @@ module.exports = withPWA({
   register: true,
   skipWaiting: true,
 })({
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.bereal.network",
+        port: "",
+      }
+    ]
+  },
   reactStrictMode: true,
   i18n: {
-    locales: ["en", "it", "de", "es", "fr", "nl", "pl"],
+    locales: ["en", "it", "de", "es", "fr", "nl", "pl", "he"],
     defaultLocale: "en",
   },
-  trailingSlash: true,
+  trailingSlash: true
 });
 
 // Injected content via Sentry wizard below

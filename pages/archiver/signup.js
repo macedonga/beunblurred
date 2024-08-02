@@ -13,7 +13,7 @@ import clientPromise from "@/utils/mongo";
 import checkAuth from "@/utils/checkAuth";
 import Popup from "@/components/Popup";
 
-export default function Archiver({
+export default function ArchiverSignupPage({
     user,
 }) {
     const router = useRouter();

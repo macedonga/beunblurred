@@ -59,6 +59,7 @@ const updateUser = async (user) => {
                 isMain: post.isMain,
                 takenAt: post.takenAt,
                 btsMedia: post.btsMedia,
+                location: post.location,
             };
 
             data.posts.push(postData);

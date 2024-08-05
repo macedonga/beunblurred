@@ -87,10 +87,11 @@ export default function Popup({
                                             text-center py-2 px-4 w-full rounded-lg outline-none transition-colors bg-white/5 relative border-2 border-white/10
                                             disabled:opacity-50 disabled:cursor-not-allowed
                                         `}
-                                        onClick={onClose}
-                                    >
-                                        <T keyName={closeButtonText || "close"} />
-                                    </button>
+                                            onClick={onClose}
+                                        >
+                                            <T keyName={closeButtonText || "close"} />
+                                        </button>
+                                    </div>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>

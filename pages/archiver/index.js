@@ -13,6 +13,9 @@ import clientPromise from "@/utils/mongo";
 import checkAuth from "@/utils/checkAuth";
 import Popup from "@/components/Popup";
 
+import Stripe from "stripe";
+import { AR } from "country-flag-icons/react/3x2";
+
 export default function ArchiverMainPage({
     user,
     friends,
@@ -158,21 +161,39 @@ export default function ArchiverMainPage({
             <p className="text-sm opacity-75"><T keyName="archiverChangeDate" /></p>
         </button>
 
-        <Link
-            href="/api/archiver/portal"
-        >
-            <button
-                className={`
-                    px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
-                    disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
-                `}
-            >
-                <p>
-                    <T keyName="manageSubscription" />
-                </p>
-                <p className="text-sm opacity-75"><T keyName="manageSubscriptionSubtitles" /></p>
-            </button>
-        </Link>
+        {
+            ArchiverData.subscription ?
+                <Link
+                    href="/api/archiver/portal"
+                >
+                    <button
+                        className={`
+                            px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
+                            disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
+                        `}
+                    >
+                        <p>
+                            <T keyName="manageSubscription" />
+                        </p>
+                        <p className="text-sm opacity-75"><T keyName="manageSubscriptionSubtitles" /></p>
+                    </button>
+                </Link> :
+                <Link
+                    href="/api/archiver/subscribe"
+                >
+                    <button
+                        className={`
+                            px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
+                            disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
+                        `}
+                    >
+                        <p>
+                            <T keyName="subscribeArchiver" />
+                        </p>
+                        <p className="text-sm opacity-75"><T keyName="signupCtaSubtitle" /></p>
+                    </button>
+                </Link>
+        }
 
         {
             Loading && <p className="text-center text-white mt-4">
@@ -335,14 +356,21 @@ export async function getServerSideProps({ req, res }) {
     let archivedToday = postsFromDb.filter((post) => new Date(post.date).toISOString().split("T")[0] === new Date().toISOString().split("T")[0]).map((post) => ({ username: post.from.username, id: post.uid }));
     delete userFromDb._id;
 
-    if (!userFromDb.paid) {
-        await users.updateOne({ id: user.data.id }, { $set: { active: false } });
+    const stripe = Stripe(process.env.STRIPE_API_KEY);
+    const customer = await stripe.customers.retrieve(userFromDb.stripeCustomerId, {
+        expand: ["subscriptions"],
+    });
+
+    if (customer.subscriptions?.data?.length == 0) {
+        await users.updateOne({ id: user.data.id }, { $set: { paid: false, active: false } });
+
         userFromDb = {
             ...userFromDb,
+            paid: false,
             active: false
         };
     }
-
+        
     return {
         props: {
             user: JSON.parse(getCookie("user", { req, res })),
@@ -351,7 +379,8 @@ export async function getServerSideProps({ req, res }) {
             userData: {
                 ...userFromDb,
                 availableDates,
-                archivedToday
+                archivedToday,
+                subscription: customer.subscriptions?.data?.length != 0
             },
         }
     };

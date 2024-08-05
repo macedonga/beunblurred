@@ -35,8 +35,8 @@ export default async function handler(req, res) {
             },
         ],
         mode: "subscription",
-        success_url: "http://localhost:3000/archiver/load",
-        cancel_url: "http://localhost:3000/archiver",
+        success_url: "https://www.beunblurred.co/archiver/load",
+        cancel_url: "https://www.beunblurred.co/archiver",
     });
 
     res.status(200).redirect(session.url);

@@ -21,12 +21,18 @@ export default function ArchiverSignupPage({
 
     const signup = async () => {
         setLoading(true);
-        const res = await axios.get("/api/archiver/signup");
+        try {
+            const res = await axios.get("/api/archiver/signup");
 
-        if (res.status === 200) {
-            // router.push("/archiver");
-            window.location.href = res.data.link;
-        } else {
+            if (res.status === 200) {
+                // router.push("/archiver");
+                window.location.href = res.data.link;
+            } else {
+                alert("An error occured. Please try again later");
+                setLoading(false);
+            }
+        } catch (e) {
+            console.error(e);
             alert("An error occured. Please try again later");
             setLoading(false);
         }

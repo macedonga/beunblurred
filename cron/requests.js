@@ -1,23 +1,11 @@
-import axios from "axios";
-import { getCookie, setCookie } from "cookies-next";
+const axios = require("axios");
 
 const fetchSignature = async () => {
     const res = await axios.get("https://sig.beunblurred.co/get?token=i1w3j4DHDDS82j12");
     return res.data;
 };
 
-const requestAuthenticated = async (endpoint, request, response, method = "get", body = null) => {
-    const data = [];
-    const requiredCookies = [
-        "token",
-        "refreshToken",
-        "tokenType",
-        "tokenExpiration",
-    ];
-
-    for (const cookie of requiredCookies) {
-        data[cookie] = getCookie(cookie, { req: request, res: response });
-    }
+const requestAuthenticated = async (endpoint, data) => {
     let SIGNATURE = await fetchSignature();
 
     const options = {
@@ -31,14 +19,12 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
     };
 
     try {
-        const res = await axios({
-            "method": method,
-            "url": "https://mobile.bereal.com/api/" + endpoint,
-            "headers": options.headers,
-            "data": body
-        });
+        const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
 
-        return res;
+        return {
+            res,
+            refreshed: false
+        };
     } catch (e) {
         // deepcode ignore HardcodedNonCryptoSecret
         const refreshData = await axios.post(
@@ -63,26 +49,20 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
             }
         );
 
-        const setCookieOptions = {
-            req: request,
-            res: response,
-            maxAge: 60 * 60 * 24 * 7 * 3600,
-            path: "/",
-        };
-
-        setCookie("token", refreshData.data.access_token, setCookieOptions);
-        setCookie("refreshToken", refreshData.data.refresh_token, setCookieOptions);
-        setCookie("tokenExpiration", Date.now() + (refreshData.data.expires_in * 1000), setCookieOptions);
-
         options.headers["Authorization"] = `Bearer ${refreshData.data.access_token}`;
 
         const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
 
-        return res;
+        return {
+            res,
+            token: refreshData.data.access_token,
+            refreshToken: refreshData.data.refresh_token,
+            refreshed: true
+        };
     }
 };
 
-export {
+module.exports = {
     fetchSignature,
     requestAuthenticated
 }

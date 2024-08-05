@@ -26,6 +26,10 @@ export default function Layout({ children, user }) {
             href: "/u/me"
         },
         {
+            name: "archiver",
+            href: "/archiver"
+        },
+        {
             name: "memoriesFeed",
             href: "/memories"
         },

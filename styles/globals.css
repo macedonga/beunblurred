@@ -32,8 +32,20 @@ body {
   @apply min-h-screen flex flex-col lg:justify-start justify-between;
 }
 
+.little-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.little-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-lg;
+}
+
+.little-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
 .font-comic-sans {
-  font-family: 'Comic Sans MS', sans-serif !important;
+  font-family: "Comic Sans MS", sans-serif !important;
 }
 
 .link {

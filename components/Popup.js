@@ -14,6 +14,7 @@ export default function Popup({
     dontCloseOnOverlayClick,
     loadingDisabled,
     titleParams = {},
+    containerClassName = "",
     descriptionParams = {}
 }) {
     const { t } = useTranslate();
@@ -76,19 +77,21 @@ export default function Popup({
                                     </p>
                                 </div>
 
-                                <div className="mx-6 mb-2 mt-2">{children}</div>
+                                <div className={containerClassName}>
+                                    <div className="mx-6 mb-2 mt-2">{children}</div>
 
-                                <div className="grid gap-y-4 mb-6 mx-6">
-                                    <button
-                                        disabled={loadingDisabled}
-                                        className={`
+                                    <div className="grid gap-y-4 mb-6 mx-6">
+                                        <button
+                                            disabled={loadingDisabled}
+                                            className={`
                                             text-center py-2 px-4 w-full rounded-lg outline-none transition-colors bg-white/5 relative border-2 border-white/10
                                             disabled:opacity-50 disabled:cursor-not-allowed
                                         `}
-                                        onClick={onClose}
-                                    >
-                                        <T keyName={closeButtonText || "close"} />
-                                    </button>
+                                            onClick={onClose}
+                                        >
+                                            <T keyName={closeButtonText || "close"} />
+                                        </button>
+                                    </div>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>

@@ -16,9 +16,11 @@ import Popup from "@/components/Popup";
 export default function ArchiverSignupPage({
     user,
 }) {
+    const [Loading, setLoading] = useState(false);
     const router = useRouter();
 
     const signup = async () => {
+        setLoading(true);
         const res = await axios.get("/api/archiver/signup");
 
         if (res.status === 200) {
@@ -26,6 +28,7 @@ export default function ArchiverSignupPage({
             window.location.href = res.data.link;
         } else {
             alert("An error occured. Please try again later");
+            setLoading(false);
         }
     };
 
@@ -44,10 +47,11 @@ export default function ArchiverSignupPage({
                 px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
                 disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
             `}
+            disabled={Loading}
             onClick={signup}
         >
             <div className="flex items-center justify-center">
-                <p className="text-xl font-medium"><T keyName={"signupCta"} /></p>
+                <p className="text-xl font-medium"><T keyName={Loading ? "loading" : "signupCta"} /></p>
             </div>
 
             <p className="text-sm opacity-75"><T keyName="signupCtaSubtitle" /></p>

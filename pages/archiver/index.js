@@ -120,9 +120,11 @@ export default function ArchiverMainPage({
 
         <button
             className={`
+                ${ArchiverData.paid ? "" : "opacity-75 cursor-not-allowed"}
                 px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
                 disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
             `}
+            disabled={!ArchiverData.paid}
             onClick={toggleStatus}
         >
             <div className="flex items-center justify-center">
@@ -155,6 +157,22 @@ export default function ArchiverMainPage({
             </p>
             <p className="text-sm opacity-75"><T keyName="archiverChangeDate" /></p>
         </button>
+
+        <Link
+            href="/api/archiver/portal"
+        >
+            <button
+                className={`
+                    px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
+                    disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
+                `}
+            >
+                <p>
+                    <T keyName="manageSubscription" />
+                </p>
+                <p className="text-sm opacity-75"><T keyName="manageSubscriptionSubtitles" /></p>
+            </button>
+        </Link>
 
         {
             Loading && <p className="text-center text-white mt-4">
@@ -316,6 +334,14 @@ export async function getServerSideProps({ req, res }) {
 
     let archivedToday = postsFromDb.filter((post) => new Date(post.date).toISOString().split("T")[0] === new Date().toISOString().split("T")[0]).map((post) => ({ username: post.from.username, id: post.uid }));
     delete userFromDb._id;
+
+    if (!userFromDb.paid) {
+        await users.updateOne({ id: user.data.id }, { $set: { active: false } });
+        userFromDb = {
+            ...userFromDb,
+            active: false
+        };
+    }
 
     return {
         props: {

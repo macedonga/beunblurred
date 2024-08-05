@@ -69,7 +69,7 @@ const updateUser = async (user) => {
     }
 
     for (const moment of insertMoments) {
-        const existingMoment = await postsCollection.findOne({ uid: moment.uid });
+        const existingMoment = await postsCollection.findOne({ uid: moment.uid, id: moment.id });
 
         if (existingMoment) {
             let newPosts = moment.posts.filter((post) => {
@@ -83,7 +83,7 @@ const updateUser = async (user) => {
 
             if (newPosts.length !== 0 || momentFor.length !== existingMoment.for.length) {
                 await postsCollection.updateOne(
-                    { uid: moment.uid },
+                    { uid: moment.uid, id: moment.id },
                     {
                         $set: {
                             posts: existingMoment.posts.concat(newPosts),
@@ -109,7 +109,7 @@ const updateUser = async (user) => {
 
         const db = client.db();
         const usersCollection = db.collection("users");
-        const users = await usersCollection.find({ active: true }).toArray();
+        const users = await usersCollection.find({ active: true, paid: true }).toArray();
         
         for (const user of users) {
             try {

@@ -22,7 +22,8 @@ export default function ArchiverSignupPage({
         const res = await axios.get("/api/archiver/signup");
 
         if (res.status === 200) {
-            router.push("/archiver");
+            // router.push("/archiver");
+            window.location.href = res.data.link;
         } else {
             alert("An error occured. Please try again later");
         }

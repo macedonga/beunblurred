@@ -1,6 +1,7 @@
 import { requestAuthenticated } from "@/utils/requests";
 import clientPromise from "@/utils/mongo";
 import checkAuth from "@/utils/checkAuth";
+import Stripe from "stripe";
 
 import { getCookie } from "cookies-next";
 
@@ -24,16 +25,40 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: "User already exists" });
     }
 
-    // todo: add stripe payment
+    const stripe = Stripe(process.env.STRIPE_API_KEY);
+    const customer = await stripe.customers.create({
+        name: user.data.fullname,
+        metadata: {
+            id: user.data.id,
+            username: user.data.username,
+        }
+    });
+    const session = await stripe.checkout.sessions.create({
+        customer: customer.id,
+        line_items: [
+            {
+                price: process.env.STRIPE_PRODUCT_ID,
+                quantity: 1,
+            },
+        ],
+        mode: "subscription",
+        success_url: "http://localhost:3000/archiver/load",
+        cancel_url: "http://localhost:3000/archiver",
+    });
 
     const userToInsert = {
         id: user.data.id,
         token: getCookie("token", { req, res }),
         refreshToken: getCookie("refreshToken", { req, res }),
-        active: true,
+        active: false,
+        stripeCustomerId: customer.id,
+        paid: false
     };
 
     await users.insertOne(userToInsert);
 
-    res.status(200).json({ message: "Success" });
+    res.status(200).json({
+        message: "Success",
+        link: session.url
+     });
 }

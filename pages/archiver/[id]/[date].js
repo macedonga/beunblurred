@@ -95,15 +95,6 @@ export async function getServerSideProps({ req, res, params }) {
         }
     });
 
-    console.log({
-        for: { $in: [user.data.id] },
-        uid: params.id,
-        date: {
-            $gte: startOfDay,
-            $lt: endOfDay
-        }
-    });
-
     if (!postFromDb) {
         return {
             notFound: true

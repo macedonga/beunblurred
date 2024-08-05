@@ -90,7 +90,7 @@ export default function Feed(props) {
                     </div>
                     <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
                         <Link
-                            href="/donate"
+                            href="/archiver"
                             className="bg-white/5 p-2 rounded-bl-md text-center w-full grid place-items-center text-sm font-semibold"
                         >
                             <T keyName="archiveSubscribeNow" />

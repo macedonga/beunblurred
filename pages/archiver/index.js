@@ -281,7 +281,7 @@ export default function ArchiverMainPage({
                                 key={index}
                                 className="cursor-pointer"
                                 onClick={() => {
-                                    router.push(`/archiver/${post.uid}/${post.id}`)
+                                    router.push(`/archiver/${post.uid}/${ArchiverData.selectedDate}`)
                                 }}
                             >
                                 <div className="py-2 px-4 flex items-center bg-white/5 border-white/10 border-2 rounded-lg">

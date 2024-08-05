@@ -42,6 +42,7 @@ export default async function handler(req, res) {
             },
         ],
         mode: "subscription",
+        allow_promotion_codes: true,
         success_url: "https://www.beunblurred.co/archiver/load",
         cancel_url: "https://www.beunblurred.co/archiver",
     });

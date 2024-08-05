@@ -13,6 +13,7 @@ export default function Feed(props) {
     const { t } = useTranslate();
     const [Greeting, setGreeting] = useState(t("gm"));
     const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
+    const [ShowArchiverBox, setShowArchiverBox] = useState(false);
     const [Data, setData] = useState({
         ...props.feed,
         // really lazy way to fix the sorting issue lol
@@ -23,11 +24,8 @@ export default function Feed(props) {
 
     useEffect(() => {
         if (window) {
-            if (localStorage.getItem("donationDismissed")) {
-                setShouldShowDonationBox(false);
-            } else {
-                setShouldShowDonationBox(true);
-            }
+            setShouldShowDonationBox(!!!localStorage.getItem("donationDismissed"));
+            setShowArchiverBox(!!!localStorage.getItem("archiverDismissed"));
         }
 
         var today = new Date()
@@ -68,6 +66,39 @@ export default function Feed(props) {
                             onClick={() => {
                                 localStorage.setItem("donationDismissed", "true");
                                 setShouldShowDonationBox(false);
+                            }}
+                            className="bg-white/5 p-2 rounded-br-md text-center w-full grid place-items-center text-sm"
+                        >
+                            <T keyName="dontDonate" />
+                        </button>
+                    </div>
+                </div>
+            )
+        }
+
+        {
+            ShowArchiverBox && (
+                <div className="rounded-lg bg-white/5 border-2 border-white/10 flex flex-col items-center lg:mb-8 mb-4">
+                    <div className="p-4">
+                        <p className="text-center text-xl font-semibold">
+                            <T keyName="archiverTitleFeed" />
+                        </p>
+
+                        <p className="text-center text-sm mt-2">
+                            <T keyName="archiverTitleFeedSubtitle" />
+                        </p>
+                    </div>
+                    <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
+                        <Link
+                            href="/donate"
+                            className="bg-white/5 p-2 rounded-bl-md text-center w-full grid place-items-center text-sm font-semibold"
+                        >
+                            <T keyName="archiveSubscribeNow" />
+                        </Link>
+                        <button
+                            onClick={() => {
+                                localStorage.setItem("archiverDismissed", "true");
+                                setShowArchiverBox(false);
                             }}
                             className="bg-white/5 p-2 rounded-br-md text-center w-full grid place-items-center text-sm"
                         >

@@ -2,11 +2,12 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
-import { Menu, Transition } from '@headlessui/react'
-import { Bars3Icon } from "@heroicons/react/20/solid";
+import { Menu, Transition } from "@headlessui/react";
+import { Bars3Icon, ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { T, useTranslate } from "@tolgee/react";
 
 import Popup from "./Popup";
+import Image from 'next/image';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,51 +16,56 @@ const APPSTORE_LINK = "https://play.app.goo.gl/?link=https://play.google.com/sto
 
 export default function Layout({ children, user }) {
     const { t } = useTranslate();
+    const BASE_LINKS = [
+        {
+            name: "home",
+            href: "/feed"
+        },
+        {
+            name: "yourProfile",
+            href: "/u/me"
+        },
+        {
+            name: "archiver",
+            href: "/archiver"
+        },
+        {
+            name: "memoriesFeed",
+            href: "/memories"
+        },
+        {
+            name: "discoveryFeed",
+            href: "/discovery"
+        },
+        {
+            name: "fofFeed",
+            href: "/fof"
+        },
+        {
+            name: "languageSelector",
+            href: "/language"
+        },
+        {
+            name: "donate",
+            href: "/donate"
+        }
+    ];
 
     const [Greeting, setGreeting] = useState("Good morning");
     const [ShowPlayStorePopup, setShowPlayStorePopup] = useState(false);
     const [isTWAInstalled, setIsTWAInstalled] = useState(false);
     const [IsAndroid, setIsAndroid] = useState(false);
-    const [Links, setLinks] = useState([
-        {
-            name: t("home"),
-            href: "/feed"
-        },
-        {
-            name: t("yourProfile"),
-            href: "/u/me"
-        },
-        {
-            name: t("archiver"),
-            href: "/archiver"
-        },
-        {
-            name: t("memoriesFeed"),
-            href: "/memories"
-        },
-        {
-            name: t("discoveryFeed"),
-            href: "/discovery"
-        },
-        {
-            name: t("fofFeed"),
-            href: "/fof"
-        },
-        {
-            name: t("languageSelector"),
-            href: "/language"
-        }
-    ]);
+    const [Links, setLinks] = useState(BASE_LINKS);
 
     useEffect(() => {
         var today = new Date()
         var curHr = today.getHours()
         let greeting;
 
-        if (curHr < 12) greeting = t("gm");
-        else if (curHr < 18) greeting = t("ga");
-        else if (curHr < 21) greeting = t("ge");
-        else greeting = t("gn");
+        if (curHr < 12) greeting = "gm";
+        else if (curHr < 18) greeting = "ga";
+        else if (curHr < 21) greeting = "ge";
+        else greeting = "gn";
 
         setGreeting(greeting);
 
@@ -71,28 +77,32 @@ export default function Layout({ children, user }) {
                     !!navigator.userAgent.match(/Android/) &&
                     !!window.matchMedia('(display-mode: standalone)').matches
                 );
-            setIsAndroid(android);
-            setIsTWAInstalled(isInstalled);
-            setShowPlayStorePopup(localStorage.getItem("showPlayStorePopup") !== "false");
+            // setIsAndroid(android);
+            // setIsTWAInstalled(isInstalled);
+            // setShowPlayStorePopup(localStorage.getItem("showPlayStorePopup") !== "false");
+
+            setIsAndroid(false);
+            setIsTWAInstalled(false);
+            setShowPlayStorePopup(false);
 
             if (android && !isInstalled) {
-                setLinks([...Links, {
-                    name: t("installAppHeader"),
+                setLinks([...BASE_LINKS, {
+                    name: "installAppHeader",
                     href: APPSTORE_LINK,
                     external: true
                 },
                 {
-                    name: t("logOut"),
+                    name: "logOut",
                     href: "/logout"
                 }]);
             } else {
-                setLinks([...Links,
+                setLinks([...BASE_LINKS,
                 {
-                    name: t("github"),
+                    name: "github",
                     href: "/github"
                 },
                 {
-                    name: t("logOut"),
+                    name: "logOut",
                     href: "/logout"
                 }]);
             }
@@ -110,7 +120,7 @@ export default function Layout({ children, user }) {
                 user.notLoggedIn ? (
                     <Link href="/feed">
                         <header className="py-8 border-b-2 px-4 lg:border-x-2 lg:rounded-b-lg border-white/10 bg-[#0d0d0d]">
-                            <h1 className="text-4xl font-bold text-center">
+                            <h1 className={`text-4xl font-bold text-center ${isTWAInstalled ? "font-comic-sans" : ""}`}>
                                 BeUnblurred.
                             </h1>
                             <p className="text-center mt-1 opacity-75">
@@ -140,7 +150,7 @@ export default function Layout({ children, user }) {
                                     `}
                                 >
                                     <div className="lg:mx-0 mx-4 bg-[#0d0d0d] p-2 rounded-lg border-2 border-white/10">
-                                        <h1 className="text-xl font-medium text-center my-4">👋 {Greeting} {user.fullname || user.username}!</h1>
+                                        <h1 className="text-xl font-medium text-center my-4">👋 <T keyName={Greeting} /> {user.fullname || user.username}!</h1>
                                         {
                                             Links.map((link, index) => (
                                                 <Menu.Item key={index}>
@@ -160,7 +170,7 @@ export default function Layout({ children, user }) {
                                                             } : {})
                                                             }
                                                         >
-                                                            {link.name}
+                                                            <T keyName={link.name} />
                                                         </Link>
                                                     )}
                                                 </Menu.Item>
@@ -184,30 +194,54 @@ export default function Layout({ children, user }) {
                         </Menu>
 
                         <Link href="/feed">
-                            <h1 className="lg:text-4xl text-2xl font-bold text-center mx-auto">
+                            <h1 className={`lg:text-4xl text-2xl font-bold text-center mx-auto ${isTWAInstalled ? "font-comic-sans" : ""}`}>
                                 BeUnblurred.
                             </h1>
                         </Link>
 
                         <Link href="/u/me">
-                            <img
-                                src={user.profilePicture?.url}
-                                alt="Avatar"
-                                className="rounded-lg h-12 w-12"
-                            />
+                            {
+                                user.profilePicture?.url ? (
+                                    <Image
+                                        src={user.profilePicture?.url}
+                                        alt="Avatar"
+                                        className="rounded-lg h-12 w-12"
+                                        width={48}
+                                        height={48}
+                                        loading="eager"
+                                    />
+                                ) : (<>
+                                    <div className="w-12 h-12 rounded-lg bg-white/5 relative border-full border-black justify-center align-middle flex mx-auto">
+                                        <div className="m-auto text-2xl uppercase font-bold">{user?.username?.slice(0, 1)}</div>
+                                    </div>
+                                </>)
+                            }
                         </Link>
                     </header>
                 )
             }
             <main className="lg:px-0 px-4 py-8">
-                {children}
+                {
+                    isTWAInstalled && (
+                        <div className="p-4 rounded-lg bg-red-500/70 text-white/80 flex flex-col items-center">
+                            <ExclamationTriangleIcon className="h-12 w-12" />
+                            <p className="text-center mt-2">
+                                <T keyName="footerWarningApp" />
+                            </p>
+                        </div>
+                    )
+                }
+
+                <div className={isTWAInstalled ? "mt-8" : ""}>
+                    {children}
+                </div>
             </main>
 
             <footer
                 className={`
                     mt-auto lg:max-w-xl mx-auto w-full bg-[#0d0d0d]
-                    py-8 lg:px-8 px-4 text-sm text-center lg:rounded-t-lg
-                    border-t-2 lg:border-x-2 border-white/10 ${inter.className}
+                    py-8 lg:px-8 px-4 text-center lg:rounded-t-lg
+                    border-t-2 lg:border-x-2 border-white/10 ${isTWAInstalled ? "font-comic-sans" : inter.className}
                 `}
             >
                 <p>
@@ -215,10 +249,9 @@ export default function Layout({ children, user }) {
                     <br />
                     {
                         isTWAInstalled ? (<>
-                            BeUnblurred's{" "}
                             <a
                                 href="https://i.marco.win/beunblurred-privacy.txt"
-                                className="underline decoration-dashed hover:opacity-75 transition-all"
+                                className="link"
                             >
                                 Privacy policy
                             </a>
@@ -228,7 +261,7 @@ export default function Layout({ children, user }) {
                                 href="https://marco.win"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="underline decoration-dashed hover:opacity-75 transition-all"
+                                className="link"
                             >
                                 Marco Ceccon
                             </a>.

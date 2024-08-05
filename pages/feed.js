@@ -12,15 +12,24 @@ import checkAuth from "@/utils/checkAuth";
 export default function Feed(props) {
     const { t } = useTranslate();
     const [Greeting, setGreeting] = useState(t("gm"));
+    const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
     const [Data, setData] = useState({
         ...props.feed,
         // really lazy way to fix the sorting issue lol
-        friendsPosts: (props?.feed?.friendsPosts || [])?.sort((a, b) => {
-            return new Date(b.posts[b.posts.length - 1].takenAt) + new Date(a.posts[a.posts.length - 1].takenAt);
-        }).reverse()
+        friendsPosts: (props?.feed?.friendsPosts || []).sort((a, b) => {
+            return new Date(b.posts[0].takenAt) - new Date(a.posts[0].takenAt);
+        })
     });
 
     useEffect(() => {
+        if (window) {
+            if (localStorage.getItem("donationDismissed")) {
+                setShouldShowDonationBox(false);
+            } else {
+                setShouldShowDonationBox(true);
+            }
+        }
+
         var today = new Date()
         var curHr = today.getHours()
         let greeting;
@@ -36,10 +45,43 @@ export default function Feed(props) {
     return (<>
         <NextSeo title="Friends - Feed" />
 
+        {
+            ShouldShowDonationBox && (
+                <div className="rounded-lg bg-white/5 border-2 border-white/10 flex flex-col items-center lg:mb-8 mb-4">
+                    <div className="p-4">
+                        <p className="text-center text-xl font-semibold">
+                            <T keyName="donationTitleFeed" />
+                        </p>
+
+                        <p className="text-center text-sm mt-2">
+                            <T keyName="donationTitle" />
+                        </p>
+                    </div>
+                    <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
+                        <Link
+                            href="/donate"
+                            className="bg-white/5 p-2 rounded-bl-md text-center w-full grid place-items-center text-sm font-semibold"
+                        >
+                            <T keyName="donateNow" />
+                        </Link>
+                        <button
+                            onClick={() => {
+                                localStorage.setItem("donationDismissed", "true");
+                                setShouldShowDonationBox(false);
+                            }}
+                            className="bg-white/5 p-2 rounded-br-md text-center w-full grid place-items-center text-sm"
+                        >
+                            <T keyName="dontDonate" />
+                        </button>
+                    </div>
+                </div>
+            )
+        }
+
         <div
-            className="relative p-4 rounded-lg"
+            className="relative p-4 rounded-lg bg-white/10"
             style={{
-                backgroundImage: `url(${props?.user?.profilePicture?.url})`,
+                backgroundImage: `url(/_next/image?url=${props?.user?.profilePicture?.url}&q=1&w=128)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}

@@ -5,6 +5,8 @@ import * as TimeAgoLanguages from "timeago.js/lib/lang/";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { T, useTranslate } from "@tolgee/react";
+import cookieCutter from "cookie-cutter";
+import Notification from "./Notification";
 
 import {
     ChevronLeftIcon,
@@ -16,6 +18,7 @@ import {
 } from "@heroicons/react/20/solid";
 import Popup from "./Popup";
 import BTSIcon from "@/assets/BTSIcon";
+import Image from "next/image";
 
 export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     const { t } = useTranslate();
@@ -44,6 +47,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     const [BlobUrlSecondary, setBlobUrlSecondary] = useState(null);
     const [IsAndroid, setIsAndroid] = useState(null);
     const [ShowOptionsMenu, setShowOptionsMenu] = useState(false);
+    const [ShowRealmojisMenu, setShowRealmojisMenu] = useState(false);
+    const [SelectedRealmojiIndex, setSelectedRealmojiIndex] = useState(0);
     const [PostOptions, setPostOptions] = useState([
         {
             id: "main-download",
@@ -83,6 +88,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         }
     ]);
     const [LoadingOptionIndex, setLoadingOptionIndex] = useState([]);
+    const [ErrorData, setErrorData] = useState({ show: false });
+    const [LoadingPostingComment, setLoadingPostingComment] = useState(false);
 
     const downloadImage = async (main) => {
         const url = main ? (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url) : (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url);
@@ -95,7 +102,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
         const fileName = `${PostData.user.username}-${formattedDate}-${main ? "main" : "secondary"}.webp`;
 
-        const response = await fetch("/api/cors?endpoint=" + url);
+        const response = await fetch("/_next/image?w=1920&q=100&url=" + url);
         const blobImage = await response.blob();
         const href = URL.createObjectURL(blobImage);
         const anchorElement = document.createElement("a");
@@ -119,12 +126,12 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
         const fileName = `${PostData.user.username}-${formattedDate}.webp`;
 
-        const mainRes = await fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url));
-        const secondaryRes = await fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url));
+        const mainRes = await fetch("/_next/image?w=1920&q=100&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url));
+        const secondaryRes = await fetch("/_next/image?w=1920&q=100&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url));
         const mainBlob = await mainRes.blob();
         const secondaryBlob = await secondaryRes.blob();
 
-        // Stole and modified from: https://github.com/s-alad/toofake/blob/main/new/client/pages/memories/index.tsx#L206
+        // Stolen and modified from: https://github.com/s-alad/toofake/blob/main/new/client/pages/memories/index.tsx#L206
         let primaryImage = await createImageBitmap(await mainBlob);
         let secondaryImage = await createImageBitmap(await secondaryBlob);
 
@@ -197,7 +204,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         setBlobUrlPrimary(null);
         setBlobUrlSecondary(null);
 
-        fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url), {
+        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url), {
             method: "GET",
             mode: "cors",
             headers: {
@@ -223,7 +230,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             console.error("Something happened converting the blob to blobUrl.", e);
         });
 
-        fetch("/api/cors?endpoint=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url), {
+        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url), {
             method: "GET",
             mode: "cors",
             headers: {
@@ -242,6 +249,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     };
 
     const fetchLocation = async (postIndex) => {
+        if (isMemory) return;
+
         const url = new URL("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode");
         url.searchParams.append("location", `
             ${isDiscovery ? PostData.location._longitude : PostData.posts[PostIndex].location.longitude},
@@ -255,7 +264,10 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         const locationData = await fetch(url).then((res) => res.json()).catch((e) => {
             console.error("Couldn't fetch location data.", e);
         });
-        const locationName = locationData.address.Match_addr;
+
+        if (!locationData) return;
+
+        const locationName = locationData?.address?.Match_addr;
 
         setPostData((prev) => {
             const newData = { ...prev };
@@ -277,20 +289,68 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         BTSVideoRef.current.currentTime = 0;
     };
 
-    useEffect(() => {
-        if (!RealMojisContainer.current) return;
+    const sendComment = async (e) => {
+        e.preventDefault();
 
-        const onScroll = (e) => {
-            e.preventDefault();
+        let newPostData = { ...PostData };
+        if (!isDiscovery) {
+            newPostData = PostData.posts[PostIndex];
+        }
 
-            RealMojisContainer.current.scrollBy({
-                "left": e.deltaY < 0 ? -50 : 50,
+        const comment = e.target.comment.value;
+        const user = JSON.parse(cookieCutter.get("user"));
+
+        if (!comment)
+            return setErrorData({
+                show: true,
+                message: "Please enter a comment."
             });
-        };
 
-        RealMojisContainer.current.addEventListener("wheel", onScroll);
+        try {
+            setLoadingPostingComment(true);
+            await fetch("/api/comment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    postId: newPostData.id,
+                    postUserId: PostData.user.id,
+                    comment: comment
+                })
+            });
+            setLoadingPostingComment(false);
+
+            newPostData.comments.push({
+                id: new Date().getTime(),
+                user: {
+                    username: user.username,
+                },
+                content: comment
+            });
+
+            setPostData((prev) => {
+                let newData = { ...prev };
+                if (!isDiscovery) newData.posts[PostIndex] = newPostData;
+                else newData = newPostData;
+                return newData;
+            });
+
+            e.target.comment.value = "";
+
+        } catch (e) {
+            setLoadingPostingComment(false);
+            setErrorData({
+                show: true,
+                message: e.response?.data?.error || "An error occurred while trying to post the comment. Please try again later."
+            });
+            console.error("Error occured while commenting!", e);
+        }
+    };
+
+    useEffect(() => {
         fetchImages(PostIndex);
-    }, [RealMojisContainer]);
+    }, []);
 
     useEffect(() => {
         PostRef.current = PostIndex;
@@ -301,6 +361,15 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     }, [PostIndex]);
 
     return (<>
+        <Notification
+            type={"error"}
+            message={ErrorData.message}
+            show={ErrorData.show}
+            timeout={3}
+            exit={() => setErrorData(o => ({ ...o, show: false }))}
+        />
+
+
         <canvas
             id="combined-render-canvas"
             className="hidden"
@@ -345,7 +414,124 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             </div>
         </Popup>
 
+        <Popup
+            title={"realmojisMenu"}
+            description={"realmojisMenuDescription"}
+            titleParams={{ username: PostData.user.username }}
+            descriptionParams={{ count: (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length }}
+            show={ShowRealmojisMenu}
+            onClose={() => setShowRealmojisMenu(false)}
+        >
+            <div className="grid gap-2">
+                {
+                    (() => {
+                        let realmojiArray = (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis || [];
+
+                        if (PostData.user.relationship?.commonFriends) {
+                            realmojiArray = PostData.posts[PostIndex].realmojis.sample;
+                        }
+
+                        return (<>
+                            <div className="grid place-content-center">
+                                <div className="relative overflow-visible my-4">
+                                    <Image
+                                        src={isDiscovery ? realmojiArray[SelectedRealmojiIndex]?.uri : realmojiArray[SelectedRealmojiIndex]?.media?.url}
+                                        alt={`${realmojiArray[SelectedRealmojiIndex]?.user?.username} realmoji's`}
+                                        className="rounded-full border-2 border-white/20 aspect-square"
+                                        width={192}
+                                        height={192}
+                                    />
+                                    <span className="absolute text-5xl bottom-2 -right-4 select-none">
+                                        {realmojiArray[SelectedRealmojiIndex]?.emoji}
+                                    </span>
+                                </div>
+
+                                <Link href={`/u/${realmojiArray[SelectedRealmojiIndex]?.user?.id}`}>
+                                    <p className="text-center text-white text-lg font-semibold">
+                                        {realmojiArray[SelectedRealmojiIndex]?.user?.username}
+                                    </p>
+                                </Link>
+
+                                <p className="text-center text-white/75 font-medium text-sm">
+                                    <T keyName={"reacted"} />{" "}{format(realmojiArray[SelectedRealmojiIndex]?.postedAt, locale)}
+                                </p>
+                            </div>
+
+                            <div className="relative overflow-hidden">
+                                {
+                                    realmojiArray.length > 4 && (
+                                        <div className="lg:grid items-center absolute inset-0 hidden z-10 pointer-events-none">
+                                            <button
+                                                className="absolute h-full left-0 pr-2 bg-gradient-to-r from-[#0d0d0d] to-transparent pointer-events-auto"
+                                                onClick={() => {
+                                                    RealMojisContainer.current.scrollBy({
+                                                        "left": -200,
+                                                        "behavior": "smooth"
+                                                    });
+                                                }}
+                                            >
+                                                <ChevronLeftIcon className="h-6 w-6" />
+                                            </button>
+                                            <button
+                                                className="absolute h-full right-0 pl-2 bg-gradient-to-l from-[#0d0d0d] to-transparent pointer-events-auto"
+                                                onClick={() => {
+                                                    RealMojisContainer.current.scrollBy({
+                                                        "left": 200,
+                                                        "behavior": "smooth"
+                                                    });
+                                                }}
+                                            >
+                                                <ChevronRightIcon className="h-6 w-6" />
+                                            </button>
+                                        </div>
+                                    )
+                                }
+
+                                <div
+                                    ref={RealMojisContainer}
+                                    className={`
+                                        flex mt-4 mb-2 overflow-x-auto scrollbar-hide
+                                        ${realmojiArray.length > 4 ? "lg:px-8" : "justify-evenly"}
+                                    `}
+                                >
+                                    {
+                                        realmojiArray.map((realmoji, index) => (<>
+                                            <div
+                                                key={index}
+                                                className={`w-[72px] cursor-pointer ${index === 0 ? "mr-2" : "mx-2"}`}
+                                                onClick={() => {
+                                                    setSelectedRealmojiIndex(index);
+                                                }}
+                                            >
+                                                <div className="relative overflow-visible w-[72px]">
+                                                    <Image
+                                                        src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
+                                                        alt={`${PostData.user.username} realmoji's`}
+                                                        title={`Reacted ${format(realmoji.postedAt)}`}
+                                                        className="rounded-full border-2 border-white/50 aspect-square"
+                                                        width={72}
+                                                        height={72}
+                                                    />
+
+                                                    <span className="absolute text-2xl -right-2 bottom-0">
+                                                        {realmoji.emoji}
+                                                    </span>
+                                                </div>
+
+                                                <div className={`border-2 ${index === SelectedRealmojiIndex ? "border-white/50" : "border-transparent"} rounded-lg w-1 h-1 mx-auto mt-2`} />
+                                            </div>
+                                        </>))
+                                    }
+                                </div>
+                            </div>
+                        </>);
+                    })()
+                }
+            </div>
+        </Popup>
+
         <div
+            suppressHydrationWarning={true}
             className={
                 isMemory ? "relative" : `
                     flex flex-col lg:gap-y-6 gap-y-4
@@ -355,73 +541,76 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 `
             }
         >
-            <div className="flex">
-                <Link href={`/u/${PostData.user.id}`} className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
+            <div className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
+                <Link href={`/u/${PostData.user.id}`} className="flex">
                     {
                         PostData.user.profilePicture?.url ?
-                            <img
+                            <Image
                                 src={PostData.user.profilePicture?.url}
                                 alt={PostData.user.username}
                                 className="w-14 h-14 border-black border-2 rounded-full"
+                                width={56}
+                                height={56}
+                                loading="eager"
                             />
                             :
                             <div className="w-14 h-14 bg-white/5 relative rounded-full border-full border-black justify-center align-middle flex">
                                 <div className="m-auto text-2xl uppercase font-bold">{PostData.user.username.slice(0, 1)}</div>
                             </div>
                     }
-
-                    <p className="text-sm leading-[1.175] my-auto">
-                        <span className="font-semibold">{PostData.user.username}</span>
-                        <br />
-                        <span className="text-xs text-white/50">
-                            {
-                                PostData.posts[PostIndex].origin === "repost" ?
-                                    t("reposted")
-                                    : t("posted")
-                            }{" "}{(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && t("late")}{" "}
-                            {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt, locale)}
-
-                            {
-                                PostData.posts[PostIndex].origin === "repost" ?
-                                    <>
-                                        {" "}
-                                        <a
-                                            href={`/u/${PostData.posts[PostIndex].parentPostUserId}`}
-                                            className="underline decoration-dashed hover:opacity-75 transition-all"
-                                        >
-                                            <T keyName={"from"} /> @{PostData.posts[PostIndex].parentPostUsername}
-                                        </a>
-                                    </>
-                                    : ""
-                            }
-                            {
-                                (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
-                                    <br />
-                                    {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} {
-                                        (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 ?
-                                            <T keyName="retakes" />
-                                            :
-                                            <T keyName="retake" />
-                                    }
-                                </>
-                            }
-                            {
-                                typeof IsAndroid === "boolean" && <>
-                                    <br />
-                                    {
-                                        IsAndroid ?
-                                            <T keyName="postedFromAndroid" />
-                                            :
-                                            <T keyName="postedFromiOS" />
-                                    }
-                                </>
-                            }
-                        </span>
-                    </p>
                 </Link>
 
+                <p className="text-sm leading-[1.175] my-auto">
+                    <span className="font-semibold">{PostData.user.username}</span>
+                    <br />
+                    <span className="text-xs text-white/50">
+                        {
+                            PostData.posts[PostIndex].origin === "repost" ?
+                                t("reposted")
+                                : t("posted")
+                        }{" "}{(isDiscovery ? PostData : PostData.posts[PostIndex]).isLate && t("late")}{" "}
+                        {format(isDiscovery ? PostData.creationDate._seconds * 1000 : PostData.posts[PostIndex].takenAt, locale)}
+
+                        {
+                            PostData.posts[PostIndex].origin === "repost" ?
+                                <>
+                                    {" "}
+                                    <a
+                                        href={`/u/${PostData.posts[PostIndex].parentPostUserId}`}
+                                        className="underline decoration-dashed hover:opacity-75 transition-all"
+                                    >
+                                        <T keyName={"from"} /> @{PostData.posts[PostIndex].parentPostUsername}
+                                    </a>
+                                </>
+                                : ""
+                        }
+                        {
+                            (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
+                                <br />
+                                {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} {
+                                    (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 ?
+                                        <T keyName="retakes" />
+                                        :
+                                        <T keyName="retake" />
+                                }
+                            </>
+                        }
+                        {
+                            typeof IsAndroid === "boolean" && <>
+                                <br />
+                                {
+                                    IsAndroid ?
+                                        <T keyName="postedFromAndroid" />
+                                        :
+                                        <T keyName="postedFromiOS" />
+                                }
+                            </>
+                        }
+                    </span>
+                </p>
+
                 <button
-                    className={!isMemory ? "ml-auto my-auto p-2 rounded-lg bg-white/5 border-2 border-white/10" : "hidden"}
+                    className="ml-auto my-auto p-2 rounded-lg bg-white/5 border-2 border-white/10"
                     onClick={() => setShowOptionsMenu(true)}
                 >
                     <Bars3Icon className="h-6 w-6" />
@@ -624,6 +813,42 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                         </div>
                     </>)
                 }
+
+                {
+                    (((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0)
+                        || (PostData.user.relationship?.commonFriends && PostData.posts[PostIndex].realmojis.sample.length > 0)) && (<>
+                            <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
+                                {
+                                    (
+                                        (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis ||
+                                        PostData.posts[PostIndex].realmojis.sample
+                                    ).slice(0, 3).map((realmoji, index) => (
+                                        <div key={index} className={index == 0 ? "" : "-ml-4"}>
+                                            <Image
+                                                src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
+                                                alt={`${realmoji.user.username} realmoji's`}
+                                                title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
+                                                className="rounded-full border-2 border-black aspect-square"
+                                                width={48}
+                                                height={48}
+                                            />
+                                        </div>
+                                    ))
+                                }
+
+                                {
+                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis
+                                        || PostData.posts[PostIndex].realmojis.sample).length > 3 && (
+                                        <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
+                                            <p className="text-white/75 text-xl">
+                                                +{(((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis || PostData.posts[PostIndex].realmojis.sample).length - 3)}
+                                            </p>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        </>)
+                }
             </div>
 
             {
@@ -722,82 +947,64 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             }
 
             {
-                ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || (isDiscovery ? PostData : PostData.posts[PostIndex])?.comments?.length > 0) &&
-                <div className="bg-white/5 rounded-lg py-2 px-4">
-                    <p className="text-sm text-white">
-                        <span className="font-semibold">{PostData.user.username}</span>{" "}
-                        <span className={!(isDiscovery ? PostData : PostData.posts[PostIndex]).caption ? "italic opacity-80 font-light" : "not-italic"}>
-                            <span dangerouslySetInnerHTML={{
-                                __html:
-                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || "No caption")
-                                        .replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>"
-                                        )
-                            }} />
-                        </span>
-                    </p>
-
-                    {
-                        (isDiscovery ? PostData : PostData.posts[PostIndex]).comments?.map(c => (
-                            <p className="text-sm text-white ml-4" key={c.id}>
-                                <span className="font-semibold">{c.user?.username}</span>{" "}
-                                <span dangerouslySetInnerHTML={{ __html: c.content.replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>") }} />
-                            </p>
-                        ))
-                    }
-                </div>
-            }
-
-            {
-                (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0 &&
-                <div
-                    ref={RealMojisContainer}
-                    className="flex gap-x-6 overflow-x-auto scrollbar-hide max-w-max items-center"
-                >
-                    {
-                        (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis.map((realmoji, index) => (
-                            <div
-                                key={index}
-                                className="w-20 cursor-pointer"
-                                onClick={() => {
-                                    router.push(`/u/${realmoji.user.id}`);
-                                }}
-                            >
-                                <div className="relative overflow-visible w-20 h-20">
-                                    <img
-                                        src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
-                                        alt={`${PostData.user.username} realmoji's`}
-                                        title={`Reacted ${format(realmoji.postedAt)}`}
-                                        className="rounded-full border-2 border-white/50 aspect-square"
-                                    />
-
-                                    <span className="absolute text-3xl -bottom-2 -right-1">
-                                        {realmoji.emoji}
-                                    </span>
-                                </div>
-
-                                <p className="text-sm text-center mt-2 truncate text-ellipsis overflow-hidden whitespace-nowrap">
-                                    {realmoji.user.username}
-                                </p>
-                            </div>
-                        ))
-                    }
-
-                    {/* <div>
-                        <div
-                            className={`
-                                w-20 h-20 rounded-full border-2 border-current aspect-square
-                                flex items-center justify-center text-white/50 hover:text-white/75 transition-colors
-                                cursor-pointer
-                            `}
-                        >
-                            <PlusIcon className="w-8 h-8 text-current" />
-                        </div>
-                        <p className="text-sm font-medium text-center mt-2 break-words text-white/75">
-                            React
+                !isMemory &&
+                <div className="bg-white/5 rounded-lg">
+                    <div className="py-2 px-4">
+                        <p className="text-sm text-white">
+                            <span className="font-semibold">{PostData.user.username}</span>{" "}
+                            <span className={!(isDiscovery ? PostData : PostData.posts[PostIndex]).caption ? "italic opacity-80 font-light" : "not-italic"}>
+                                <span dangerouslySetInnerHTML={{
+                                    __html:
+                                        ((isDiscovery ? PostData : PostData.posts[PostIndex]).caption || t("noCaption"))
+                                            .replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>"
+                                            )
+                                }} />
+                            </span>
                         </p>
-                    </div> */}
+
+                        {
+                            (isDiscovery ? PostData : PostData.posts[PostIndex]).comments?.map(c => (
+                                <p className="text-sm text-white ml-4" key={c.id}>
+                                    <span className="font-semibold">{c.user?.username}</span>{" "}
+                                    <span dangerouslySetInnerHTML={{ __html: c.content.replace(/@([^ ]+)/g, "<span style='font-weight:500;opacity:0.8;'>@$1</span>") }} />
+                                </p>
+                            ))
+                        }
+                    </div>
+
+                    <form
+                        onSubmit={sendComment}
+                        className="bg-white/5 rounded-b-lg relative flex border-t-2 border-white/10 divide-x-2 divide-white/10"
+                    >
+                        <input
+                            id="comment"
+                            placeholder={t("commentPlaceholder")}
+                            className={`
+                                bg-transparent placeholder:text-white/50 text-sm py-2 px-4 w-full
+                                outline-none focus:placeholder:text-white/75 transition-colors
+                            `}
+                        />
+                        <button className={`px-4 text-sm font-semibold${LoadingPostingComment ? " animate-pulse" : ""}`} type="submit" disabled={LoadingPostingComment}>
+                            <T keyName={LoadingPostingComment ? "loading" : "comment"} />
+                        </button>
+                    </form>
                 </div>
             }
+
+            {/* <div>
+                <div
+                    className={`
+                        w-20 h-20 rounded-full border-2 border-current aspect-square
+                        flex items-center justify-center text-white/50 hover:text-white/75 transition-colors
+                        cursor-pointer
+                    `}
+                >
+                    <PlusIcon className="w-8 h-8 text-current" />
+                </div>
+                <p className="text-sm font-medium text-center mt-2 break-words text-white/75">
+                    React
+                </p>
+            </div> */}
         </div>
     </>);
 }

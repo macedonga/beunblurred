@@ -29,7 +29,7 @@ export default function Discovery(props) {
             });
             setLoading(false);
         } catch (error) {
-            console.log(error);
+            console.error("Error while fetching discovery data:", error);
             setLoading(false);
             if (Data.length === 0) setFirstLoadNotWorking(true);
             else alert(t("discoveryFetchError"));
@@ -72,9 +72,9 @@ export default function Discovery(props) {
         <NextSeo title="Discovery - Feed" />
 
         <div
-            className="relative p-4 rounded-lg"
+            className="relative p-4 rounded-lg bg-white/10"
             style={{
-                backgroundImage: `url(${props?.user?.profilePicture?.url})`,
+                backgroundImage: `url(/_next/image?url=${props?.user?.profilePicture?.url}&q=1&w=128)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}

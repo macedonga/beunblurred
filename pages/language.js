@@ -8,10 +8,11 @@ import {
     ES,
     FR,
     NL,
-    PL
+    PL,
+    IL
 } from "country-flag-icons/react/3x2";
 
-export default function Error({ statusCode }) {
+export default function LanguageSelector() {
     const { t } = useTranslate();
     const router = useRouter();
 
@@ -57,6 +58,12 @@ export default function Error({ statusCode }) {
             "name": "Polish",
             "nativeName": "Polski",
             "flag": PL
+        },
+        {
+            "code": "he",
+            "name": "Hebrew",
+            "nativeName": "עברית",
+            "flag": IL
         }
     ];
 
@@ -65,7 +72,7 @@ export default function Error({ statusCode }) {
             <T keyName="languageSelectorTitle" />
         </h1>
         <p className="text-center mt-2">
-            <T keyName="languageSelectorDesc" />
+            <T keyName="languageSelectorDesc" params={{ a: <a href="/github" target="_blank" rel="noopener noreferrer" className="link" /> }} />
         </p>
 
         <div className="grid gap-4 mt-4">

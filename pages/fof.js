@@ -42,7 +42,7 @@ export default function Feed(props) {
             });
             setLoading(false);
         } catch (error) {
-            console.log(error);
+            console.error("Error while fetching FOF data:", error);
             setLoading(false);
             alert(t("fofFetchError"));
         }
@@ -66,9 +66,9 @@ export default function Feed(props) {
         <NextSeo title="Friends of Friends - Feed" />
 
         <div
-            className="relative p-4 rounded-lg"
+            className="relative p-4 rounded-lg bg-white/10"
             style={{
-                backgroundImage: `url(${props?.user?.profilePicture?.url})`,
+                backgroundImage: `url(/_next/image?url=${props?.user?.profilePicture?.url}&q=1&w=128)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}

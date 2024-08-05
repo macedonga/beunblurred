@@ -1,3 +1,5 @@
+@import url(https://db.onlinewebfonts.com/c/7cc6719bd5f0310be3150ba33418e72e?family=Comic+Sans+MS);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,4 +42,12 @@ body {
 
 .little-scrollbar::-webkit-scrollbar-track {
   @apply bg-transparent;
+}
+
+.font-comic-sans {
+  font-family: "Comic Sans MS", sans-serif !important;
+}
+
+.link {
+  @apply underline decoration-dashed hover:opacity-75 transition-all;
 }

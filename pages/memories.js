@@ -42,9 +42,9 @@ export default function Memories(props) {
         <NextSeo title="Memories - Feed" />
 
         <div
-            className="relative p-4 rounded-lg"
+            className="relative p-4 rounded-lg bg-white/10"
             style={{
-                backgroundImage: `url(${props?.user?.profilePicture?.url})`,
+                backgroundImage: `url(/_next/image?url=${props?.user?.profilePicture?.url}&q=1&w=128)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}

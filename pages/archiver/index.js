@@ -397,7 +397,10 @@ export async function getServerSideProps({ req, res }) {
     }
 
     if (feed.data.friendsPosts.map(m => m.id).includes(archivedYesterday.id)) {
-        archivedToday = archivedYesterday;
+        archivedToday = [
+            ...archivedToday,
+            ...archivedYesterday
+        ];
         availableDates.shift();
     }
 

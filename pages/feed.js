@@ -1,13 +1,18 @@
 import axios from "axios";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
-import PostComponent from "../components/PostComponent";
 import { requestAuthenticated } from "@/utils/requests";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { T, useTranslate } from "@tolgee/react";
 import checkAuth from "@/utils/checkAuth";
+
+const PostComponent = dynamic(() => import("../components/PostComponent"), {
+    loading: () => <p>Loading...</p>,
+    ssr: false,
+});
 
 export default function Feed(props) {
     const { t } = useTranslate();

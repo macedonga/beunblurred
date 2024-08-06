@@ -21,6 +21,8 @@ import BTSIcon from "@/assets/BTSIcon";
 import Image from "next/image";
 
 export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
+    const isClient = typeof window !== "undefined";
+
     const { t } = useTranslate();
     const router = useRouter();
 
@@ -360,6 +362,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         }
     }, [PostIndex]);
 
+    if (!isClient) return null;
+
     return (<>
         <Notification
             type={"error"}
@@ -367,13 +371,6 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             show={ErrorData.show}
             timeout={3}
             exit={() => setErrorData(o => ({ ...o, show: false }))}
-        />
-
-
-        <canvas
-            id="combined-render-canvas"
-            className="hidden"
-            ref={CanvasRef}
         />
 
         <Popup
@@ -541,6 +538,12 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 `
             }
         >
+            <canvas
+                id="combined-render-canvas"
+                className="hidden"
+                ref={CanvasRef}
+            />
+
             <div className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
                 <Link href={`/u/${PostData.user.id}`} className="flex">
                     {
@@ -990,21 +993,6 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     </form>
                 </div>
             }
-
-            {/* <div>
-                <div
-                    className={`
-                        w-20 h-20 rounded-full border-2 border-current aspect-square
-                        flex items-center justify-center text-white/50 hover:text-white/75 transition-colors
-                        cursor-pointer
-                    `}
-                >
-                    <PlusIcon className="w-8 h-8 text-current" />
-                </div>
-                <p className="text-sm font-medium text-center mt-2 break-words text-white/75">
-                    React
-                </p>
-            </div> */}
         </div>
     </>);
 }

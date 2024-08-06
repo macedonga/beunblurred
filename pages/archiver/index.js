@@ -213,6 +213,7 @@ export default function ArchiverMainPage({
                             onClick={() => {
                                 if (!ArchiverData.subscription) {
                                     alert("You haven't paid yet!\nClick on the button at the top of the page to go to the payment page.");
+                                    return;
                                 }
 
                                 const post = ((userData.archivedToday || []).find(a => a.id == friend.id)

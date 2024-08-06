@@ -211,7 +211,10 @@ export default function ArchiverMainPage({
                             key={index}
                             className="cursor-pointer"
                             onClick={() => {
-                                router.push(`/archiver/${friend.id}/today`)
+                                const post = ((userData.archivedToday || []).find(a => a.id == friend.id)
+                                    || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment)));
+                                console.log(post)
+                                router.push(`/archiver/${friend.id}/${new Date(post.date).toISOString().split("T")[0]}`)
                             }}
                         >
                             <div className="py-2 px-4 flex items-center bg-white/5 border-white/10 border-2 rounded-t-lg">
@@ -247,8 +250,10 @@ export default function ArchiverMainPage({
                                 <p
                                     className={`
                                         border-l-2 border-b-2 rounded-bl-lg text-sm text-white/80
-                                        ${(userData.archivedToday || []).find(a => a.id == friend.id) ?
-                                            "border-green-500/10 bg-green-500/25" :
+                                        ${
+                                        ((userData.archivedToday || []).find(a => a.id == friend.id)
+                                        || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment))) ?
+                                        "border-green-500/10 bg-green-500/25" :
                                             feed?.find((post) => post.user.username === friend.username) ?
                                                 "border-red-500/10 bg-red-500/25" :
                                                 "border-yellow-500/10 bg-yellow-500/25"}
@@ -350,10 +355,30 @@ export async function getServerSideProps({ req, res }) {
 
         return acc;
     }, {})
-    availableDates = Object.keys(availableDates).sort((a, b) => new Date(b) - new Date(a)).slice(0, 7).reverse().map((date) => ({ date, count: availableDates[date] }));
-    availableDates = availableDates.filter((date) => date.date !== new Date().toISOString().split("T")[0]);
 
-    let archivedToday = postsFromDb.filter((post) => new Date(post.date).toISOString().split("T")[0] === new Date().toISOString().split("T")[0]).map((post) => ({ username: post.from.username, id: post.uid }));
+    availableDates = Object.keys(availableDates)
+        .sort((a, b) => new Date(b) - new Date(a))
+        .slice(0, 7)
+        .reverse()
+        .map((date) => ({ date, count: availableDates[date] }));
+    availableDates = availableDates
+        .filter((date) => date.date !== new Date().toISOString().split("T")[0])
+        .reverse();
+
+    let archivedToday = postsFromDb
+        .filter((post) => {
+            return new Date(post.date).toISOString().split("T")[0] === new Date().toISOString().split("T")[0];
+        })
+        .map((post) => ({ username: post.from.username, id: post.uid, moment: post.id, date: post.date.toString() }));
+    
+    let archivedYesterday = postsFromDb
+        .filter((post) => {
+            const yesterday = new Date();
+            yesterday.setDate(new Date().getDate() - 1);
+            return new Date(post.date).toISOString().split("T")[0] === yesterday.toISOString().split("T")[0];
+        })
+        .map((post) => ({ username: post.from.username, id: post.uid, moment: post.id, date: post.date.toString() }));
+    
     delete userFromDb._id;
 
     const stripe = Stripe(process.env.STRIPE_API_KEY);
@@ -370,7 +395,12 @@ export async function getServerSideProps({ req, res }) {
             active: false
         };
     }
-        
+
+    if (feed.data.friendsPosts.map(m => m.id).includes(archivedYesterday.id)) {
+        archivedToday = archivedYesterday;
+        availableDates.shift();
+    }
+
     return {
         props: {
             user: JSON.parse(getCookie("user", { req, res })),
@@ -380,6 +410,7 @@ export async function getServerSideProps({ req, res }) {
                 ...userFromDb,
                 availableDates,
                 archivedToday,
+                archivedYesterday,
                 subscription: customer.subscriptions?.data?.length != 0
             },
         }

@@ -31,8 +31,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-phone-number-input": "^3.3.0",
-    "stripe": "^16.6.0",
     "sharp": "^0.33.4",
+    "stripe": "^16.6.0",
     "tailwindcss": "3.3.3",
     "timeago.js": "^4.0.0-beta.3"
   }

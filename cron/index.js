@@ -40,7 +40,7 @@ const updateUser = async (user) => {
             date: new Date(moment.posts[0].creationDate),
             from: {
                 username: moment.user.username,
-                profilePicture: moment.user.profilePicture.url,
+                profilePicture: moment.user?.profilePicture?.url,
             },
             for: [
                 user.id

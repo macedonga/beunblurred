@@ -151,7 +151,6 @@ function Root({ Component, pageProps }) {
 
       <Loading
         show={userData.loading}
-        // show={true}
       />
 
       <Layout user={userData || {}}>

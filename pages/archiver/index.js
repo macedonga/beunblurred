@@ -213,8 +213,11 @@ export default function ArchiverMainPage({
                             onClick={() => {
                                 const post = ((userData.archivedToday || []).find(a => a.id == friend.id)
                                     || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment)));
-                                console.log(post)
-                                router.push(`/archiver/${friend.id}/${new Date(post.date).toISOString().split("T")[0]}`)
+                                if (!post) {
+                                    alert("Post not archived yet.")
+                                } else {
+                                    router.push(`/archiver/${friend.id}/${new Date(post.date).toISOString().split("T")[0]}`);
+                                }
                             }}
                         >
                             <div className="py-2 px-4 flex items-center bg-white/5 border-white/10 border-2 rounded-t-lg">

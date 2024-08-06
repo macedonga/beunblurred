@@ -433,7 +433,7 @@ export async function getServerSideProps({ req, res }) {
         };
     }
 
-    if (feed.data.friendsPosts.map(m => m.id).includes(archivedYesterday.id)) {
+    if (feed.data.friendsPosts.map(m => m.id).map(id => archivedToday.map(m => m.id).find(m => m.id === id)).includes(true)) {
         archivedToday = [
             ...archivedToday,
             ...archivedYesterday

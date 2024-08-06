@@ -10,7 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@sentry/nextjs": "^8.23.0",
     "axios": "^1.7.3",
     "dotenv": "^16.4.5",
     "mongodb": "^6.8.0"

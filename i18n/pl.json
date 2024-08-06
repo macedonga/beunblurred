@@ -42,6 +42,8 @@
   "error404Title" : "404 nie znaleziono",
   "error500Desc" : "Wygląda na to, że coś poszło nie tak po stronie serwera.\nZazwyczaj oznacza to, że wygasł twój token cookie i nie można go było odświeżyć.\nSpróbuj ponownie załadować tę kartę, a jeśli to nie pomoże, wyloguj się i zaloguj ponownie.",
   "error500Title" : "Wewnętrzny błąd serwera",
+  "fixLoginTitle": "Zapisane poświadczenia w bazie danych są teraz nieważne",
+  "fixLoginSubtitle": "Kliknij tutaj, aby je zaktualizować.",
   "fofBerealFeed" : "Sprawdź BeReale od przyjaciół twoich przyjaciół.",
   "fofFeed" : "Kanał przyjaciół przyjaciół",
   "fofFetchError" : "Wystąpił błąd podczas pobierania kanału przyjaciół przyjaciół.",

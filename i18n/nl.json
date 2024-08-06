@@ -42,6 +42,8 @@
   "error404Title" : "404 niet gevonden",
   "error500Desc" : "Het lijkt erop dat er iets mis is gegaan aan de serverkant. Dit betekent meestal dat uw token-cookie is verlopen en niet kon worden vernieuwd. Probeer deze tabblad opnieuw te laden, of als dat niet werkt, log uit en log opnieuw in.",
   "error500Title" : "Interne serverfout",
+  "fixLoginTitle": "De opgeslagen inloggegevens in de database zijn nu ongeldig",
+  "fixLoginSubtitle": "Klik hier om ze bij te werken.",
   "fofBerealFeed" : "Bekijk BeReals van uw vrienden van vrienden.",
   "fofFeed" : "Vrienden van vrienden-feed",
   "fofFetchError" : "Er is een fout opgetreden bij het ophalen van de FoF-feed.",

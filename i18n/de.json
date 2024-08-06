@@ -42,6 +42,8 @@
   "error404Title" : "404 Seite nicht gefunden",
   "error500Desc" : "Es scheint, dass auf der Serverseite etwas schief gelaufen ist.\nDas bedeutet normalerweise, dass Ihr Token-Cookie abgelaufen ist und nicht erneuert werden konnte.\nVersuchen Sie, diesen Tab neu zu laden, oder wenn das nicht funktioniert, melden Sie sich ab und wieder an.",
   "error500Title" : "Interner Serverfehler",
+  "fixLoginTitle": "Die gespeicherten Anmeldeinformationen in der Datenbank sind jetzt ungültig",
+  "fixLoginSubtitle": "Klicken Sie hier, um sie zu aktualisieren.",
   "fofBerealFeed" : "Schauen Sie sich BeReals von Ihren Freunden von Freunden an.",
   "fofFeed" : "Freunde-von-Freunden-Feed",
   "fofFetchError" : "Beim Abrufen des Freunde-von-Freunden-Feeds ist ein Fehler aufgetreten.",

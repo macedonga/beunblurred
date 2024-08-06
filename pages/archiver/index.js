@@ -21,11 +21,13 @@ export default function ArchiverMainPage({
     friends,
     feed,
     userData,
+    archiverError,
     locale,
 }) {
     const router = useRouter();
-    const [Loading, setLoading] = useState(false);
+    const [ShouldShowUpdateCredsBox, setShouldShowUpdateCredsBox] = useState(archiverError);
     const [ShowCalendar, setShowCalendar] = useState(false);
+    const [Loading, setLoading] = useState(false);
     const [ArchiverData, setArchiverData] = useState({
         ...userData,
         selectedDate: "today"
@@ -54,6 +56,18 @@ export default function ArchiverMainPage({
             posts: res.data.posts
         }));
 
+        setLoading(false);
+    };
+
+    const updateCredentials = async () => {
+        try {
+            setLoading(true);
+            await axios.get(`/api/archiver/updateCreds`);
+            setShouldShowUpdateCredsBox(false);
+            alert("Credentials updated succesfully!");
+        } catch {
+            alert("An error occured while updating credentials.");
+        }
         setLoading(false);
     };
 
@@ -195,6 +209,22 @@ export default function ArchiverMainPage({
                 </Link>
         }
 
+        {ShouldShowUpdateCredsBox &&
+            <button
+                disabled={Loading}
+                onClick={updateCredentials}
+                className={`
+                    px-4 py-2 bg-red-500/10 rounded-lg transition-all border-2 border-red-500/10
+                    disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
+                `}
+            >
+                <p>
+                    <T keyName={Loading ? "loading" : "fixLoginTitle"} />
+                </p>
+                <p className="text-sm opacity-75"><T keyName="fixLoginSubtitle" /></p>
+            </button>
+        }
+
         {
             Loading && <p className="text-center text-white mt-4">
                 <T keyName="loading" />
@@ -258,10 +288,9 @@ export default function ArchiverMainPage({
                                 <p
                                     className={`
                                         border-l-2 border-b-2 rounded-bl-lg text-sm text-white/80
-                                        ${
-                                        ((userData.archivedToday || []).find(a => a.id == friend.id)
-                                        || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment))) ?
-                                        "border-green-500/10 bg-green-500/25" :
+                                        ${((userData.archivedToday || []).find(a => a.id == friend.id)
+                                            || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment))) ?
+                                            "border-green-500/10 bg-green-500/25" :
                                             feed?.find((post) => post.user.username === friend.username) ?
                                                 "border-red-500/10 bg-red-500/25" :
                                                 "border-yellow-500/10 bg-yellow-500/25"}
@@ -378,7 +407,7 @@ export async function getServerSideProps({ req, res }) {
             return new Date(post.date).toISOString().split("T")[0] === new Date().toISOString().split("T")[0];
         })
         .map((post) => ({ username: post.from.username, id: post.uid, moment: post.id, date: post.date.toString() }));
-    
+
     let archivedYesterday = postsFromDb
         .filter((post) => {
             const yesterday = new Date();
@@ -386,7 +415,7 @@ export async function getServerSideProps({ req, res }) {
             return new Date(post.date).toISOString().split("T")[0] === yesterday.toISOString().split("T")[0];
         })
         .map((post) => ({ username: post.from.username, id: post.uid, moment: post.id, date: post.date.toString() }));
-    
+
     delete userFromDb._id;
 
     const stripe = Stripe(process.env.STRIPE_API_KEY);
@@ -424,6 +453,7 @@ export async function getServerSideProps({ req, res }) {
                 archivedYesterday,
                 subscription: customer.subscriptions?.data?.length != 0
             },
+            archiverError: !!userFromDb.shouldUpdateCredentials
         }
     };
 };

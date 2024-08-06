@@ -6,13 +6,27 @@ const { requestAuthenticated } = require("./requests");
 const { ca } = require("timeago.js/lib/lang");
 
 const client = new MongoClient(process.env.MONGODB_URI);
+const { DEBUG } = process.env;
 
 const updateUser = async (user) => {
-    const result = await requestAuthenticated("feeds/friends-v1", user);
-
     const db = client.db();
     const usersCollection = db.collection("users");
     const postsCollection = db.collection("posts");
+
+    const result = await requestAuthenticated("feeds/friends-v1", user);
+
+    if (result.error === 1) {
+        await usersCollection.updateOne(
+            { id: user.id },
+            {
+                $set: {
+                    shouldUpdateCredentials: true,
+                }
+            }
+        );
+        if (DEBUG) console.log(`[ERROR] [${user.id}] Couldn't refresh token.`);
+        return;
+    }
 
     if (result.refreshed) {
         await usersCollection.updateOne(
@@ -24,12 +38,13 @@ const updateUser = async (user) => {
                 }
             }
         );
-        console.log(`[INFO] [${user.id}] Refreshed token`);
+        
+        if (DEBUG) console.log(`[INFO] [${user.id}] Refreshed token`);
     }
 
     const insertMoments = [];
 
-    console.log(`[INFO] [${user.id}] Found ${result.res.data.friendsPosts.length} moments`);
+    if (DEBUG) console.log(`[INFO] [${user.id}] Found ${result.res.data.friendsPosts.length} moments`);
 
     for (const moment of result.res.data.friendsPosts) {
         const data = {
@@ -92,13 +107,13 @@ const updateUser = async (user) => {
                     }
                 );
 
-                console.log(`[INFO] [${user.id}] Updated ${moment.id}.${moment.uid} (${newPosts.length} new posts)`);
+                if (DEBUG) console.log(`[INFO] [${user.id}] Updated ${moment.id}.${moment.uid} (${newPosts.length} new posts)`);
             } else {
-                console.log(`[INFO] [${user.id}] Moment ${moment.id}.${moment.uid} is up to date`);
+                if (DEBUG) console.log(`[INFO] [${user.id}] Moment ${moment.id}.${moment.uid} is up to date`);
             }
         } else {
             await postsCollection.insertOne(moment);
-            console.log(`[INFO] [${user.id}] Inserted moment ${moment.id}.${moment.uid} (${moment.posts.length} posts)`);
+            if (DEBUG) console.log(`[INFO] [${user.id}] Inserted moment ${moment.id}.${moment.uid} (${moment.posts.length} posts)`);
         }
     }
 };

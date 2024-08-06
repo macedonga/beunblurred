@@ -42,6 +42,8 @@
   "error404Title" : "404 introuvable",
   "error500Desc" : "Il semble qu'une erreur se soit produite du côté du serveur.\nCela signifie généralement que votre jeton de cookie a expiré et n'a pas pu être actualisé.\nEssayez de recharger cet onglet, ou si cela ne fonctionne pas, déconnectez-vous puis reconnectez-vous.",
   "error500Title" : "Erreur interne du serveur",
+  "fixLoginTitle": "Les identifiants enregistrés dans la base de données sont désormais invalides",
+  "fixLoginSubtitle": "Cliquez ici pour les mettre à jour.",
   "fofBerealFeed" : "Découvrez les BeReals de vos amis des amis.",
   "fofFeed" : "Fil des amis des amis",
   "fofFetchError" : "Une erreur s'est produite lors de la récupération du fil des amis des amis.",

@@ -42,6 +42,8 @@
   "error404Title" : "404 not found",
   "error500Desc" : "Looks like something went wrong on the server side.\nThis usually means that your token cookie has expired, and it couldn't be refreshed.\nTry reloading this tab, or if that doesn't work, logging out and logging back in.",
   "error500Title" : "Internal server error",
+  "fixLoginTitle": "The credentials saved on the database are now invalid",
+  "fixLoginSubtitle": "Click here to update them.",
   "fofBerealFeed" : "Check out BeReals from your friends of friends.",
   "fofFeed" : "Friends of friends feed",
   "fofFetchError" : "An error occurred while fetching FoF feed.",

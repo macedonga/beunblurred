@@ -42,6 +42,8 @@
   "error404Title" : "404 non trovato",
   "error500Desc" : "Qualcosa è andato storto da parte del server.\nQuesto solitamente significa che il tuo cookie di sessione è scaduto e non è stato possibile rigenerarlo.\nProva ricaricando questa pagina, o se non funziona, prova a fare il logout e riaccedere.",
   "error500Title" : "Errore lato server",
+  "fixLoginTitle": "Le credenziali salvate nel database non sono più valide",
+  "fixLoginSubtitle": "Clicca qui per aggiornarle.",
   "fofBerealFeed" : "Visualizza i BeReal degli amici di amici.",
   "fofFeed" : "Amici di amici",
   "fofFetchError" : "Errore durante il recupero del feed amici di amici",

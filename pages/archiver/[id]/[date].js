@@ -23,7 +23,11 @@ export default function ArchiverPostPage({
     const router = useRouter();
 
     return (<>
-        <NextSeo title={`${post.from?.username} post from ${date}`} />
+        <NextSeo title={`${post.from?.username} post from ${new Date(date).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }) }`} />
 
         <h1 className="text-3xl font-semibold text-center mb-8">
             <T keyName="archiverPostTitle" />
@@ -109,6 +113,7 @@ export async function getServerSideProps({ req, res, params }) {
         props: {
             user: JSON.parse(getCookie("user", { req, res })),
             post: postFromDb,
+            date: date.toString()
         }
     };
 };

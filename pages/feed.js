@@ -15,7 +15,6 @@ const PostComponent = dynamic(() => import("../components/PostComponent"), {
 });
 
 export default function Feed(props) {
-    console.log(props?.feed?.friendsPosts)
     const { t } = useTranslate();
     const [Greeting, setGreeting] = useState(t("gm"));
     const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);

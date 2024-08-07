@@ -235,8 +235,11 @@ export default function ArchiverMainPage({
             className={"grid lg:grid-cols-2 gap-2 mt-4"}
         >
             {
-                !Loading && (ArchiverData.selectedDate === "today" ? (
-                    friends?.map((friend, index) => (
+                !Loading && (ArchiverData.selectedDate === "today") ? friends?.map((friend, index) => {
+                    const post = ((userData.archivedToday || []).find(a => a.id == friend.id)
+                        || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment)));
+
+                    return (<>
                         <div
                             key={index}
                             className="cursor-pointer"
@@ -246,8 +249,6 @@ export default function ArchiverMainPage({
                                     return;
                                 }
 
-                                const post = ((userData.archivedToday || []).find(a => a.id == friend.id)
-                                    || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment)));
                                 if (!post) {
                                     alert("Post not archived yet.")
                                 } else {
@@ -288,8 +289,7 @@ export default function ArchiverMainPage({
                                 <p
                                     className={`
                                         border-l-2 border-b-2 rounded-bl-lg text-sm text-white/80
-                                        ${((userData.archivedToday || []).find(a => a.id == friend.id)
-                                            || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment))) ?
+                                        ${post ?
                                             "border-green-500/10 bg-green-500/25" :
                                             feed?.find((post) => post.user.username === friend.username) ?
                                                 "border-red-500/10 bg-red-500/25" :
@@ -297,7 +297,7 @@ export default function ArchiverMainPage({
                                         w-[50%] flex justify-center items-center
                                     `}
                                 >
-                                    <T keyName={(userData.archivedToday || []).find(a => a.id == friend.id) ? "archivedUPost" : "notArchivedUPost"} />
+                                    <T keyName={post ? "archivedUPost" : "notArchivedUPost"} />
                                 </p>
                                 <p
                                     className={`
@@ -315,8 +315,8 @@ export default function ArchiverMainPage({
                             <p>
                             </p>
                         </div>
-                    ))
-                ) : (<>
+                    </>);
+                }) : (<>
                     {
                         ArchiverData.posts?.map((post, index) => (
                             <div
@@ -352,7 +352,6 @@ export default function ArchiverMainPage({
                         ))
                     }
                 </>)
-                )
             }
         </div>
     </>)

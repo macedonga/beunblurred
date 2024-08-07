@@ -37,14 +37,14 @@ export default function ArchiverPostPage({
             data={post}
         />
 
-        <Link href={`/archiver`}>
+        <Link href={router.query?.fromUserPage ? `/u/${post.uid}` : "/archiver"}>
             <button
                 className={`
                     px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
                     disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
                 `}
             >
-                <T keyName="backArchiverMenu" />
+                <T keyName={router.query?.fromUserPage ? "backToFeed" : "backArchiverMenu"} />
             </button>
         </Link>
     </>)

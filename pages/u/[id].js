@@ -1,16 +1,22 @@
 import axios from "axios";
+import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { NextSeo } from "next-seo";
 import { format, register } from "timeago.js";
 import * as TimeAgoLanguages from "timeago.js/lib/lang/";
 import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
-import { NextSeo } from "next-seo";
-import Link from "next/link";
-import PostComponent from "@/components/PostComponent";
 import { CheckBadgeIcon } from "@heroicons/react/20/solid";
 import { T, useTranslate } from "@tolgee/react";
 import { requestAuthenticated } from "@/utils/requests";
 import checkAuth from "@/utils/checkAuth";
-import Image from "next/image";
+import clientPromise from "@/utils/mongo";
+
+const PostComponent = dynamic(() => import("@/components/PostComponent"), {
+    loading: () => <p>Loading...</p>,
+    ssr: false,
+});
 
 export default function User(props) {
     const { t } = useTranslate();
@@ -87,6 +93,39 @@ export default function User(props) {
                 }
             </p>
         </div>
+
+        {
+            (props.posts && props.posts.length > 0) && <>
+                <div
+                    className={`
+                        flex flex-col
+                        bg-white/5 mt-8
+                        relative border-2 border-white/10
+                        rounded-lg lg:p-6 p-4 min-w-0 gap-y-4
+                        overflow-y-auto max-h-64
+                    `}
+                >
+                    <h2 className="text-lg font-medium text-center">
+                        {props.posts.length} <T keyName={"archiverPostTitle"} />
+                    </h2>
+
+                    {
+                        props.posts.map((p, index) => (
+                            <Link
+                                href={`/archiver/${props.user.id}/${p.date}?fromUserPage=1`}
+                                as={`/archiver/${props.user.id}/${p.date}`}
+                                className={`
+                                    px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
+                                    disabled:opacity-50 disabled:cursor-not-allowed outline-none w-full text-center
+                                `}
+                            >
+                                {new Date(p.date).toLocaleDateString(props.locale, { year: "numeric", month: "long", day: "numeric" })}
+                            </Link>
+                        ))
+                    }
+                </div>
+            </>
+        }
 
         {
             (props.pinnedMemories && props.pinnedMemories.length > 0) && <>
@@ -248,7 +287,43 @@ export async function getServerSideProps({ req, res, params, ...ctx }) {
         }
     }
 
+    const db = (await clientPromise).db();
+    const users = db.collection("users");
+    const posts = db.collection("posts");
+
+    if (params.id == "me")
+        return { props: JSON.parse(JSON.stringify(props)) };
+
+    const user = await requestAuthenticated("person/me", req, res);
+    var userFromDb = await users.findOne({ id: user.data.id });
+
+    if (!userFromDb)
+        return { props: JSON.parse(JSON.stringify(props)) };
+
+    const postsFromDb = await posts.find({
+        for: { $in: [user.data.id] },
+        uid: params.id
+    }).toArray();
+    let availableDates = postsFromDb.reduce((acc, post) => {
+        const date = new Date(post.date).toISOString().split("T")[0];
+        if (acc[date]) {
+            acc[date] += 1;
+        } else {
+            acc[date] = 1;
+        }
+
+        return acc;
+    }, {});
+    availableDates = Object.keys(availableDates)
+        .sort((a, b) => new Date(b) - new Date(a))
+        .slice(0, 7)
+        .reverse()
+        .map((date) => ({ date, count: availableDates[date] }));
+
     return {
-        props: JSON.parse(JSON.stringify(props))
-    };
+        props: JSON.parse(JSON.stringify({
+            ...props,
+            posts: availableDates.reverse()
+        }))
+    }
 };

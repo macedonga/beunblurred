@@ -15,16 +15,14 @@ const PostComponent = dynamic(() => import("../components/PostComponent"), {
 });
 
 export default function Feed(props) {
+    console.log(props?.feed?.friendsPosts)
     const { t } = useTranslate();
     const [Greeting, setGreeting] = useState(t("gm"));
     const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
     const [ShowArchiverBox, setShowArchiverBox] = useState(false);
     const [Data, setData] = useState({
         ...props.feed,
-        // really lazy way to fix the sorting issue lol
-        friendsPosts: (props?.feed?.friendsPosts || []).sort((a, b) => {
-            return new Date(b.posts[0].takenAt) - new Date(a.posts[0].takenAt);
-        })
+        friendsPosts: props?.feed?.friendsPosts.reverse()
     });
 
     useEffect(() => {

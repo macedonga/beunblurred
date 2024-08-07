@@ -20,8 +20,7 @@ export default function Feed(props) {
     const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
     const [ShowArchiverBox, setShowArchiverBox] = useState(false);
     const [Data, setData] = useState({
-        ...props.feed,
-        friendsPosts: props?.feed?.friendsPosts.reverse()
+        ...props.feed
     });
 
     useEffect(() => {
@@ -189,8 +188,12 @@ export async function getServerSideProps({ req, res }) {
             user: JSON.parse(getCookie("user", { req, res }))
         };
     } else {
+        const feed = await (requestAuthenticated("feeds/friends-v1", req, res).then(r => r.data));
         props = {
-            feed: await (requestAuthenticated("feeds/friends-v1", req, res).then(r => r.data)),
+            feed: {
+                ...feed,
+                friendsPosts: feed.friendsPosts.reverse()
+            },
             user: JSON.parse(getCookie("user", { req, res }))
         };
     }

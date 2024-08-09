@@ -10,18 +10,43 @@ import { T, useTranslate } from "@tolgee/react";
 import checkAuth from "@/utils/checkAuth";
 
 const PostComponent = dynamic(() => import("../components/PostComponent"), {
-    loading: () => <p>Loading...</p>,
+    loading: () => (
+        <div
+            className={`
+                flex flex-col lg:gap-y-6 gap-y-4
+                bg-white/5
+                relative border-2 border-white/10
+                rounded-lg lg:p-6 p-4 min-w-0
+            `}
+        >
+            <div className="flex justify-center">
+                <div className="w-8 h-8 border-2 border-white/50 rounded-full animate-spin" />
+            </div>
+
+            <p className="text-xl text-center mt-4">
+                <T keyName={"loading"} />
+            </p>
+        </div>
+    ),
     ssr: false,
 });
 
 export default function Feed(props) {
     const { t } = useTranslate();
+    const [Loading, setLoading] = useState(true);
     const [Greeting, setGreeting] = useState(t("gm"));
     const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
     const [ShowArchiverBox, setShowArchiverBox] = useState(false);
     const [Data, setData] = useState({
         ...props.feed
     });
+
+    const fetchFeed = async () => {
+        setLoading(true);
+        const res = await axios.get("/api/feed");
+        setData(res.data);
+        setLoading(false);
+    };
 
     useEffect(() => {
         if (window) {
@@ -39,7 +64,34 @@ export default function Feed(props) {
         else greeting = "gn";
 
         setGreeting(greeting);
+        fetchFeed();
     }, []);
+
+    if (Loading) {
+        return (<>
+            <div
+                className="relative p-4 rounded-lg bg-white/10"
+                style={{
+                    backgroundImage: `url(/_next/image?url=${props?.user?.profilePicture?.url}&q=1&w=128)`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                }}
+            >
+                <div className="backdrop-blur-3xl bg-black/25 absolute inset-0 rounded-lg z-[1]" />
+                <div className="z-[2] relative">
+                    <h1 className="text-xl font-medium"><T keyName={Greeting} /> {props?.user?.fullname || props?.user?.username}!</h1>
+                </div>
+            </div>
+
+            <div className="flex justify-center lg:mt-8 mt-4">
+                <div className="w-8 h-8 border-2 border-white/50 rounded-full animate-spin" />
+            </div>
+
+            <p className="text-xl text-center mt-4">
+                <T keyName={"loading"} />
+            </p>
+        </>);
+    }
 
     return (<>
         <NextSeo title="Friends - Feed" />
@@ -147,56 +199,9 @@ export async function getServerSideProps({ req, res }) {
     const authCheck = await checkAuth(req, res);
     if (authCheck) return authCheck;
 
-    let props;
-    if (hasCookie("testMode", { req, res })) {
-        props = {
-            feed: {
-                friendsPosts: [{
-                    "user": {
-                        "id": "8737uCPnsYeJfQgKXNb3Z1DoYuR2",
-                        "username": "testUser",
-                        "profilePicture": null
-                    },
-                    "momentId": "8737uCPnsYeJfQgKXNb3Z1DoYuR2",
-                    "region": "europe-west",
-                    "moment": {
-                        "id": "8737uCPnsYeJfQgKXNb3Z1DoYuR2",
-                        "region": "europe-west"
-                    },
-                    "posts": [
-                        {
-                            "id": "8737uCPnsYeJfQgKXNb3Z1DoYuR2-U1Kg",
-                            "primary": {
-                                "url": "https://i.marco.win/XgzbOhrMmxOopuyj.webp",
-                                "width": 1500,
-                                "height": 2000
-                            },
-                            "secondary": {
-                                "url": "https://i.marco.win/XgzbOhrMmxOopuyj.webp",
-                                "width": 1500,
-                                "height": 2000
-                            },
-                            "retakeCounter": 0,
-                            "lateInSeconds": 9723,
-                            "isLate": true,
-                            "isMain": true,
-                            "takenAt": "2023-09-08T10:26:36.967Z"
-                        }
-                    ]
-                }]
-            },
+    return {
+        props: {
             user: JSON.parse(getCookie("user", { req, res }))
-        };
-    } else {
-        const feed = await (requestAuthenticated("feeds/friends-v1", req, res).then(r => r.data));
-        props = {
-            feed: {
-                ...feed,
-                friendsPosts: feed.friendsPosts.reverse()
-            },
-            user: JSON.parse(getCookie("user", { req, res }))
-        };
-    }
-
-    return { props };
+        }
+    };
 };

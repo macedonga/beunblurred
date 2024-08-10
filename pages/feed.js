@@ -44,7 +44,6 @@ export default function Feed(props) {
     const fetchFeed = async () => {
         try {
             setLoading(true);
-            throw "test"
             const res = await axios.get("/api/feed");
             setData(res.data);
             setLoading(false);

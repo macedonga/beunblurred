@@ -1,12 +1,28 @@
 const axios = require("axios");
 
-const fetchSignature = async () => {
-    const res = await axios.get("https://sig.beunblurred.co/get?token=i1w3j4DHDDS82j12");
-    return res.data;
+const fetchSignature = async (i = 0) => {
+    try {
+        const res = await axios.get("https://sig.beunblurred.co/get?token=i1w3j4DHDDS82j12");
+        return res.data;
+    } catch (e) {
+        if (i < 3) {
+            await sleep(250);
+            return await fetchSignature(i + 1);
+        } else {
+            throw e;
+        }
+    }
 };
 
 const requestAuthenticated = async (endpoint, data) => {
-    let SIGNATURE = await fetchSignature();
+    try {
+        var SIGNATURE = await fetchSignature();
+    } catch (e) {
+        return {
+            res: null,
+            error: 2
+        }
+    }
 
     const options = {
         "headers": {

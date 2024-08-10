@@ -28,6 +28,11 @@ const updateUser = async (user) => {
         return;
     }
 
+    if (result.error === 2) {
+        if (DEBUG) console.log(`[ERROR] [${user.id}] Couldn't fetch request signature from server.`);
+        return;
+    }
+
     if (result.refreshed) {
         await usersCollection.updateOne(
             { id: user.id },

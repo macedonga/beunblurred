@@ -93,6 +93,21 @@ export default function Feed(props) {
         </>);
     }
 
+    const updateCredentials = async () => {
+        try {
+            setLoading(true);
+            await axios.get(`/api/archiver/updateCreds`);
+            setData(o => ({
+                ...o,
+                showUpdateCredsAlert: false
+            }))
+            alert("Credentials updated succesfully!");
+        } catch {
+            alert("An error occured while updating credentials.");
+        }
+        setLoading(false);
+    };
+
     return (<>
         <NextSeo title="Friends - Feed" />
 
@@ -178,6 +193,22 @@ export default function Feed(props) {
                 </p>
             </div>
         </div>
+
+        {Data.showUpdateCredsAlert &&
+            <button
+                disabled={Loading}
+                onClick={updateCredentials}
+                className={`
+                    px-4 py-2 bg-red-500/10 rounded-lg transition-all border-2 border-red-500/10
+                    disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
+                `}
+            >
+                <p>
+                    <T keyName={Loading ? "loading" : "fixLoginTitle"} />
+                </p>
+                <p className="text-sm opacity-75"><T keyName="fixLoginSubtitle" /></p>
+            </button>
+        }
 
         <div
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}

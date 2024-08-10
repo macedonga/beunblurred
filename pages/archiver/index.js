@@ -23,6 +23,7 @@ export default function ArchiverMainPage({
     userData,
     archiverError,
     locale,
+    includeYesterday
 }) {
     const router = useRouter();
     const [ShouldShowUpdateCredsBox, setShouldShowUpdateCredsBox] = useState(archiverError);
@@ -236,8 +237,11 @@ export default function ArchiverMainPage({
         >
             {
                 !Loading && (ArchiverData.selectedDate === "today") ? friends?.map((friend, index) => {
-                    const post = ((userData.archivedToday || []).find(a => a.id == friend.id)
-                        || (userData.archivedYesterday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment)));
+                    let post = ((userData.archivedToday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment)));
+
+                    if (includeYesterday && !post) {
+                        post = (userData.archivedYesterday || []).find(a => a.id == friend.id);
+                    }
 
                     return (<>
                         <div
@@ -432,7 +436,7 @@ export async function getServerSideProps({ req, res }) {
         };
     }
 
-    if (feed.data.friendsPosts.map(m => m.id).map(id => archivedToday.map(m => m.id).find(m => m.id === id)).includes(true)) {
+    if (feed.data.friendsPosts.map(m => m.id).map(id => archivedToday.map(m => m.id).find(m => m.id === id) == id).includes(true)) {
         archivedToday = [
             ...archivedToday,
             ...archivedYesterday
@@ -452,6 +456,7 @@ export async function getServerSideProps({ req, res }) {
                 archivedYesterday,
                 subscription: customer.subscriptions?.data?.length != 0
             },
+            includeYesterday: feed.data.friendsPosts.map(m => m.id).map(id => archivedToday.map(m => m.id).find(m => m.id === id) == id).includes(true),
             archiverError: !!userFromDb.shouldUpdateCredentials
         }
     };

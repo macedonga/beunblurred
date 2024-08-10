@@ -42,10 +42,16 @@ export default function Feed(props) {
     });
 
     const fetchFeed = async () => {
-        setLoading(true);
-        const res = await axios.get("/api/feed");
-        setData(res.data);
-        setLoading(false);
+        try {
+            setLoading(true);
+            throw "test"
+            const res = await axios.get("/api/feed");
+            setData(res.data);
+            setLoading(false);
+        } catch (e) {
+            console.error(e);
+            window.location.href = "/500";
+        }
     };
 
     useEffect(() => {

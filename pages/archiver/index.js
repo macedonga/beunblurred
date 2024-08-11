@@ -237,10 +237,25 @@ export default function ArchiverMainPage({
         >
             {
                 !Loading && (ArchiverData.selectedDate === "today") ? friends?.map((friend, index) => {
-                    let post = ((userData.archivedToday || []).find(a => a.id == friend.id && feed.find(post => post.momentId == a.moment)));
+                    let combined = [
+                        ...userData.archivedToday,
+                        ...userData.archivedYesterday
+                    ];
 
-                    if (includeYesterday && !post) {
-                        post = (userData.archivedYesterday || []).find(a => a.id == friend.id);
+                    if (feed?.find((post) => post.user.username == friend.username)) {
+                        const posts = combined
+                            .filter(p => p.id == friend.id);
+
+                        var post = null;
+                        if (posts.length > 1) {
+                            let latestDate = new Date(Math.max(...posts.map(p => new Date(p.date)))).toISOString().split("T")[0];
+                            post = posts.filter(p => {
+                                var d = new Date(p.date);
+                                return d.toISOString().split("T")[0] === latestDate;
+                            })[0];
+                        } else if (posts.length == 1) {
+                            post = posts[0];
+                        }
                     }
 
                     return (<>
@@ -362,6 +377,10 @@ export default function ArchiverMainPage({
 };
 
 export async function getServerSideProps({ req, res }) {
+    // I do not understand what i did here, but it works...
+    // I'll have to rewrite it, but since i have no way to get
+    // a moment's data from its id this will do for now.
+
     const authCheck = await checkAuth(req, res);
     if (authCheck) return authCheck;
 
@@ -434,6 +453,33 @@ export async function getServerSideProps({ req, res }) {
             paid: false,
             active: false
         };
+    }
+
+    let combined = [
+        ...archivedToday,
+        ...archivedYesterday
+    ];
+    archivedToday = [];
+
+    for (const friend of friends.data.data) {
+        if (feed.data.friendsPosts?.find((post) => post.user.username == friend.username)) {
+            const posts = combined
+                .filter(p => p.id == friend.id);
+
+            var post = null;
+            if (posts.length > 1) {
+                let latestDate = new Date(Math.max(...posts.map(p => new Date(p.date)))).toISOString().split("T")[0];
+                post = posts.filter(p => {
+                    var d = new Date(p.date);
+                    return d.toISOString().split("T")[0] === latestDate;
+                })[0];
+            } else if (posts.length == 1) {
+                post = posts[0];
+            }
+
+            if (post)
+                archivedToday.push(post);
+        }
     }
 
     if (feed.data.friendsPosts.map(m => m.id).map(id => archivedToday.map(m => m.id).find(m => m.id === id) == id).includes(true)) {

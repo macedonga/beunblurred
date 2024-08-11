@@ -10,7 +10,11 @@ export default async (req, res) => {
     ];
     const data = [];
 
-    if (!hasCookie("testMode", { req, res }) && requiredCookies.map(n => hasCookie(n, { req, res })).includes(false)) {
+    for (const cookie of requiredCookies) {
+        data[cookie] = hasCookie(cookie, { req, res });
+    }
+
+    if (Object.keys(data).map(k => data[k]).includes(false)) {
         requiredCookies.forEach(n => deleteCookie(n, { req, res }))
         return {
             redirect: {

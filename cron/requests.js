@@ -1,5 +1,7 @@
 const axios = require("axios");
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
 const fetchSignature = async (i = 0) => {
     try {
         const res = await axios.get("https://sig.beunblurred.co/get?token=i1w3j4DHDDS82j12");
@@ -14,7 +16,7 @@ const fetchSignature = async (i = 0) => {
     }
 };
 
-const requestAuthenticated = async (endpoint, data) => {
+const requestAuthenticated = async (endpoint, data, idx = 0) => {
     try {
         var SIGNATURE = await fetchSignature();
     } catch (e) {
@@ -77,10 +79,17 @@ const requestAuthenticated = async (endpoint, data) => {
                 refreshed: true
             };
         } catch {
-            return {
-                res: null,
-                error: 1
+            if (idx == 3) {
+                return {
+                    res: null,
+                    error: 1
+                };
             }
+
+            console.log(`[${new Date().toLocaleTimeString()}](${idx}) - Retrying request to ${endpoint}...`);
+            await sleep(250);
+
+            requestAuthenticated(endpoint, data, idx + 1);
         }
     }
 };

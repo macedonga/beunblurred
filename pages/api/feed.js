@@ -14,13 +14,13 @@ export default async function handler(req, res) {
     }
 
     const feedResponse = await requestAuthenticated("feeds/friends-v1", req, res).then(res => res.data);
-    const user = await requestAuthenticated("person/me", req, res);
+    const user = await requestAuthenticated("person/me", req, res).then(res => res.data);
 
     const client = await clientPromise;
     const db = client.db("beunblurred");
     const users = db.collection("users");
 
-    const userFromDb = await users.findOne({ id: user.data.id });
+    const userFromDb = await users.findOne({ id: user?.id });
 
     return res.status(200).json({
         ...feedResponse,

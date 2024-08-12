@@ -13,7 +13,12 @@ export default async function handler(req, res) {
         });
     }
 
-    const feedResponse = await requestAuthenticated("feeds/friends-v1", req, res).then(res => res.data);
+    const feedResponse = await requestAuthenticated("feeds/friends-v1", req, res);
+    if (feedResponse.refreshedToken) {
+        req.cookies["token"] = feedResponse.token;
+        req.cookies["refreshToken"] = feedResponse.refreshToken;
+    }
+    
     const user = await requestAuthenticated("person/me", req, res).then(res => res.data);
 
     const client = await clientPromise;
@@ -23,8 +28,8 @@ export default async function handler(req, res) {
     const userFromDb = await users.findOne({ id: user?.id });
 
     return res.status(200).json({
-        ...feedResponse,
-        friendsPosts: feedResponse.friendsPosts.reverse(),
+        ...feedResponse.data,
+        friendsPosts: feedResponse.data.friendsPosts.reverse(),
         showUpdateCredsAlert: userFromDb?.shouldUpdateCredentials
     });
 };

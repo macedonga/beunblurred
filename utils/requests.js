@@ -28,7 +28,7 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
         ];
 
         for (const cookie of requiredCookies) {
-            data[cookie] = getCookie(cookie, { req: request, res: response });
+            data[cookie] = request.cookies[cookie];
         }
         let SIGNATURE = await fetchSignature();
 
@@ -85,12 +85,22 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
             setCookie("token", refreshData.data.access_token, setCookieOptions);
             setCookie("refreshToken", refreshData.data.refresh_token, setCookieOptions);
             setCookie("tokenExpiration", Date.now() + (refreshData.data.expires_in * 1000), setCookieOptions);
+            request.cookies = {
+                ...request.cookies,
+                token: refreshData.data.access_token,
+                refreshToken: refreshData.data.refresh_token
+            };
 
             options.headers["Authorization"] = `Bearer ${refreshData.data.access_token}`;
 
             const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
 
-            return res;
+            return {
+                ...res,
+                refreshedToken: true,
+                token: refreshData.data.access_token,
+                refreshToken: refreshData.data.refresh_token
+            };
         }
     } catch (e) {
         if (idx == 3)

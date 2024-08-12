@@ -11,7 +11,7 @@ export default async (req, res) => {
     const data = [];
 
     for (const cookie of requiredCookies) {
-        data[cookie] = hasCookie(cookie, { req, res });
+        data[cookie] = req.cookies[cookie];
     }
 
     if (Object.keys(data).map(k => data[k]).includes(false)) {

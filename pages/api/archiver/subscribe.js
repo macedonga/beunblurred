@@ -26,19 +26,31 @@ export default async function handler(req, res) {
     }
 
     const stripe = Stripe(process.env.STRIPE_API_KEY);
-    const session = await stripe.checkout.sessions.create({
-        customer: userFromDb.stripeCustomerId,
-        line_items: [
-            {
-                price: process.env.STRIPE_PRODUCT_ID,
-                quantity: 1,
-            },
-        ],
-        mode: "subscription",
-        allow_promotion_codes: true,
-        success_url: "https://www.beunblurred.co/archiver/load",
-        cancel_url: "https://www.beunblurred.co/archiver",
+    const customer = await stripe.customers.retrieve(userFromDb.stripeCustomerId, {
+        expand: ["subscriptions"],
     });
 
-    res.status(200).redirect(session.url);
+    if (customer.subscriptions?.data?.length == 0) {
+        const session = await stripe.checkout.sessions.create({
+            customer: userFromDb.stripeCustomerId,
+            line_items: [
+                {
+                    price: process.env.STRIPE_PRODUCT_ID,
+                    quantity: 1,
+                },
+            ],
+            mode: "subscription",
+            allow_promotion_codes: true,
+            success_url: "https://www.beunblurred.co/archiver/load",
+            cancel_url: "https://www.beunblurred.co/archiver",
+        });
+        res.status(200).redirect(session.url);
+    } else {
+        const portalSession = await stripe.billingPortal.sessions.create({
+            customer: userFromDb.stripeCustomerId,
+            return_url: "https://www.beunblurred.co/archiver",
+        });
+
+        res.status(200).redirect(portalSession.url);
+    }
 }

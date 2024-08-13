@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         const customer = await stripe.customers.retrieve(userFromDb.stripeCustomerId, {
             expand: ["subscriptions"],
         });
-        showPaymentError = customer.subscriptions?.data?.length == 0 || customer.subscriptions?.data[0]?.status !== "active";
+        showPaymentError = customer.subscriptions?.data?.length == 0 || customer.subscriptions?.data[0]?.status !== "active" || userFromDb.showPaymentError;
     }
 
     return res.status(200).json({

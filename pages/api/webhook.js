@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         await users.updateOne({ id: user.id }, { $set: { active: false, paid: false, subscriptionId: null } });
     } else if (event.type === "invoice.payment_failed") {
         stripe.subscriptions.del(user.subscriptionId);
-        await users.updateOne({ id: user.id }, { $set: { active: false, paid: false, subscriptionId: null } });
+        await users.updateOne({ id: user.id }, { $set: { active: false, paid: false, showPaymentError: true } });
     }
 
     res.json({ received: true })

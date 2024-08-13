@@ -3,7 +3,6 @@ require("dotenv").config();
 const axios = require("axios");
 const { MongoClient } = require("mongodb");
 const { requestAuthenticated } = require("./requests");
-const { ca } = require("timeago.js/lib/lang");
 
 const client = new MongoClient(process.env.MONGODB_URI);
 const { DEBUG } = process.env;

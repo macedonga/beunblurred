@@ -89,7 +89,7 @@ const requestAuthenticated = async (endpoint, data, idx = 0) => {
             console.log(`[${new Date().toLocaleTimeString()}](${idx}) - Retrying request to ${endpoint}...`);
             await sleep(250);
 
-            requestAuthenticated(endpoint, data, idx + 1);
+            return requestAuthenticated(endpoint, data, idx + 1);
         }
     }
 };

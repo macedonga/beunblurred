@@ -198,14 +198,12 @@ export default function ArchiverMainPage({
                 >
                     <button
                         className={`
-                            px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
+                            px-4 py-2 bg-red-500/10 rounded-lg transition-all border-2 border-red-500/10
                             disabled:opacity-50 disabled:cursor-not-allowed mt-4 outline-none w-full
                         `}
                     >
-                        <p>
-                            <T keyName="subscribeArchiver" />
-                        </p>
-                        <p className="text-sm opacity-75"><T keyName="signupCtaSubtitle" /></p>
+                        <p><T keyName="archiverPaymentError" /></p>
+                        <p className="text-sm opacity-75"><T keyName="archiverPaymentErrorSubtitle" /></p>
                     </button>
                 </Link>
         }
@@ -445,7 +443,7 @@ export async function getServerSideProps({ req, res }) {
         expand: ["subscriptions"],
     });
 
-    if (customer.subscriptions?.data?.length == 0) {
+    if (customer.subscriptions?.data?.length == 0 || customer.subscriptions?.data[0]?.status !== "active") {
         await users.updateOne({ id: user.data.id }, { $set: { paid: false, active: false } });
 
         userFromDb = {

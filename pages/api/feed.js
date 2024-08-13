@@ -1,4 +1,5 @@
 import { hasCookie } from "cookies-next";
+import Stripe from "stripe";
 
 import { requestAuthenticated } from "@/utils/requests";
 import checkAuth from "@/utils/checkAuth";
@@ -27,9 +28,19 @@ export default async function handler(req, res) {
 
     const userFromDb = await users.findOne({ id: user?.id });
 
+    let showPaymentError = false;
+    if (userFromDb) {
+        const stripe = Stripe(process.env.STRIPE_API_KEY);
+        const customer = await stripe.customers.retrieve(userFromDb.stripeCustomerId, {
+            expand: ["subscriptions"],
+        });
+        showPaymentError = customer.subscriptions?.data?.length == 0 || customer.subscriptions?.data[0]?.status !== "active";
+    }
+
     return res.status(200).json({
         ...feedResponse.data,
         friendsPosts: feedResponse.data.friendsPosts.reverse(),
-        showUpdateCredsAlert: userFromDb?.shouldUpdateCredentials
+        showUpdateCredsAlert: userFromDb?.shouldUpdateCredentials,
+        showPaymentError
     });
 };

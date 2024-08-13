@@ -34,7 +34,7 @@ export async function getServerSideProps({ req, res }) {
         expand: ["subscriptions"],
     });
 
-    if (customer.subscriptions?.data?.length == 0) {
+    if (customer.subscriptions?.data?.length == 0 || customer.subscriptions?.data[0]?.status !== "active") {
         return {
             redirect: {
                 destination: "/archiver",

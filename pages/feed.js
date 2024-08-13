@@ -215,6 +215,25 @@ export default function Feed(props) {
             </button>
         }
 
+        {
+            Data.showPaymentError && (
+                <Link
+                    href="/api/archiver/subscribe"
+                >
+                    <button
+                        className={`
+                            px-4 py-2 bg-red-500/10 rounded-lg transition-all border-2 border-red-500/10
+                            disabled:opacity-50 disabled:cursor-not-allowed mt-8 outline-none w-full
+                        `}
+                    >
+                        <p><T keyName="archiverPaymentError" /></p>
+                        <p className="text-sm opacity-75"><T keyName="archiverPaymentErrorSubtitle" /></p>
+                    </button>
+                </Link>
+            )
+        }
+
+
         <div
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}
         >

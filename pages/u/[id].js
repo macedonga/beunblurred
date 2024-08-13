@@ -106,7 +106,7 @@ export default function User(props) {
                     `}
                 >
                     <h2 className="text-lg font-medium text-center">
-                        {props.posts.length} <T keyName={"archiverPostTitle"} />
+                        <T keyName={"archiverPostTitleUserPages"} params={{ count: props.posts.length }} />
                     </h2>
 
                     {

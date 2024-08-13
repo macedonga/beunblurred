@@ -34,14 +34,14 @@ export default async function handler(req, res) {
     if (event.type === 'invoice.paid') {
         if (event.data.object.billing_reason == "subscription_create") {
             // new subscription
-            await users.updateOne({ id: user.id }, { $set: { active: true } });
+            await users.updateOne({ id: user.id }, { $set: { active: true, paid: true } });
         }
     } else if (event.type === "customer.subscription.deleted") {
         // deleted subscription
-        await users.updateOne({ id: user.id }, { $set: { active: false, subscriptionId: null } });
+        await users.updateOne({ id: user.id }, { $set: { active: false, paid: false, subscriptionId: null } });
     } else if (event.type === "invoice.payment_failed") {
         stripe.subscriptions.del(user.subscriptionId);
-        await users.updateOne({ id: user.id }, { $set: { active: false, subscriptionId: null } });
+        await users.updateOne({ id: user.id }, { $set: { active: false, paid: false, subscriptionId: null } });
     }
 
     res.json({ received: true })

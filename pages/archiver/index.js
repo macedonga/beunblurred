@@ -499,7 +499,7 @@ export async function getServerSideProps({ req, res }) {
                 availableDates,
                 archivedToday,
                 archivedYesterday,
-                subscription: customer.subscriptions?.data?.length != 0 || customer.subscriptions?.data[0]?.status !== "active"
+                subscription: customer.subscriptions?.data?.length != 0 || customer.subscriptions?.data[0]?.status === "active"
             },
             includeYesterday: feed.data.friendsPosts.map(m => m.id).map(id => archivedToday.map(m => m.id).find(m => m.id === id) == id).includes(true),
             archiverError: !!userFromDb.shouldUpdateCredentials

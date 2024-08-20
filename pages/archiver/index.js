@@ -11,6 +11,7 @@ import { requestAuthenticated } from "@/utils/requests";
 import { T, useTranslate } from "@tolgee/react";
 import clientPromise from "@/utils/mongo";
 import checkAuth from "@/utils/checkAuth";
+import ArchiverPostComponent from "@/components/ArchiverPostComponent";
 import Popup from "@/components/Popup";
 
 import Stripe from "stripe";
@@ -225,130 +226,56 @@ export default function ArchiverMainPage({
         }
 
         {
-            Loading && <p className="text-center text-white mt-4">
+            Loading && <p className="text-center text-white lg:mt-8 mt-4">
                 <T keyName="loading" />
             </p>
         }
+        {
+            !Loading && ((ArchiverData.selectedDate === "today") ?
+                <div className="grid lg:grid-cols-2 gap-2 lg:mt-8 mt-4">
+                    {friends?.map((friend, index) => {
+                        let combined = [
+                            ...userData.archivedToday,
+                            ...userData.archivedYesterday
+                        ];
 
-        <div
-            className={"grid lg:grid-cols-2 gap-2 mt-4"}
-        >
-            {
-                !Loading && (ArchiverData.selectedDate === "today") ? friends?.map((friend, index) => {
-                    let combined = [
-                        ...userData.archivedToday,
-                        ...userData.archivedYesterday
-                    ];
+                        if (feed?.find((post) => post.user.username == friend.username)) {
+                            const posts = combined
+                                .filter(p => p.id == friend.id);
 
-                    if (feed?.find((post) => post.user.username == friend.username)) {
-                        const posts = combined
-                            .filter(p => p.id == friend.id);
-
-                        var post = null;
-                        if (posts.length > 1) {
-                            let latestDate = new Date(Math.max(...posts.map(p => new Date(p.date)))).toISOString().split("T")[0];
-                            post = posts.filter(p => {
-                                var d = new Date(p.date);
-                                return d.toISOString().split("T")[0] === latestDate;
-                            })[0];
-                        } else if (posts.length == 1) {
-                            post = posts[0];
+                            var post = null;
+                            if (posts.length > 1) {
+                                let latestDate = new Date(Math.max(...posts.map(p => new Date(p.date)))).toISOString().split("T")[0];
+                                post = posts.filter(p => {
+                                    var d = new Date(p.date);
+                                    return d.toISOString().split("T")[0] === latestDate;
+                                })[0];
+                            } else if (posts.length == 1) {
+                                post = posts[0];
+                            }
                         }
-                    }
 
-                    return (<>
-                        <div
-                            key={index}
-                            className="cursor-pointer"
-                            onClick={() => {
-                                if (!ArchiverData.subscription) {
-                                    alert("You haven't paid yet!\nClick on the button at the top of the page to go to the payment page.");
-                                    return;
-                                }
-
-                                if (!post) {
-                                    alert("Post not archived yet.")
-                                } else {
-                                    router.push(`/archiver/${friend.id}/${new Date(post.date).toISOString().split("T")[0]}`);
-                                }
-                            }}
-                        >
-                            <div className="py-2 px-4 flex items-center bg-white/5 border-white/10 border-2 rounded-t-lg">
-                                {
-                                    friend.profilePicture?.url ?
-                                        <img
-                                            className="w-12 h-12 rounded-lg border-black border-2 mr-4"
-                                            src={friend.profilePicture?.url}
-                                            alt="Profile picture"
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = "https://cdn.caards.co/assets/default-avatar.png";
-                                            }}
-                                        /> :
-                                        <div className="w-12 h-12 rounded-lg bg-white/5 relative border-full border-black justify-center align-middle flex mr-4">
-                                            <div className="m-auto text-2xl uppercase font-bold">{friend.username.slice(0, 1)}</div>
-                                        </div>
-                                }
-                                <p className="text-sm text-white">
-                                    {friend.fullname || "@" + friend.username}
-                                    {
-                                        friend.fullname && <>
-                                            <br />
-                                            <span className="text-xs opacity-75">
-                                                {"@" + friend.username}
-                                            </span>
-                                        </>
-                                    }
-                                </p>
-                            </div>
-
-                            <div className="flex">
-                                <p
-                                    className={`
-                                        border-l-2 border-b-2 rounded-bl-lg text-sm text-white/80
-                                        ${post ?
-                                            "border-green-500/10 bg-green-500/25" :
-                                            feed?.find((post) => post.user.username === friend.username) ?
-                                                "border-red-500/10 bg-red-500/25" :
-                                                "border-yellow-500/10 bg-yellow-500/25"}
-                                        w-[50%] flex justify-center items-center
-                                    `}
-                                >
-                                    <T keyName={post ? "archivedUPost" : "notArchivedUPost"} />
-                                </p>
-                                <p
-                                    className={`
-                                        border-r-2 border-b-2 rounded-br-lg text-sm text-white/80
-                                        ${feed?.find((post) => post.user.username === friend.username) ?
-                                            "border-green-500/10 bg-green-500/25" :
-                                            "border-yellow-500/10 bg-yellow-500/25"}
-                                        w-[50%] flex justify-center items-center
-                                    `}
-                                >
-                                    <T keyName={feed?.find((post) => post.user.username == friend.username) ? "friendPosted" : "friendNotPosted"} />
-                                </p>
-                            </div>
-
-                            <p>
-                            </p>
-                        </div>
-                    </>);
-                }) : (<>
-                    {
-                        ArchiverData.posts?.map((post, index) => (
+                        return (<>
                             <div
                                 key={index}
-                                className="cursor-pointer"
+                                className={!!!post ? "" : "cursor-pointer"}
                                 onClick={() => {
-                                    router.push(`/archiver/${post.uid}/${ArchiverData.selectedDate}`)
+                                    if (!ArchiverData.subscription && post) {
+                                        alert("You haven't paid yet!\nClick on the button at the top of the page to go to the payment page.");
+                                        return;
+                                    }
+
+                                    if (post) {
+                                        router.push(`/archiver/${friend.id}/${new Date(post.date).toISOString().split("T")[0]}`);
+                                    }
                                 }}
                             >
-                                <div className="py-2 px-4 flex items-center bg-white/5 border-white/10 border-2 rounded-lg">
+                                <div className="py-2 px-4 flex items-center bg-white/5 border-white/10 border-2 rounded-t-lg">
                                     {
-                                        post.from?.profilePicture ?
+                                        friend.profilePicture?.url ?
                                             <img
                                                 className="w-12 h-12 rounded-lg border-black border-2 mr-4"
-                                                src={post.from?.profilePicture}
+                                                src={friend.profilePicture?.url}
                                                 alt="Profile picture"
                                                 onError={(e) => {
                                                     e.target.onerror = null;
@@ -356,21 +283,68 @@ export default function ArchiverMainPage({
                                                 }}
                                             /> :
                                             <div className="w-12 h-12 rounded-lg bg-white/5 relative border-full border-black justify-center align-middle flex mr-4">
-                                                <div className="m-auto text-2xl uppercase font-bold">{post.from.username.slice(0, 1)}</div>
+                                                <div className="m-auto text-2xl uppercase font-bold">{friend.username.slice(0, 1)}</div>
                                             </div>
                                     }
                                     <p className="text-sm text-white">
-                                        @{post.from.username}
+                                        {friend.fullname || "@" + friend.username}
+                                        {
+                                            friend.fullname && <>
+                                                <br />
+                                                <span className="text-xs opacity-75">
+                                                    {"@" + friend.username}
+                                                </span>
+                                            </>
+                                        }
                                     </p>
                                 </div>
+
+                                <div className="flex">
+                                    <p
+                                        className={`
+                                        border-l-2 border-b-2 rounded-bl-lg text-sm text-white/80
+                                        ${post ?
+                                                "border-green-500/10 bg-green-500/25" :
+                                                feed?.find((post) => post.user.username === friend.username) ?
+                                                    "border-red-500/10 bg-red-500/25" :
+                                                    "border-yellow-500/10 bg-yellow-500/25"}
+                                        w-[50%] flex justify-center items-center
+                                    `}
+                                    >
+                                        <T keyName={post ? "archivedUPost" : "notArchivedUPost"} />
+                                    </p>
+                                    <p
+                                        className={`
+                                        border-r-2 border-b-2 rounded-br-lg text-sm text-white/80
+                                        ${feed?.find((post) => post.user.username === friend.username) ?
+                                                "border-green-500/10 bg-green-500/25" :
+                                                "border-yellow-500/10 bg-yellow-500/25"}
+                                        w-[50%] flex justify-center items-center
+                                    `}
+                                    >
+                                        <T keyName={feed?.find((post) => post.user.username == friend.username) ? "friendPosted" : "friendNotPosted"} />
+                                    </p>
+                                </div>
+
                                 <p>
                                 </p>
                             </div>
-                        ))
-                    }
-                </>)
-            }
-        </div>
+                        </>);
+                    })}
+                </div> : (
+                    <div className="grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4">
+                        {
+                            ArchiverData.posts?.map((post, index) => (
+                                <ArchiverPostComponent
+                                    key={index}
+                                    data={post}
+                                />
+                            ))
+                        }
+                    </div>
+                ))
+        }
+
     </>)
 };
 

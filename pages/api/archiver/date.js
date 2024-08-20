@@ -60,5 +60,14 @@ export default async function handler(req, res) {
         returnPosts.push(post);
     }
 
+    returnPosts.sort((a, b) => {
+        // Get the latest date in each object
+        const latestDateA = new Date(Math.max(...a.posts.map(d => new Date(d.takenAt))));
+        const latestDateB = new Date(Math.max(...b.posts.map(d => new Date(d.takenAt))));
+
+        // Compare the dates
+        return latestDateB - latestDateA;
+    });
+
     res.status(200).json({ message: "Success", posts: returnPosts });
 }

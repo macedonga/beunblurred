@@ -15,6 +15,7 @@ import {
     PlusIcon,
     MapPinIcon,
     Bars3Icon,
+    ArchiveBoxIcon,
 } from "@heroicons/react/20/solid";
 import Popup from "./Popup";
 import BTSIcon from "@/assets/BTSIcon";
@@ -589,7 +590,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                         }
                         {
                             (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter > 0 && <>
-                                <br />
+                                {" • "}
                                 {(isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter} {
                                     (isDiscovery ? PostData : PostData.posts[PostIndex]).retakeCounter !== 1 ?
                                         <T keyName="retakes" />
@@ -607,6 +608,12 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                         :
                                         <T keyName="postedFromiOS" />
                                 }
+                            </>
+                        }
+                        {
+                            data.archived && <>
+                                {typeof IsAndroid === "boolean" && " • "}
+                                <T keyName={"archivedUPost"} />
                             </>
                         }
                     </span>

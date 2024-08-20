@@ -19,27 +19,40 @@ export default async function handler(req, res) {
         req.cookies["token"] = feedResponse.token;
         req.cookies["refreshToken"] = feedResponse.refreshToken;
     }
-    
+
     const user = await requestAuthenticated("person/me", req, res).then(res => res.data);
 
     const client = await clientPromise;
     const db = client.db("beunblurred");
     const users = db.collection("users");
+    const posts = db.collection("posts");
 
     const userFromDb = await users.findOne({ id: user?.id });
 
     let showPaymentError = false;
+    let friendsPosts = feedResponse.data.friendsPosts.reverse();
     if (userFromDb) {
         const stripe = Stripe(process.env.STRIPE_API_KEY);
         const customer = await stripe.customers.retrieve(userFromDb.stripeCustomerId, {
             expand: ["subscriptions"],
         });
         showPaymentError = customer.subscriptions?.data?.length == 0 || customer.subscriptions?.data[0]?.status !== "active" || userFromDb.showPaymentError;
+
+        let queries = {
+            id: { $in: friendsPosts.map(p => p.momentId) },
+            uid: { $in: friendsPosts.map(p => p.user.id) }
+        };
+
+        const results = (await posts.find(queries).toArray()).map(p => ({ id: p.id, uid: p.uid }));
+        for (const result of results) {
+            let idx = friendsPosts.findIndex(p => p.momentId === result.id && p.user.id === result.uid);
+            friendsPosts[idx].archived = true;
+        }
     }
 
     return res.status(200).json({
         ...feedResponse.data,
-        friendsPosts: feedResponse.data.friendsPosts.reverse(),
+        friendsPosts,
         showUpdateCredsAlert: userFromDb?.shouldUpdateCredentials,
         showPaymentError
     });

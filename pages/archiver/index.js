@@ -415,7 +415,6 @@ export async function getServerSideProps({ req, res }) {
 
     availableDates = Object.keys(availableDates)
         .sort((a, b) => new Date(b) - new Date(a))
-        .slice(0, 7)
         .reverse()
         .map((date) => ({ date, count: availableDates[date] }));
     availableDates = availableDates

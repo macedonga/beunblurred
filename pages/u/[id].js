@@ -109,6 +109,17 @@ export default function User(props) {
                         <T keyName={"archiverPostTitleUserPages"} params={{ count: props.posts.length }} />
                     </h2>
 
+                    <Link
+                        href={`/archiver/${props.user.id}/feed?fromUserPage=1`}
+                        as={`/archiver/${props.user.id}/feed`}
+                        className={`
+                                    px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
+                                    disabled:opacity-50 disabled:cursor-not-allowed outline-none w-full text-center
+                                `}
+                    >
+                        <T keyName={"archiverViewAllUsersPost"} params={{ user: props.user.username }} />
+                    </Link>
+
                     {
                         props.posts.map((p, index) => (
                             <Link

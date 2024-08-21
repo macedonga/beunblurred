@@ -1,4 +1,6 @@
 {
+  "archiverViewAllUsersPost": "Ver todas las publicaciones archivadas de {user}",
+  "archiverFeedUserTitle": "Publicaciones archivadas de {user}",
   "archiverPaymentError": "Parece que no finalizaste tu pago para el Archiver.",
   "archiverPaymentErrorSubtitle": "Haz clic aquí para pagar ahora. Si cambiaste de opinión, no tienes que hacer nada.",
   "archiverPostTitleUserPages": "{count, plural, =0 {Ninguna} one {1 publicación archivada} other {# publicaciones archivadas}}",

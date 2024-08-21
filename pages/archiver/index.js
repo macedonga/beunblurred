@@ -339,6 +339,7 @@ export default function ArchiverMainPage({
                                     key={index}
                                     data={post}
                                     locale={locale}
+                                    showFeedButton={true}
                                 />
                             ))
                         }

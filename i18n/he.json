@@ -1,4 +1,6 @@
 {
+  "archiverViewAllUsersPost": "צפה בכל הפוסטים בארכיון של {user}",
+  "archiverFeedUserTitle": "פוסטים בארכיון של {user}",
   "archiverPaymentError": "נראה שלא השלמת את התשלום עבור הארכיבר.",
   "archiverPaymentErrorSubtitle": "לחץ כאן כדי לשלם עכשיו. אם שינית את דעתך, אינך צריך לעשות דבר.",
   "archiverPostTitleUserPages": "{count, plural, =0 {אין} one {פוסט אחד בארכיון} other {# פוסטים בארכיון}}",

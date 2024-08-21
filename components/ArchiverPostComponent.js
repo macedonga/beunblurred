@@ -17,7 +17,7 @@ import {
 import Popup from "./Popup";
 import BTSIcon from "@/assets/BTSIcon";
 
-export default function PostComponent({ data, locale }) {
+export default function PostComponent({ data, locale, showFeedButton }) {
     const { t } = useTranslate();
     const router = useRouter();
 
@@ -623,6 +623,19 @@ export default function PostComponent({ data, locale }) {
                         </p>
                     </div>
                 </a>
+            }
+
+            {showFeedButton &&
+                <Link
+                    href={`/archiver/${PostData.uid}/feed?fromUserPage=1`}
+                    as={`/archiver/${PostData.uid}/feed`}
+                    className={`
+                    px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
+                    disabled:opacity-50 disabled:cursor-not-allowed outline-none w-full text-center
+                `}
+                >
+                    <T keyName={"archiverViewAllUsersPost"} params={{ user: PostData.from.username }} />
+                </Link>
             }
 
             {

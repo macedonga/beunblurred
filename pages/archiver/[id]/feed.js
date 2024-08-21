@@ -16,30 +16,31 @@ import ArchiverPostComponent from "@/components/ArchiverPostComponent";
 
 export default function ArchiverPostPage({
     user,
-    post,
-    date,
+    posts,
     locale
 }) {
     const router = useRouter();
 
     return (<>
-        <NextSeo title={`${post.from?.username} post from ${new Date(date).toLocaleDateString("en-US", {
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        }) }`} />
+        <NextSeo title={`${posts[0]?.from?.username} archived posts`} />
 
         <h1 className="text-3xl font-semibold text-center mb-8">
-            <T keyName="archiverPostTitle" />
+            <T keyName="archiverFeedUserTitle" params={{ user: posts[0]?.from?.username }} />
         </h1>
 
-        <ArchiverPostComponent
-            data={post}
-            locale={locale}
-            showFeedButton={true}
-        />
+        <div className="grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4">
+            {
+                posts?.map((post, index) => (
+                    <ArchiverPostComponent
+                        key={index}
+                        data={post}
+                        locale={locale}
+                    />
+                ))
+            }
+        </div>
 
-        <Link href={router.query?.fromUserPage ? `/u/${post.uid}` : "/archiver"}>
+        <Link href={router.query?.fromUserPage ? `/u/${posts[0].uid}` : "/archiver"}>
             <button
                 className={`
                     px-4 py-2 bg-white/5 rounded-lg transition-all border-2 border-white/10
@@ -73,49 +74,31 @@ export async function getServerSideProps({ req, res, params }) {
         }
     }
 
-    var date = params.date;
-    if (date === "today") {
-        date = new Date();
-    } else {
-        try {
-            date = new Date(date);
-        } catch (e) {
-            return {
-                notFound: true
-            };
-        }
-    }
-
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const postFromDb = await posts.findOne({
+    const postsFromDb = (await posts.find({
         for: { $in: [user.data.id] },
         uid: params.id,
-        date: {
-            $gte: startOfDay,
-            $lt: endOfDay
-        }
+    }).toArray())?.map(post => {
+        delete post._id;
+        delete post.for;
+        delete post.date;
+        return post;
+    })?.sort((a, b) => {
+        const latestDateA = new Date(Math.max(...a.posts.map(d => new Date(d.takenAt))));
+        const latestDateB = new Date(Math.max(...b.posts.map(d => new Date(d.takenAt))));
+
+        return latestDateB - latestDateA;
     });
 
-    if (!postFromDb) {
+    if (!postsFromDb || postsFromDb.length == 0) {
         return {
             notFound: true
         };
     }
 
-    delete postFromDb.for;
-    delete postFromDb._id;
-    delete postFromDb.date;
-
     return {
         props: {
             user: JSON.parse(getCookie("user", { req, res })),
-            post: postFromDb,
-            date: date.toString()
+            posts: postsFromDb,
         }
     };
 };

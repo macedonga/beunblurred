@@ -1,4 +1,6 @@
 {
+  "archiverViewAllUsersPost": "Bekijk alle gearchiveerde berichten van {user}",
+  "archiverFeedUserTitle": "Gearchiveerde berichten van {user}",
   "archiverPaymentError": "Het lijkt erop dat je je betaling voor de Archiver niet hebt afgerond.",
   "archiverPaymentErrorSubtitle": "Klik hier om nu te betalen. Als je van gedachten bent veranderd, hoef je niets te doen.",
   "archiverPostTitleUserPages": "{count, plural, =0 {Geen} one {1 gearchiveerd bericht} other {# gearchiveerde berichten}}",

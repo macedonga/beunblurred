@@ -1,4 +1,6 @@
 {
+  "archiverViewAllUsersPost": "Zobacz wszystkie zarchiwizowane posty użytkownika {user}",
+  "archiverFeedUserTitle": "Zarchiwizowane posty użytkownika {user}",
   "archiverPaymentError": "Wygląda na to, że nie sfinalizowałeś płatności za Archiver.",
   "archiverPaymentErrorSubtitle": "Kliknij tutaj, aby zapłacić teraz. Jeśli zmieniłeś zdanie, nie musisz nic robić.",
   "archiverPostTitleUserPages": "{count, plural, =0 {Brak} one {1 zarchiwizowany post} other {# zarchiwizowanych postów}}",

@@ -1,4 +1,6 @@
 {
+  "archiverViewAllUsersPost": "View all archived posts of {user}",
+  "archiverFeedUserTitle": "Archived posts of {user}",
   "archiverPaymentError": "Looks like you didn't finalize your payment for the Archiver.",
   "archiverPaymentErrorSubtitle": "Click here to pay now. If you changed your mind, you don't have to do anything.",
   "archiverPostTitleUserPages": "{count, plural, =0 {Nessuna} one {1 archived post} other {# archived posts}}",

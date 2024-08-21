@@ -338,6 +338,7 @@ export default function ArchiverMainPage({
                                 <ArchiverPostComponent
                                     key={index}
                                     data={post}
+                                    locale={locale}
                                 />
                             ))
                         }

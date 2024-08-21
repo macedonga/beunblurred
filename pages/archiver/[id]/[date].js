@@ -35,6 +35,7 @@ export default function ArchiverPostPage({
 
         <ArchiverPostComponent
             data={post}
+            locale={locale}
         />
 
         <Link href={router.query?.fromUserPage ? `/u/${post.uid}` : "/archiver"}>

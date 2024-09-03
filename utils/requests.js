@@ -5,7 +5,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 const fetchSignature = async (i = 0) => {
     try {
-        const res = await axios.get("https://sig.beunblurred.co/get?token=i1w3j4DHDDS82j12");
+        const res = await axios.get("https://sig.beunblurred.co/get?token=sOWSRnugxI");
         return res.data;
     } catch (e) {
         if (i < 3) {

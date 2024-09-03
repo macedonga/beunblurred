@@ -157,7 +157,7 @@ export default function Login() {
       return;
     }
 
-    router.push("/feed");
+    window.location.href = "/feed";
   };
 
   const verifyVonage = async () => {
@@ -198,8 +198,8 @@ export default function Login() {
       });
       return;
     }
-
-    router.push("/feed");
+    
+    window.location.href = "/feed";
   };
 
   const verifyOTP = async () => {

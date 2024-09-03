@@ -16,7 +16,7 @@ module.exports = withPWA({
       }
     ]
   },
-  reactStrictMode: true,
+  reactStrictMode: false,
   i18n: {
     locales: ["en", "it", "de", "es", "fr", "nl", "pl", "he"],
     defaultLocale: "en",

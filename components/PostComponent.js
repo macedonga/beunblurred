@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { T, useTranslate } from "@tolgee/react";
 import cookieCutter from "cookie-cutter";
 import Notification from "./Notification";
+import { useSwipeable } from "react-swipeable";
 
 import {
     ChevronLeftIcon,
@@ -46,8 +47,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     const [PostIndex, setPostIndex] = useState(0);
     const [ShowMain, setShowMain] = useState(true);
     const [ShowSecondary, setShowSecondary] = useState(true);
-    const [BlobUrlPrimary, setBlobUrlPrimary] = useState(null);
-    const [BlobUrlSecondary, setBlobUrlSecondary] = useState(null);
+    const [BlobUrlPrimary, setBlobUrlPrimary] = useState([null]);
+    const [BlobUrlSecondary, setBlobUrlSecondary] = useState([null]);
     const [IsAndroid, setIsAndroid] = useState(null);
     const [ShowOptionsMenu, setShowOptionsMenu] = useState(false);
     const [ShowRealmojisMenu, setShowRealmojisMenu] = useState(false);
@@ -93,6 +94,21 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     const [LoadingOptionIndex, setLoadingOptionIndex] = useState([]);
     const [ErrorData, setErrorData] = useState({ show: false });
     const [LoadingPostingComment, setLoadingPostingComment] = useState(false);
+
+    const handlers = useSwipeable({
+        onSwipedLeft: () => {
+            if (PostIndex < PostData.posts.length - 1) {
+                setPostIndex(PostIndex + 1);
+            }
+        },
+        onSwipedRight: () => {
+            if (PostIndex > 0) {
+                setPostIndex(PostIndex - 1);
+            }
+        },
+        preventDefaultTouchmoveEvent: true,
+        trackMouse: true,
+    });
 
     const downloadImage = async (main) => {
         const url = main ? (isDiscovery ? PostData.photoURL : PostData.posts[PostRef.current].primary.url) : (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostRef.current].secondary.url);
@@ -204,21 +220,24 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     };
 
     const fetchImages = async (postIndex) => {
-        setBlobUrlPrimary(null);
-        setBlobUrlSecondary(null);
-
-        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[PostIndex].primary.url), {
+        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[postIndex].primary.url), {
             method: "GET",
             mode: "cors",
             headers: {
                 'Access-Control-Allow-Origin': '*'
             }
         }).catch((e) => {
-            setBlobUrlPrimary(false);
+            setBlobUrlPrimary((o) => {
+                const updated = o.toSpliced(postIndex, 0, false);
+                return updated;
+            });
             console.error("Couldn't load primary image.", e);
         }).then(res => res.blob()).then(async blob => {
             const blobUrl = URL.createObjectURL(blob);
-            setBlobUrlPrimary(blobUrl);
+            setBlobUrlPrimary((o) => {
+                const updated = o.toSpliced(postIndex, 0, blobUrl);
+                return updated;
+            });
 
             const arrayBuffer = await blob.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
@@ -229,24 +248,36 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 setIsAndroid(false);
             }
         }).catch((e) => {
-            setBlobUrlPrimary(false);
+            setBlobUrlPrimary((o) => {
+                const updated = o.toSpliced(postIndex, 0, false);
+                return updated;
+            });
             console.error("Something happened converting the blob to blobUrl.", e);
         });
 
-        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[PostIndex].secondary.url), {
+        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[postIndex].secondary.url), {
             method: "GET",
             mode: "cors",
             headers: {
                 'Access-Control-Allow-Origin': '*'
             }
         }).catch((e) => {
-            setBlobUrlSecondary(false);
+            setBlobUrlSecondary((o) => {
+                const updated = o.toSpliced(postIndex, 0, false);
+                return updated;
+            });
             console.error("Couldn't load secondary image.", e);
         }).then(res => res.blob()).then(async blob => {
             const blobUrl = URL.createObjectURL(blob);
-            setBlobUrlSecondary(blobUrl);
+            setBlobUrlSecondary((o) => {
+                const updated = o.toSpliced(postIndex, 0, blobUrl);
+                return updated;
+            });
         }).catch((e) => {
-            setBlobUrlSecondary(false);
+            setBlobUrlSecondary((o) => {
+                const updated = o.toSpliced(postIndex, 0, false);
+                return updated;
+            });
             console.error("Something happened converting the blob to blobUrl.", e);
         });;
     };
@@ -352,16 +383,14 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
     };
 
     useEffect(() => {
-        fetchImages(PostIndex);
-    }, []);
-
-    useEffect(() => {
-        PostRef.current = PostIndex;
-        fetchImages(PostIndex);
-        if ((isDiscovery ? PostData : PostData.posts[PostIndex]).location && !(isDiscovery ? PostData : PostData.posts[PostIndex]).location.name) {
-            fetchLocation(PostIndex);
+        if (isDiscovery) {
+            fetchImages(0);
+        } else {
+            for (let i in PostData.posts) {
+                fetchImages(i);
+            }
         }
-    }, [PostIndex]);
+    }, []);
 
     if (!isClient) return null;
 
@@ -535,7 +564,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     flex flex-col lg:gap-y-6 gap-y-4
                     bg-white/5
                     relative border-2 border-white/10
-                    rounded-lg lg:p-6 p-4 min-w-0
+                    rounded-lg lg:p-6 p-4 min-w-0 overflow-hidden
                 `
             }
         >
@@ -546,7 +575,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             />
 
             <div className={!isMemory ? "flex gap-x-4 items-center" : "hidden"}>
-                <Link href={`/u/${PostData.user.id}`} className="flex">
+                <Link href={`/u/${PostData.user.id}`} className="flex-shrink-0 flex">
                     {
                         PostData.user.profilePicture?.url ?
                             <Image
@@ -643,8 +672,14 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     </div>
                 )
             }
+            {
+                PostData.posts.length > 1 && (<>
+                    <div className="absolute left-0 inset-y-0 w-4 bg-gradient-to-r from-black to-transparent z-50" />
+                    <div className="absolute right-0 inset-y-0 w-4 bg-gradient-to-l from-black to-transparent z-50" />
+                </>)
+            }
 
-            <div className="relative mx-auto w-full">
+            <div {...handlers} className="relative mx-auto w-full">
                 {
                     !isDiscovery && PostData.posts[PostIndex].btsMedia && (<>
                         <button
@@ -672,123 +707,165 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     </>)
                 }
 
-                {
-                    typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "string" ? (
-                        <img
-                            // file deepcode ignore DOMXSS
-                            src={ShowMain ? BlobUrlPrimary : BlobUrlSecondary}
-                            alt={PostData.user.username}
-                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
-                            onClick={() => setShowSecondary(!ShowSecondary)}
-                        />
-                    ) : typeof (ShowMain ? BlobUrlPrimary : BlobUrlSecondary) === "boolean" ? (
-                        <div
-                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/5"
-                            onClick={() => setShowSecondary(!ShowSecondary)}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <p className="text-center text-sm opacity-80 max-w-[13em]">
-                                    Couldn't load this image.
-                                    <br />
-                                    BeReal is probably having some issues.
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div
-                            className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10 animate-pulse"
-                            onClick={() => setShowMain(!ShowMain)}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <svg
-                                    className="animate-spin h-5 w-5 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        className="opacity-25"
-                                        cx={12}
-                                        cy={12}
-                                        r={10}
-                                        stroke="currentColor"
-                                        strokeWidth={4}
+                <div className="flex" style={{ transform: `translateX(-${PostIndex * 100}%)`, transition: "transform 0.25s ease-in-out" }}>
+                    {PostData.posts.map((post, index) => (<>
+                        <div className="relative min-w-full">
+                            {
+                                typeof (ShowMain ? BlobUrlPrimary[index] : BlobUrlSecondary[index]) === "string" ? (
+                                    <img
+                                        // file deepcode ignore DOMXSS
+                                        src={ShowMain ? BlobUrlPrimary[index] : BlobUrlSecondary[index]}
+                                        alt={PostData.user.username}
+                                        className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
+                                        onClick={() => setShowSecondary(!ShowSecondary)}
                                     />
-                                    <path
-                                        className="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    />
-                                </svg>
-                            </div>
-                        </div>
-                    )
-                }
+                                ) : typeof (ShowMain ? BlobUrlPrimary[index] : BlobUrlSecondary[index]) === "boolean" ? (
+                                    <div
+                                        className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/5"
+                                        onClick={() => setShowSecondary(!ShowSecondary)}
+                                    >
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <p className="text-center text-sm opacity-80 max-w-[13em]">
+                                                Couldn't load this image.
+                                                <br />
+                                                BeReal is probably having some issues.
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10 animate-pulse"
+                                        onClick={() => setShowMain(!ShowMain)}
+                                    >
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <svg
+                                                className="animate-spin h-5 w-5 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    className="opacity-25"
+                                                    cx={12}
+                                                    cy={12}
+                                                    r={10}
+                                                    stroke="currentColor"
+                                                    strokeWidth={4}
+                                                />
+                                                <path
+                                                    className="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                )
+                            }
 
-                {
-                    typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "string" ? (
-                        <img
-                            src={ShowMain ? BlobUrlSecondary : BlobUrlPrimary}
-                            alt={PostData.user.username}
-                            className={`
-                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-white/10
-                                ${!ShowSecondary ? "hidden" : "block"}
-                            `}
-                            onClick={() => setShowMain(!ShowMain)}
-                        />
-                    ) : typeof (ShowMain ? BlobUrlSecondary : BlobUrlPrimary) === "boolean" ? (
-                        <div
-                            className={`
-                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]
-                                ${!ShowSecondary ? "hidden" : "block"}
-                            `}
-                            onClick={() => setShowMain(!ShowMain)}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <p className="text-center text-sm opacity-80">
-                                    Couldn't load this image.
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div
-                            className={`
-                                rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919] animate-pulse
-                                ${!ShowSecondary ? "hidden" : "block"}
-                            `}
-                            onClick={() => setShowMain(!ShowMain)}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <svg
-                                    className="animate-spin h-5 w-5 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        className="opacity-25"
-                                        cx={12}
-                                        cy={12}
-                                        r={10}
-                                        stroke="currentColor"
-                                        strokeWidth={4}
+                            {
+                                typeof (ShowMain ? BlobUrlSecondary[index] : BlobUrlPrimary[index]) === "string" ? (
+                                    <img
+                                        src={ShowMain ? BlobUrlSecondary[index] : BlobUrlPrimary[index]}
+                                        alt={PostData.user.username}
+                                        className={`
+                                            rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-white/10
+                                            ${!ShowSecondary ? "hidden" : "block"}
+                                        `}
+                                        onClick={() => setShowMain(!ShowMain)}
                                     />
-                                    <path
-                                        className="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    />
-                                </svg>
-                            </div>
+                                ) : typeof (ShowMain ? BlobUrlSecondary[index] : BlobUrlPrimary[index]) === "boolean" ? (
+                                    <div
+                                        className={`
+                                            rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]
+                                            ${!ShowSecondary ? "hidden" : "block"}
+                                        `}
+                                        onClick={() => setShowMain(!ShowMain)}
+                                    >
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <p className="text-center text-sm opacity-80">
+                                                Couldn't load this image.
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div
+                                        className={`
+                                            rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919] animate-pulse
+                                            ${!ShowSecondary ? "hidden" : "block"}
+                                        `}
+                                        onClick={() => setShowMain(!ShowMain)}
+                                    >
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <svg
+                                                className="animate-spin h-5 w-5 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    className="opacity-25"
+                                                    cx={12}
+                                                    cy={12}
+                                                    r={10}
+                                                    stroke="currentColor"
+                                                    strokeWidth={4}
+                                                />
+                                                <path
+                                                    className="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                )
+                            }
+
+                            {
+                                ShowSecondary && (((isDiscovery ? PostData : PostData.posts[index]).realMojis?.length > 0)
+                                    || (PostData.user.relationship?.commonFriends && PostData.posts[index].realmojis.sample.length > 0)) && (<>
+                                        <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
+                                            {
+                                                (
+                                                    (isDiscovery ? PostData : PostData.posts[index]).realMojis ||
+                                                    PostData.posts[index].realmojis.sample
+                                                ).slice(0, 3).map((realmoji, index) => (
+                                                    <div key={index} className={index == 0 ? "" : "-ml-4"}>
+                                                        <Image
+                                                            src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
+                                                            alt={`${realmoji.user.username} realmoji's`}
+                                                            title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
+                                                            className="rounded-full border-2 border-black aspect-square"
+                                                            width={48}
+                                                            height={48}
+                                                        />
+                                                    </div>
+                                                ))
+                                            }
+
+                                            {
+                                                ((isDiscovery ? PostData : PostData.posts[index]).realMojis
+                                                    || PostData.posts[index].realmojis.sample).length > 3 && (
+                                                    <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
+                                                        <p className="text-white/75 text-xl">
+                                                            +{(((isDiscovery ? PostData : PostData.posts[index]).realMojis || PostData.posts[index].realmojis.sample).length - 3)}
+                                                        </p>
+                                                    </div>
+                                                )
+                                            }
+                                        </div>
+                                    </>)
+                            }
                         </div>
-                    )
-                }
+                    </>))}
+                </div>
 
                 {
                     !isDiscovery && (<>
                         <div
                             className={`
-                                absolute right-2 inset-y-0 flex
+                                absolute right-2 inset-y-0 lg:flex hidden
                                 ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "block"}
                             `}
                         >
@@ -806,7 +883,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
                         <div
                             className={`
-                                absolute left-2 inset-y-0 flex
+                                absolute left-2 inset-y-0 lg:flex hidden
                                 ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "block"}
                             `}
                         >
@@ -822,42 +899,6 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                             </button>
                         </div>
                     </>)
-                }
-
-                {
-                    ShowSecondary && (((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis?.length > 0)
-                        || (PostData.user.relationship?.commonFriends && PostData.posts[PostIndex].realmojis.sample.length > 0)) && (<>
-                            <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
-                                {
-                                    (
-                                        (isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis ||
-                                        PostData.posts[PostIndex].realmojis.sample
-                                    ).slice(0, 3).map((realmoji, index) => (
-                                        <div key={index} className={index == 0 ? "" : "-ml-4"}>
-                                            <Image
-                                                src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
-                                                alt={`${realmoji.user.username} realmoji's`}
-                                                title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
-                                                className="rounded-full border-2 border-black aspect-square"
-                                                width={48}
-                                                height={48}
-                                            />
-                                        </div>
-                                    ))
-                                }
-
-                                {
-                                    ((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis
-                                        || PostData.posts[PostIndex].realmojis.sample).length > 3 && (
-                                        <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
-                                            <p className="text-white/75 text-xl">
-                                                +{(((isDiscovery ? PostData : PostData.posts[PostIndex]).realMojis || PostData.posts[PostIndex].realmojis.sample).length - 3)}
-                                            </p>
-                                        </div>
-                                    )
-                                }
-                            </div>
-                        </>)
                 }
             </div>
 

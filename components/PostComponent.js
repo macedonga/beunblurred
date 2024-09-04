@@ -228,15 +228,15 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             }
         }).catch((e) => {
             setBlobUrlPrimary((o) => {
-                const updated = o.toSpliced(postIndex, 0, false);
-                return updated;
+                o.splice(postIndex, 0, false);
+                return o;
             });
             console.error("Couldn't load primary image.", e);
         }).then(res => res.blob()).then(async blob => {
             const blobUrl = URL.createObjectURL(blob);
             setBlobUrlPrimary((o) => {
-                const updated = o.toSpliced(postIndex, 0, blobUrl);
-                return updated;
+                o.splice(postIndex, 0, blobUrl);
+                return o;
             });
 
             const arrayBuffer = await blob.arrayBuffer();
@@ -249,8 +249,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             }
         }).catch((e) => {
             setBlobUrlPrimary((o) => {
-                const updated = o.toSpliced(postIndex, 0, false);
-                return updated;
+                o.splice(postIndex, 0, false);
+                return o;
             });
             console.error("Something happened converting the blob to blobUrl.", e);
         });
@@ -263,20 +263,20 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             }
         }).catch((e) => {
             setBlobUrlSecondary((o) => {
-                const updated = o.toSpliced(postIndex, 0, false);
-                return updated;
+                o.splice(postIndex, 0, false);
+                return o;
             });
             console.error("Couldn't load secondary image.", e);
         }).then(res => res.blob()).then(async blob => {
             const blobUrl = URL.createObjectURL(blob);
             setBlobUrlSecondary((o) => {
-                const updated = o.toSpliced(postIndex, 0, blobUrl);
-                return updated;
+                o.splice(postIndex, 0, blobUrl);
+                return o;
             });
         }).catch((e) => {
             setBlobUrlSecondary((o) => {
-                const updated = o.toSpliced(postIndex, 0, false);
-                return updated;
+                o.splice(postIndex, 0, false);
+                return o;
             });
             console.error("Something happened converting the blob to blobUrl.", e);
         });;
@@ -865,8 +865,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     !isDiscovery && (<>
                         <div
                             className={`
-                                absolute right-2 inset-y-0 lg:flex hidden
-                                ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "block"}
+                                absolute right-2 inset-y-0
+                                ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "lg:flex hidden"}
                             `}
                         >
                             <button
@@ -883,8 +883,8 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
                         <div
                             className={`
-                                absolute left-2 inset-y-0 lg:flex hidden
-                                ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "block"}
+                                absolute left-2 inset-y-0
+                                ${(!ShowSecondary || PostData.posts.length == 1) ? "hidden" : "lg:flex hidden"}
                             `}
                         >
                             <button

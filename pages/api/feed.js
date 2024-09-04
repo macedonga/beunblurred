@@ -46,7 +46,7 @@ export default async function handler(req, res) {
         const results = (await posts.find(queries).toArray()).map(p => ({ id: p.id, uid: p.uid }));
         for (const result of results) {
             let idx = friendsPosts.findIndex(p => p.momentId === result.id && p.user.id === result.uid);
-            friendsPosts[idx].archived = true;
+            if (friendsPosts[idx]) friendsPosts[idx].archived = true;
         }
     }
 

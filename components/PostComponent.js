@@ -719,7 +719,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     style={{ transform: `translateX(-${PostIndex * 100}%)`, transition: "transform 0.25s ease-in-out" }}
                 >
                     {PostData.posts.map((p, i) => (
-                        <div key={p.id} className="relative min-w-full">
+                        <div key={p.id} className="relative min-w-full aspect-[3/4]">
                             {
                                 typeof (ShowMain ? BlobUrlPrimary[i] : BlobUrlSecondary[i]) === "string" && (
                                     <img

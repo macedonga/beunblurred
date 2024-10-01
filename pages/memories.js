@@ -1,13 +1,35 @@
 import axios from "axios";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
-import PostComponent from "../components/PostComponent";
-import { requestAuthenticated } from "@/utils/requests";
-import { NextSeo } from "next-seo";
 import Link from "next/link";
-import { T, useTranslate } from "@tolgee/react";
+import { NextSeo } from "next-seo";
 import checkAuth from "@/utils/checkAuth";
+import { T, useTranslate } from "@tolgee/react";
+import { requestAuthenticated } from "@/utils/requests";
+
+const PostComponent = dynamic(() => import("../components/PostComponent"), {
+    loading: () => (
+        <div
+            className={`
+                flex flex-col lg:gap-y-6 gap-y-4
+                bg-white/5
+                relative border-2 border-white/10
+                rounded-lg lg:p-6 p-4 min-w-0
+            `}
+        >
+            <div className="flex justify-center">
+                <div className="w-8 h-8 border-2 border-white/50 rounded-full animate-spin" />
+            </div>
+
+            <p className="text-xl text-center mt-4">
+                <T keyName={"loading"} />
+            </p>
+        </div>
+    ),
+    ssr: false,
+});
 
 export default function Memories(props) {
     const { t } = useTranslate();

@@ -116,72 +116,6 @@ export default function Feed(props) {
     return (<>
         <NextSeo title="Friends - Feed" />
 
-        {
-            ShouldShowDonationBox && (
-                <div className="rounded-lg bg-white/5 border-2 border-white/10 flex flex-col items-center lg:mb-8 mb-4">
-                    <div className="p-4">
-                        <p className="text-center text-xl font-semibold">
-                            <T keyName="donationTitleFeed" />
-                        </p>
-
-                        <p className="text-center text-sm mt-2">
-                            <T keyName="donationTitle" />
-                        </p>
-                    </div>
-                    <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
-                        <Link
-                            href="/donate"
-                            className="bg-white/5 p-2 rounded-bl-md text-center w-full grid place-items-center text-sm font-semibold"
-                        >
-                            <T keyName="donateNow" />
-                        </Link>
-                        <button
-                            onClick={() => {
-                                localStorage.setItem("donationDismissed", "true");
-                                setShouldShowDonationBox(false);
-                            }}
-                            className="bg-white/5 p-2 rounded-br-md text-center w-full grid place-items-center text-sm"
-                        >
-                            <T keyName="dontDonate" />
-                        </button>
-                    </div>
-                </div>
-            )
-        }
-
-        {
-            ShowArchiverBox && (
-                <div className="rounded-lg bg-white/5 border-2 border-white/10 flex flex-col items-center lg:mb-8 mb-4">
-                    <div className="p-4">
-                        <p className="text-center text-xl font-semibold">
-                            <T keyName="archiverTitleFeed" />
-                        </p>
-
-                        <p className="text-center text-sm mt-2">
-                            <T keyName="archiverTitleFeedSubtitle" />
-                        </p>
-                    </div>
-                    <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
-                        <Link
-                            href="/archiver"
-                            className="bg-white/5 p-2 rounded-bl-md text-center w-full grid place-items-center text-sm font-semibold"
-                        >
-                            <T keyName="archiveSubscribeNow" />
-                        </Link>
-                        <button
-                            onClick={() => {
-                                localStorage.setItem("archiverDismissed", "true");
-                                setShowArchiverBox(false);
-                            }}
-                            className="bg-white/5 p-2 rounded-br-md text-center w-full grid place-items-center text-sm"
-                        >
-                            <T keyName="dontDonate" />
-                        </button>
-                    </div>
-                </div>
-            )
-        }
-
         <div
             className="relative p-4 rounded-lg bg-white/10"
             style={{
@@ -238,12 +172,42 @@ export default function Feed(props) {
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}
         >
             {
-                Data?.friendsPosts?.map((friendPost, index) => (
+                Data?.friendsPosts?.map((friendPost, index) => (<>
                     <PostComponent
                         key={index}
                         data={friendPost}
                         locale={props.locale}
                     />
+                    {
+                        Data.showAds && (index % 3 === 0) && (() => {
+                            const donation = index % 6 === 0;
+
+                            return (
+                                <div className="bg-gradient-to-tr rounded-lg from-purple-600 to-red-500 p-0.5">
+                                    <div className="rounded-lg bg-[#0d0d0d] flex flex-col items-center">
+                                        <div className="px-4 py-2">
+                                            <p className="text-center text-xl font-semibold">
+                                                <T keyName={donation ? "donationTitleFeed" : "archiverTitleFeed"} />
+                                            </p>
+                                            <p className="text-center text-sm">
+                                                <T keyName={donation ? "donationTitle" : "archiverTitleFeedSubtitle"} />
+                                            </p>
+                                        </div>
+
+                                        <div className="flex w-full divide-white/5 border-t-2 border-white/10 divide-x-2">
+                                            <Link
+                                                href={donation ? "/donate" : "/archiver"}
+                                                className="bg-white/5 p-2 rounded-b-md text-center w-full grid place-items-center text-sm font-semibold"
+                                            >
+                                                <T keyName={donation ? "donateNow" : "archiveSubscribeNow"} />
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()
+                    }
+                </>
                 ))
             }
         </div>

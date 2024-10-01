@@ -54,6 +54,8 @@ export default async function handler(req, res) {
         ...feedResponse.data,
         friendsPosts,
         showUpdateCredsAlert: userFromDb?.shouldUpdateCredentials,
-        showPaymentError
+        showPaymentError,
+        showAds: !(userFromDb.paid && userFromDb.active),
+        // showAds: true,
     });
 };

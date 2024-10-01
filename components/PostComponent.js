@@ -43,16 +43,6 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             return new Date(b.takenAt) - new Date(a.takenAt);
         })
     });
-    const [ViewBTS, setViewBTS] = useState(false);
-    const [PostIndex, setPostIndex] = useState(0);
-    const [ShowMain, setShowMain] = useState(true);
-    const [ShowSecondary, setShowSecondary] = useState(true);
-    const [BlobUrlPrimary, setBlobUrlPrimary] = useState([null]);
-    const [BlobUrlSecondary, setBlobUrlSecondary] = useState([null]);
-    const [IsAndroid, setIsAndroid] = useState(null);
-    const [ShowOptionsMenu, setShowOptionsMenu] = useState(false);
-    const [ShowRealmojisMenu, setShowRealmojisMenu] = useState(false);
-    const [SelectedRealmojiIndex, setSelectedRealmojiIndex] = useState(0);
     const [PostOptions, setPostOptions] = useState([
         {
             id: "main-download",
@@ -91,8 +81,18 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
             }
         }
     ]);
-    const [LoadingOptionIndex, setLoadingOptionIndex] = useState([]);
+    const [ViewBTS, setViewBTS] = useState(false);
+    const [PostIndex, setPostIndex] = useState(0);
+    const [ShowMain, setShowMain] = useState(true);
+    const [IsAndroid, setIsAndroid] = useState(null);
+    const [BlobUrlPrimary, setBlobUrlPrimary] = useState(new Array(PostData.posts.length).fill(null));
+    const [ShowSecondary, setShowSecondary] = useState(true);
     const [ErrorData, setErrorData] = useState({ show: false });
+    const [BlobUrlSecondary, setBlobUrlSecondary] = useState(new Array(PostData.posts.length).fill(null));
+    const [ShowOptionsMenu, setShowOptionsMenu] = useState(false);
+    const [LoadingOptionIndex, setLoadingOptionIndex] = useState([]);
+    const [ShowRealmojisMenu, setShowRealmojisMenu] = useState(false);
+    const [SelectedRealmojiIndex, setSelectedRealmojiIndex] = useState(0);
     const [LoadingPostingComment, setLoadingPostingComment] = useState(false);
 
     const handlers = useSwipeable({
@@ -219,67 +219,70 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         setLoadingOptionIndex(o => o.filter(i => i !== "bts-download"));
     };
 
+    const checkIfPostedFromAndroid = async (blob) => {
+        const arrayBuffer = await blob.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        try {
+            const tags = await ExifReader.load(buffer, { expanded: true });
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
     const fetchImages = async (postIndex) => {
-        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[postIndex].primary.url), {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
-        }).catch((e) => {
+        try {
+            const primaryResponse = await fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.photoURL : PostData.posts[postIndex].primary.url), {
+                method: "GET",
+                mode: "cors",
+                headers: {
+                    'Access-Control-Allow-Origin': '*'
+                }
+            });
+
+            const blob = await primaryResponse.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
             setBlobUrlPrimary((o) => {
-                o.splice(postIndex, 0, false);
-                return o;
+                let newO = [...o]
+                newO[postIndex] = blobUrl;
+                return newO;
+            });
+            setIsAndroid(await checkIfPostedFromAndroid(blob));
+        } catch (e) {
+            setBlobUrlPrimary((o) => {
+                let newO = [...o]
+                newO[postIndex] = false;
+                return newO;
             });
             console.error("Couldn't load primary image.", e);
-        }).then(res => res.blob()).then(async blob => {
+        }
+
+        try {
+            const secondaryResponse = await fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[postIndex].secondary.url), {
+                method: "GET",
+                mode: "cors",
+                headers: {
+                    'Access-Control-Allow-Origin': '*'
+                }
+            })
+
+            const blob = await secondaryResponse.blob();
             const blobUrl = URL.createObjectURL(blob);
-            setBlobUrlPrimary((o) => {
-                o.splice(postIndex, 0, blobUrl);
-                return o;
-            });
 
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-            try {
-                const tags = await ExifReader.load(buffer, { expanded: true });
-                setIsAndroid(true);
-            } catch (error) {
-                setIsAndroid(false);
-            }
-        }).catch((e) => {
-            setBlobUrlPrimary((o) => {
-                o.splice(postIndex, 0, false);
-                return o;
-            });
-            console.error("Something happened converting the blob to blobUrl.", e);
-        });
-
-        fetch("/_next/image?w=1920&q=75&url=" + (isDiscovery ? PostData.secondaryPhotoURL : PostData.posts[postIndex].secondary.url), {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
-        }).catch((e) => {
             setBlobUrlSecondary((o) => {
-                o.splice(postIndex, 0, false);
-                return o;
+                let newO = [...o]
+                newO[postIndex] = blobUrl;
+                return newO;
+            });
+        } catch (e) {
+            setBlobUrlSecondary((o) => {
+                let newO = [...o]
+                newO[postIndex] = false;
+                return newO;
             });
             console.error("Couldn't load secondary image.", e);
-        }).then(res => res.blob()).then(async blob => {
-            const blobUrl = URL.createObjectURL(blob);
-            setBlobUrlSecondary((o) => {
-                o.splice(postIndex, 0, blobUrl);
-                return o;
-            });
-        }).catch((e) => {
-            setBlobUrlSecondary((o) => {
-                o.splice(postIndex, 0, false);
-                return o;
-            });
-            console.error("Something happened converting the blob to blobUrl.", e);
-        });;
+        }
     };
 
     const fetchLocation = async (postIndex) => {
@@ -382,15 +385,19 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         }
     };
 
-    useEffect(() => {
+    const loadData = async () => {
         if (isDiscovery) {
             fetchImages(0);
         } else {
             for (let i in PostData.posts) {
-                fetchImages(i);
+                await fetchImages(i);
             }
         }
-    }, []);
+    };
+
+    useEffect(() => {
+        loadData();
+    }, [data]);
 
     if (!isClient) return null;
 
@@ -522,9 +529,9 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                     `}
                                 >
                                     {
-                                        realmojiArray.map((realmoji, index) => (<>
+                                        realmojiArray.map((realmoji, index) => (
                                             <div
-                                                key={index}
+                                                key={realmoji.id}
                                                 className={`w-[72px] cursor-pointer ${index === 0 ? "mr-2" : "mx-2"}`}
                                                 onClick={() => {
                                                     setSelectedRealmojiIndex(index);
@@ -547,7 +554,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
                                                 <div className={`border-2 ${index === SelectedRealmojiIndex ? "border-white/50" : "border-transparent"} rounded-lg w-1 h-1 mx-auto mt-2`} />
                                             </div>
-                                        </>))
+                                        ))
                                     }
                                 </div>
                             </div>
@@ -707,19 +714,25 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                     </>)
                 }
 
-                <div className="flex" style={{ transform: `translateX(-${PostIndex * 100}%)`, transition: "transform 0.25s ease-in-out" }}>
-                    {PostData.posts.map((post, index) => (<>
-                        <div className="relative min-w-full">
+                <div
+                    className="flex"
+                    style={{ transform: `translateX(-${PostIndex * 100}%)`, transition: "transform 0.25s ease-in-out" }}
+                >
+                    {PostData.posts.map((p, i) => (
+                        <div key={p.id} className="relative min-w-full">
                             {
-                                typeof (ShowMain ? BlobUrlPrimary[index] : BlobUrlSecondary[index]) === "string" ? (
+                                typeof (ShowMain ? BlobUrlPrimary[i] : BlobUrlSecondary[i]) === "string" && (
                                     <img
                                         // file deepcode ignore DOMXSS
-                                        src={ShowMain ? BlobUrlPrimary[index] : BlobUrlSecondary[index]}
+                                        src={ShowMain ? BlobUrlPrimary[i] : BlobUrlSecondary[i]}
                                         alt={PostData.user.username}
                                         className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10"
                                         onClick={() => setShowSecondary(!ShowSecondary)}
                                     />
-                                ) : typeof (ShowMain ? BlobUrlPrimary[index] : BlobUrlSecondary[index]) === "boolean" ? (
+                                )
+                            }
+                            {
+                                typeof (ShowMain ? BlobUrlPrimary[i] : BlobUrlSecondary[i]) === "boolean" && (
                                     <div
                                         className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/5"
                                         onClick={() => setShowSecondary(!ShowSecondary)}
@@ -732,7 +745,10 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                             </p>
                                         </div>
                                     </div>
-                                ) : (
+                                )
+                            }
+                            {
+                                !["object", "string"].includes(typeof (ShowMain ? BlobUrlPrimary[i] : BlobUrlSecondary[i])) && (
                                     <div
                                         className="rounded-lg w-full h-auto border-2 border-black aspect-[3/4] bg-white/10 animate-pulse"
                                         onClick={() => setShowMain(!ShowMain)}
@@ -764,9 +780,9 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                             }
 
                             {
-                                typeof (ShowMain ? BlobUrlSecondary[index] : BlobUrlPrimary[index]) === "string" ? (
+                                typeof (ShowMain ? BlobUrlSecondary[i] : BlobUrlPrimary[i]) === "string" ? (
                                     <img
-                                        src={ShowMain ? BlobUrlSecondary[index] : BlobUrlPrimary[index]}
+                                        src={ShowMain ? BlobUrlSecondary[i] : BlobUrlPrimary[i]}
                                         alt={PostData.user.username}
                                         className={`
                                             rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-white/10
@@ -774,7 +790,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                         `}
                                         onClick={() => setShowMain(!ShowMain)}
                                     />
-                                ) : typeof (ShowMain ? BlobUrlSecondary[index] : BlobUrlPrimary[index]) === "boolean" ? (
+                                ) : typeof (ShowMain ? BlobUrlSecondary[i] : BlobUrlPrimary[i]) === "boolean" ? (
                                     <div
                                         className={`
                                             rounded-lg absolute top-4 left-4 w-[35%] h-auto border-2 border-black aspect-[3/4] bg-[#191919]
@@ -823,33 +839,34 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                             }
 
                             {
-                                ShowSecondary && (((isDiscovery ? PostData : PostData.posts[index]).realMojis?.length > 0)
-                                    || (PostData.user.relationship?.commonFriends && PostData.posts[index].realmojis.sample.length > 0)) && (<>
+                                ShowSecondary && (((isDiscovery ? PostData : PostData.posts[i]).realMojis?.length > 0)
+                                    || (PostData.user.relationship?.commonFriends && PostData.posts[i].realmojis.sample.length > 0)) && (<>
                                         <div className="absolute bottom-4 left-4 flex cursor-pointer" onClick={() => setShowRealmojisMenu(true)}>
                                             {
                                                 (
-                                                    (isDiscovery ? PostData : PostData.posts[index]).realMojis ||
-                                                    PostData.posts[index].realmojis.sample
-                                                ).slice(0, 3).map((realmoji, index) => (
-                                                    <div key={index} className={index == 0 ? "" : "-ml-4"}>
-                                                        <Image
-                                                            src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
-                                                            alt={`${realmoji.user.username} realmoji's`}
-                                                            title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
-                                                            className="rounded-full border-2 border-black aspect-square"
-                                                            width={48}
-                                                            height={48}
-                                                        />
-                                                    </div>
-                                                ))
+                                                    (isDiscovery ? PostData : PostData.posts[i]).realMojis ||
+                                                    PostData.posts[i].realmojis.sample
+                                                ).slice(0, 3)
+                                                    .map((realmoji, index) => (
+                                                        <div key={realmoji.id} className={index == 0 ? "" : "-ml-4"}>
+                                                            <Image
+                                                                src={(isDiscovery ? realmoji.uri : realmoji.media.url)}
+                                                                alt={`${realmoji.user.username} realmoji's`}
+                                                                title={`${t("reacted")} ${format(realmoji.postedAt, locale)}`}
+                                                                className="rounded-full border-2 border-black aspect-square"
+                                                                width={48}
+                                                                height={48}
+                                                            />
+                                                        </div>
+                                                    ))
                                             }
 
                                             {
-                                                ((isDiscovery ? PostData : PostData.posts[index]).realMojis
-                                                    || PostData.posts[index].realmojis.sample).length > 3 && (
+                                                ((isDiscovery ? PostData : PostData.posts[i]).realMojis
+                                                    || PostData.posts[i].realmojis.sample).length > 3 && (
                                                     <div className="w-12 h-12 rounded-full border-2 border-black bg-[#191919] flex items-center justify-center -ml-4">
                                                         <p className="text-white/75 text-xl">
-                                                            +{(((isDiscovery ? PostData : PostData.posts[index]).realMojis || PostData.posts[index].realmojis.sample).length - 3)}
+                                                            +{(((isDiscovery ? PostData : PostData.posts[i]).realMojis || PostData.posts[i].realmojis.sample).length - 3)}
                                                         </p>
                                                     </div>
                                                 )
@@ -858,7 +875,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                     </>)
                             }
                         </div>
-                    </>))}
+                    ))}
                 </div>
 
                 {

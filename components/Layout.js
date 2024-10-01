@@ -34,8 +34,8 @@ export default function Layout({ children, user }) {
             href: "/memories"
         },
         {
-            name: "discoveryFeed",
-            href: "/discovery"
+            name: "search",
+            href: "/search"
         },
         {
             name: "fofFeed",
@@ -183,11 +183,11 @@ export default function Layout({ children, user }) {
                             <Transition
                                 as={Fragment}
                                 enter="transition ease-out duration-100"
-                                enterFrom="transform opacity-0 scale-95"
-                                enterTo="transform opacity-100 scale-100"
+                                enterFrom="opacity-0"
+                                enterTo="opacity-100"
                                 leave="transition ease-in duration-75"
-                                leaveFrom="transform opacity-100 scale-100"
-                                leaveTo="transform opacity-0 scale-95"
+                                leaveFrom="opacity-100"
+                                leaveTo="opacity-0"
                             >
                                 <div className="fixed inset-0 z-40 bg-black/50" />
                             </Transition>

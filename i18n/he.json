@@ -1,4 +1,9 @@
 {
+  "search": "חפש משתמשים",
+  "searchNoResults": "החיפוש לא הניב תוצאות",
+  "searchPlaceholder": "חפש משתמשים...",
+  "searchResults": "תוצאות חיפוש",
+  "searchSubtitle": "חפש משתמשים ב-BeReal לפי שם המשתמש שלהם",
   "archiverViewAllUsersPost": "צפה בכל הפוסטים בארכיון של {user}",
   "archiverFeedUserTitle": "פוסטים בארכיון של {user}",
   "archiverPaymentError": "נראה שלא השלמת את התשלום עבור הארכיבר.",

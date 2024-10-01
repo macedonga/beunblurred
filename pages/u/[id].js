@@ -65,6 +65,7 @@ export default function User(props) {
                     RealPeople
                 </p>
             }
+
             <p className="text-base text-center opacity-75 mt-2">
                 {
                     props.user.biography && <>

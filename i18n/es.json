@@ -1,4 +1,9 @@
 {
+  "search": "Buscar usuarios",
+  "searchNoResults": "La consulta no devolvió resultados",
+  "searchPlaceholder": "Buscar usuarios...",
+  "searchResults": "Resultados de búsqueda",
+  "searchSubtitle": "Busca usuarios en BeReal por su nombre de usuario",
   "archiverViewAllUsersPost": "Ver todas las publicaciones archivadas de {user}",
   "archiverFeedUserTitle": "Publicaciones archivadas de {user}",
   "archiverPaymentError": "Parece que no finalizaste tu pago para el Archiver.",

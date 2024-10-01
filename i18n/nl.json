@@ -1,4 +1,9 @@
 {
+  "search": "Zoeken naar gebruikers",
+  "searchNoResults": "De zoekopdracht heeft geen resultaten opgeleverd",
+  "searchPlaceholder": "Zoek naar gebruikers...",
+  "searchResults": "Zoekresultaten",
+  "searchSubtitle": "Zoek gebruikers op BeReal op hun gebruikersnaam",
   "archiverViewAllUsersPost": "Bekijk alle gearchiveerde berichten van {user}",
   "archiverFeedUserTitle": "Gearchiveerde berichten van {user}",
   "archiverPaymentError": "Het lijkt erop dat je je betaling voor de Archiver niet hebt afgerond.",

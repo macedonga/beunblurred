@@ -1,4 +1,9 @@
 {
+  "search": "Search for users",
+  "searchNoResults": "The query returned no results",
+  "searchPlaceholder": "Search for users...",
+  "searchResults": "Search results",
+  "searchSubtitle": "Search users on BeReal by their username",
   "archiverViewAllUsersPost": "View all archived posts of {user}",
   "archiverFeedUserTitle": "Archived posts of {user}",
   "archiverPaymentError": "Looks like you didn't finalize your payment for the Archiver.",

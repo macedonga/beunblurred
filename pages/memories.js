@@ -101,9 +101,26 @@ export async function getServerSideProps({ req, res }) {
     let authCheck = await checkAuth(req, res);
     if (authCheck) return authCheck;
 
+    let feed = (await (requestAuthenticated("feeds/memories-v1", req, res).then(r => r.data.data))).map(e => ({
+        id: e.mainPostMemoryId,
+        memoryDay: e.memoryDay,
+        isLate: e.isLate,
+        primary: e.mainPostPrimaryMedia,
+        secondary: e.mainPostSecondaryMedia,
+        thumbnail: e.mainPostThumbnail,
+        momentId: e.momentId,
+        numPostsForMoment: e.numPostsForMoment,
+    }));
+
+    for (const post of feed.filter(e => e.numPostsForMoment > 1)) {
+        let posts = (await (requestAuthenticated("feeds/memories-v1/" + post.momentId, req, res).then(r => r.data.posts))).reverse();
+        let i = feed.findIndex(e => e.id === post.id);
+        feed.splice(i, 1, ...posts);
+    }
+
     return {
         props: {
-            feed: await (requestAuthenticated("feeds/memories", req, res).then(r => r.data.data)),
+            feed: JSON.parse(JSON.stringify(feed)),
             user: JSON.parse(getCookie("user", { req, res }))
         }
     };

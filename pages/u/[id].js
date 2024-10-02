@@ -88,7 +88,7 @@ export default function User(props) {
                 </p>
             }
 
-            {!["accepted", "rejected"].includes(props.user.relationship?.status) &&
+            {!props.user.phoneNumber && !["accepted", "rejected"].includes(props.user.relationship?.status) &&
                 <button
                     onClick={addFriend}
                     className={
@@ -129,9 +129,9 @@ export default function User(props) {
                     </>
                 }
                 {
-                    props.user.streakLength && <>
+                    props.user.streakLength ? <>
                         Streak: {props.user.streakLength}<br />
-                    </>
+                    </> : <></>
                 }
             </p>
         </div>

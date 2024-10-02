@@ -52,6 +52,10 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
 
             return res;
         } catch (e) {
+            if (process.env.NODE_ENV === "development") {
+                console.error(e.response.data);
+            }
+
             // deepcode ignore HardcodedNonCryptoSecret
             const refreshData = await axios.post(
                 "https://auth.bereal.team/token?grant_type=refresh_token",

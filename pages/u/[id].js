@@ -1,17 +1,19 @@
 import axios from "axios";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { NextSeo } from "next-seo";
 import { format, register } from "timeago.js";
 import * as TimeAgoLanguages from "timeago.js/lib/lang/";
 import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
-import { CheckBadgeIcon } from "@heroicons/react/20/solid";
-import { T, useTranslate } from "@tolgee/react";
-import { requestAuthenticated } from "@/utils/requests";
 import checkAuth from "@/utils/checkAuth";
 import clientPromise from "@/utils/mongo";
+import { requestAuthenticated } from "@/utils/requests";
+
+import { T, useTranslate } from "@tolgee/react";
+import { CheckBadgeIcon } from "@heroicons/react/20/solid";
 
 const PostComponent = dynamic(() => import("@/components/PostComponent"), {
     loading: () => <p>Loading...</p>,
@@ -21,9 +23,29 @@ const PostComponent = dynamic(() => import("@/components/PostComponent"), {
 export default function User(props) {
     const { t } = useTranslate();
 
+    const [AddFriendClicked, setAddFriendClicked] = useState(false);
     for (const lang in TimeAgoLanguages) {
         register(lang, TimeAgoLanguages[lang]);
     }
+
+    const addFriend = async () => {
+        setAddFriendClicked(true);
+
+        try {
+            const res = await axios.post("/api/addFriend", {
+                userId: props.user.id
+            });
+
+            if (res.data.success) {
+                alert("Friend request sent!");
+            } else {
+                alert("An error occurred while trying to send the friend request. Please try again later.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("An error occurred while trying to send the friend request. Please try again later.");
+        }
+    };
 
     return (<>
         <NextSeo title={`${props.user.username}'s profile`} />
@@ -66,6 +88,20 @@ export default function User(props) {
                 </p>
             }
 
+            {!["accepted", "rejected"].includes(props.user.relationship?.status) &&
+                <button
+                    onClick={addFriend}
+                    className={
+                        "bg-white/5 border-2 border-white/10 rounded-lg inline-flex mx-auto text-sm px-6 py-1 mt-2" + 
+                        ((AddFriendClicked || props.user.relationship?.status == "sent") ? " opacity-50 cursor-not-allowed" : "")
+                    }
+                >
+                    {
+                        (AddFriendClicked || props.user.relationship?.status == "sent") ? "Friend request sent" : "Add as friend"
+                    }
+                </button>
+            }
+
             <p className="text-base text-center opacity-75 mt-2">
                 {
                     props.user.biography && <>
@@ -88,8 +124,13 @@ export default function User(props) {
                     </>
                 }
                 {
-                    props.user.relationship?.friendedAt && <>
+                    props.user.relationship?.status == "accepted" && props.user.relationship?.friendedAt && <>
                         <T keyName={"friended"} />: {format(props.user.relationship.friendedAt, props.locale)}<br />
+                    </>
+                }
+                {
+                    props.user.streakLength && <>
+                        Streak: {props.user.streakLength}<br />
                     </>
                 }
             </p>
@@ -187,7 +228,7 @@ export default function User(props) {
         }
 
         {
-            (props.user.relationship?.friendedAt || props.friends?.total) ? <>
+            (props.user.relationship?.status == "accepted" || props.friends?.total) ? <>
                 <div
                     className={`
                         flex flex-col

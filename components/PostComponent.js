@@ -967,7 +967,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 PostData.user.relationship?.commonFriends &&
                 <div className="bg-white/5 rounded-lg divide-y-2 divide-white/10 flex flex-col">
                     <p className="px-4 py-2 font-medium opacity-75">
-                        <T keyName="commonFriends" />
+                        {PostData.user.relationship?.commonFriends.length} <T keyName="commonFriends" />
                     </p>
                     {
                         PostData.user.relationship?.commonFriends?.map((friend, index) => (

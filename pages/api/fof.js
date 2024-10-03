@@ -19,7 +19,8 @@ export default async function handler(req, res) {
     };
 
     if (!hasCookie("testMode", { req, res })) {
-        feedResponse = await requestAuthenticated("feeds/friends-of-friends", req, res);
+        let nextToken = req.query.next || null;
+        feedResponse = await requestAuthenticated("feeds/friends-of-friends" + (nextToken ? ("?page=" + nextToken) : ""), req, res);
     }
 
     return res.status(200).json({

@@ -879,6 +879,21 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 </div>
 
                 {
+                    ShowSecondary && PostData.posts.length > 1 && (
+                        <div className="absolute bottom-0 inset-x-0 flex justify-center gap-x-1 pb-4">
+                            {
+                                PostData.posts.map((_, index) => (
+                                    <div
+                                        key={index}
+                                        className={`w-2 h-2 rounded-full ${PostIndex === index ? "bg-white" : "bg-white/50"}`}
+                                    />
+                                ))
+                            }
+                        </div>
+                    )
+                }
+
+                {
                     !isDiscovery && (<>
                         <div
                             className={`

@@ -248,7 +248,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                 newO[postIndex] = blobUrl;
                 return newO;
             });
-            setIsAndroid(await checkIfPostedFromAndroid(blob));
+            // setIsAndroid(await checkIfPostedFromAndroid(blob));
         } catch (e) {
             setBlobUrlPrimary((o) => {
                 let newO = [...o]
@@ -648,7 +648,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                         }
                         {
                             data.archived && <>
-                                {typeof IsAndroid === "boolean" && " • "}
+                                {typeof IsAndroid === "boolean" ? " • " : <br />}
                                 <T keyName={"archivedUPost"} />
                             </>
                         }

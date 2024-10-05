@@ -21,37 +21,21 @@ import {
   Tolgee,
   FormatSimple,
   useTolgeeSSR,
+  BackendFetch
 } from "@tolgee/react";
 import { FormatIcu } from "@tolgee/format-icu";
 
-import enLocale from "../i18n/en.json";
-import itLocale from "../i18n/it.json";
-import deLocale from "../i18n/de.json";
-import esLocale from "../i18n/es.json";
-import frLocale from "../i18n/fr.json";
-import nlLocale from "../i18n/nl.json";
-import plLocale from "../i18n/pl.json";
-import heLocale from "../i18n/he.json";
 import Loading from "@/components/Loading";
 
 const tolgee = Tolgee()
   .use(DevTools())
   .use(FormatSimple())
   .use(FormatIcu())
+  .use(BackendFetch())
   .init({
     defaultLanguage: "en",
     apiKey: process.env.NEXT_PUBLIC_TOLGEE_API_KEY,
     apiUrl: process.env.NEXT_PUBLIC_TOLGEE_API_URL,
-    staticData: {
-      en: enLocale,
-      it: itLocale,
-      de: deLocale,
-      es: esLocale,
-      fr: frLocale,
-      nl: nlLocale,
-      pl: plLocale,
-      he: heLocale
-    },
   });
 
 function Root({ Component, pageProps }) {

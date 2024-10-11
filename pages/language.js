@@ -9,7 +9,8 @@ import {
     FR,
     NL,
     PL,
-    IL
+    IL,
+    JP
 } from "country-flag-icons/react/3x2";
 
 export default function LanguageSelector() {
@@ -64,6 +65,12 @@ export default function LanguageSelector() {
             "name": "Hebrew",
             "nativeName": "עברית",
             "flag": IL
+        },
+        {
+            "code": "jp",
+            "name": "Japanese",
+            "nativeName": "日本語",
+            "flag": JP
         }
     ];
 

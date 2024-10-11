@@ -22,7 +22,7 @@ module.exports = withBundleAnalyzer({
     },
     reactStrictMode: false,
     i18n: {
-      locales: ["en", "it", "de", "es", "fr", "nl", "pl", "he"],
+      locales: ["en", "it", "de", "es", "fr", "nl", "pl", "he", "jp"],
       defaultLocale: "en",
     },
     trailingSlash: true

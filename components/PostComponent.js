@@ -27,9 +27,10 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
     const { t } = useTranslate();
     const router = useRouter();
-
+    console.log(TimeAgoLanguages)
     for (const lang in TimeAgoLanguages) {
-        register(lang, TimeAgoLanguages[lang]);
+        if (lang === "ja") register("jp", TimeAgoLanguages[lang]);
+        else register(lang, TimeAgoLanguages[lang]);
     }
 
     const RealMojisContainer = useRef(null);
@@ -1067,7 +1068,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                 outline-none focus:placeholder:text-white/75 transition-colors
                             `}
                         />
-                        <button className={`px-4 text-sm font-semibold${LoadingPostingComment ? " animate-pulse" : ""}`} type="submit" disabled={LoadingPostingComment}>
+                        <button className={`px-4 text-sm min-w-max font-semibold${LoadingPostingComment ? " animate-pulse" : ""}`} type="submit" disabled={LoadingPostingComment}>
                             <T keyName={LoadingPostingComment ? "loading" : "comment"} />
                         </button>
                     </form>

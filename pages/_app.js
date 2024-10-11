@@ -62,7 +62,7 @@ function Root({ Component, pageProps }) {
   useEffect(() => {
     // Detect the browser's preferred language
     const browserLang = navigator.language || navigator.userLanguage;
-    const supportedLocales = ["en", "it", "de", "es", "fr", "nl", "pl", "he"];
+    const supportedLocales = ["en", "it", "de", "es", "fr", "nl", "pl", "he", "jp"];
     const preferredLanguage = getCookie("preferredLanguage");
     let detectedLocale = "en"; // fallback to "en" if the browser's language is not supported
 

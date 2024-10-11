@@ -27,7 +27,7 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
 
     const { t } = useTranslate();
     const router = useRouter();
-    console.log(TimeAgoLanguages)
+
     for (const lang in TimeAgoLanguages) {
         if (lang === "ja") register("jp", TimeAgoLanguages[lang]);
         else register(lang, TimeAgoLanguages[lang]);

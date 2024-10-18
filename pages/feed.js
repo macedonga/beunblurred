@@ -37,16 +37,34 @@ export default function Feed(props) {
     const [Greeting, setGreeting] = useState(t("gm"));
     const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
     const [ShowArchiverBox, setShowArchiverBox] = useState(false);
-    const [Data, setData] = useState({
-        ...props.feed
-    });
+    const [FriendsPosts, setFriendsPosts] = useState([]);
+    const [FriendsPostsIndex, setFriendsPostsIndex] = useState(1);
+    const [Data, setData] = useState();
 
+    const handleScroll = () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            setData(o => {
+                const posts = o?.friendsPosts?.slice(0, (FriendsPostsIndex + 1) * 5);
+
+                if (posts.length !== FriendsPosts.length) {
+                    setFriendsPosts(posts);
+                    setFriendsPostsIndex(FriendsPostsIndex + 1);
+                }
+
+                return o;
+            });
+        }
+    };
+    
     const fetchFeed = async () => {
         try {
             setLoading(true);
             const res = await axios.get("/api/feed");
             setData(res.data);
+            setFriendsPosts([...res.data.friendsPosts.slice(0, 5)]);
             setLoading(false);
+
+            window.addEventListener("scroll", handleScroll);
         } catch (e) {
             console.error(e);
             window.location.href = "/500";
@@ -70,6 +88,10 @@ export default function Feed(props) {
 
         setGreeting(greeting);
         fetchFeed();
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
     }, []);
 
     if (Loading) {
@@ -172,7 +194,7 @@ export default function Feed(props) {
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}
         >
             {
-                Data?.friendsPosts?.map((friendPost, index) => (<>
+                FriendsPosts?.map((friendPost, index) => (<>
                     <PostComponent
                         key={index}
                         data={friendPost}

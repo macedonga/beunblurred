@@ -168,7 +168,7 @@ export default function Login() {
       },
       body: JSON.stringify({
         otp: LoginData.otp.join(""),
-        requestId: LoginData.requestId
+        phoneNumber: LoginData.phoneNumber
       })
     });
 

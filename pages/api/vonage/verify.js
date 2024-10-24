@@ -4,24 +4,30 @@ import { setCookie } from "cookies-next";
 import { fetchSignature } from "@/utils/requests";
 
 const FIREBASE_API_KEY = "AIzaSyCgNTZt6gzPMh-2voYXOvrt_UR_gpGl83Q";
+const ArkoseKey = "CCB0863E-D45D-42E9-A6C8-9E8544E8B17E";
+const BeRealClientSecret = "F5A71DA-32C7-425C-A3E3-375B4DACA406";
 
 export default async function handler(req, res) {
-    const { otp, requestId } = req.body;
+    const { otp, phoneNumber } = req.body;
 
     try {
         const response = await axios.post(
-            "https://auth.bereal.team/api/vonage/check-code",
+            "https://auth-l7.bereal.com/token/phone",
             {
+                "client_id": "android",
+                "client_secret": BeRealClientSecret,
                 "code": otp,
-                "vonageRequestId": requestId
+                "device_id": "937v3jb942b0h6u9",
+                "phone_number": phoneNumber
             },
             {
-                headers: {
+                "headers": {
                     "Accept": "*/*",
-                    "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
+                    "User-Agent": "BeReal/3.10.1 (com.bereal.ft; build:2348592; Android 14) 4.12.0/OkHttp",
                     "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                     "Content-Type": "application/json",
-                    "bereal-app-version-code": "14549",
+                    "bereal-app-version-code": "2348592",
+                    "bereal-app-version": "3.10.1",
                     "bereal-signature": (await fetchSignature()),
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
@@ -29,87 +35,11 @@ export default async function handler(req, res) {
             }
         );
 
-        if (response.status > 350 || response.status == 16) {
-            return res.status(500).json({ error: "Internal server error", success: false });
-        }
-
-        let rstatus = response.data.status;
-        let token = response.data.token;
-        let uid = response.data.uid;
-
-        const refresh_response = await axios.post(
-            "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=" + FIREBASE_API_KEY,
-            {
-                "token": token,
-                "returnSecureToken": "True"
-            },
-            {
-                headers: {
-                    "Accept": "*/*",
-                    "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
-                    "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        let id_token = refresh_response.data.idToken;
-        let refresh_token = refresh_response.data.refreshToken;
-        let expires_in = refresh_response.data.expiresIn;
-        let is_new_user = refresh_response.data.isNewUser;
-
-        const firebase_refresh_response = await axios.post(
-            "https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY,
-            {
-                "grantType": "refresh_token",
-                "refreshToken": refresh_token
-            },
-            {
-                headers: {
-                    "Accept": "*/*",
-                    "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
-                    "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        if (firebase_refresh_response.status > 350 || firebase_refresh_response.status == 16) {
-            return res.status(500).json({ error: "Internal server error", success: false });
-        }
-
-        let firebase_token = firebase_refresh_response.data.id_token;
-        let firebase_refresh_token = firebase_refresh_response.data.refresh_token;
-        let user_id = firebase_refresh_response.data.user_id;
-        let firebase_expiration = Date.now() + firebase_refresh_response.data.expires_in * 1000;
-
-        // deepcode ignore HardcodedNonCryptoSecret
-        const access_grant_response = await axios.post(
-            "https://auth.bereal.team/token?grant_type=firebase",
-            {
-                "grant_type": "firebase",
-                "client_id": "ios",
-                "client_secret": "962D357B-B134-4AB6-8F53-BEA2B7255420",
-                "token": firebase_token
-            },
-            {
-                headers: {
-                    "Accept": "*/*",
-                    "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
-                    "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
-                    "Content-Type": "application/json",
-                    "bereal-app-version-code": "14549",
-                    "bereal-signature": (await fetchSignature()),
-                    "bereal-device-id": "937v3jb942b0h6u9",
-                    "bereal-timezone": "Europe/Paris",
-                }
-            }
-        );
-
-        if (access_grant_response.status > 350 || access_grant_response.status == 16) {
-            res.status(400).json({ status: access_grant_response });
-            return;
-        }
+        const berealAccessToken = response.data.access_token;
+        const refreshToken = response.data.refresh_token;
+        const tokenType = response.data.token_type;
+        const expiresIn = response.data.expires_in;
+        const expires = Date.now() + expiresIn * 1000;
 
         const setCookieOptions = {
             req,
@@ -118,12 +48,12 @@ export default async function handler(req, res) {
             path: "/",
         };
 
-        setCookie("token", access_grant_response.data.access_token, setCookieOptions);
-        setCookie("refreshToken", access_grant_response.data.refresh_token, setCookieOptions);
-        setCookie("tokenType", access_grant_response.data.token_type, setCookieOptions);
-        setCookie("tokenExpiration", Date.now() + (access_grant_response.data.expires_in * 1000), setCookieOptions);
+        setCookie("token", berealAccessToken, setCookieOptions);
+        setCookie("refreshToken", refreshToken, setCookieOptions);
+        setCookie("tokenType", tokenType, setCookieOptions);
+        setCookie("tokenExpiration", Date.now() + (expires * 1000), setCookieOptions);
 
-        const reqOptions = { "headers": { "Authorization": `Bearer ${access_grant_response.data.access_token}`, } };
+        const reqOptions = { "headers": { "Authorization": `Bearer ${berealAccessToken}`, } };
         const userResponse = await axios.get("https://mobile.bereal.com/api/person/me", reqOptions);
         setCookie("user", JSON.stringify(userResponse.data), setCookieOptions);
 
@@ -135,6 +65,8 @@ export default async function handler(req, res) {
             "INVALID_CODE": "The code is incorrect.",
             "SESSION_EXPIRED": "The SMS code has expired. Please re-send the verification code to try again.",
         };
+
+        console.log(e, e?.response?.data)
 
         return res.status(500).json({
             error: errorCodes[e?.response?.data?.error?.message] || "Internal server error",

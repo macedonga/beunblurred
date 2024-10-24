@@ -42,7 +42,11 @@ export default function Feed(props) {
     const [Data, setData] = useState();
 
     const handleScroll = () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        const scrollPosition = window.innerHeight + window.scrollY;
+        const threshold = 250;
+        const pageHeight = document.body.offsetHeight;
+
+        if (scrollPosition >= pageHeight - threshold) {
             setData(o => {
                 const posts = o?.friendsPosts?.slice(0, (FriendsPostsIndex + 1) * 5);
 

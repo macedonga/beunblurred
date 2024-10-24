@@ -28,8 +28,11 @@ const requestAuthenticated = async (endpoint, data, idx = 0) => {
 
     const options = {
         "headers": {
+            "User-Agent": "BeReal/3.10.1 (com.bereal.ft; build:2348592; Android 14) 4.12.0/OkHttp",
+            "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
             "Authorization": `Bearer ${data.token}`,
-            "bereal-app-version-code": "14549",
+            "bereal-app-version-code": "2348592",
+            "bereal-app-version": "3.10.1",
             "bereal-signature": SIGNATURE,
             "bereal-device-id": "937v3jb942b0h6u9",
             "bereal-timezone": "Europe/Paris",
@@ -47,20 +50,21 @@ const requestAuthenticated = async (endpoint, data, idx = 0) => {
         try {
             // deepcode ignore HardcodedNonCryptoSecret
             const refreshData = await axios.post(
-                "https://auth.bereal.team/token?grant_type=refresh_token",
+                "https://auth-l7.bereal.com/token?grant_type=refresh_token",
                 {
                     "grant_type": "refresh_token",
-                    "client_id": "ios",
-                    "client_secret": "962D357B-B134-4AB6-8F53-BEA2B7255420",
+                    "client_id": "android",
+                    "client_secret": "F5A71DA-32C7-425C-A3E3-375B4DACA406",
                     "refresh_token": data.refreshToken
                 },
                 {
                     "headers": {
                         "Accept": "*/*",
-                        "User-Agent": "BeReal/8586 CFNetwork/1240.0.4 Darwin/20.6.0",
+                        "User-Agent": "BeReal/3.10.1 (com.bereal.ft; build:2348592; Android 14) 4.12.0/OkHttp",
                         "x-ios-bundle-identifier": "AlexisBarreyat.BeReal",
                         "Content-Type": "application/json",
-                        "bereal-app-version-code": "14549",
+                        "bereal-app-version-code": "2348592",
+                        "bereal-app-version": "3.10.1",
                         "bereal-signature": SIGNATURE,
                         "bereal-device-id": "937v3jb942b0h6u9",
                         "bereal-timezone": "Europe/Paris",

@@ -66,8 +66,6 @@ export default async function handler(req, res) {
             "SESSION_EXPIRED": "The SMS code has expired. Please re-send the verification code to try again.",
         };
 
-        console.log(e, e?.response?.data)
-
         return res.status(500).json({
             error: errorCodes[e?.response?.data?.error?.message] || "Internal server error",
             code: e?.response?.data?.error?.message || "SERVER_ERROR",

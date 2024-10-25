@@ -5,11 +5,15 @@ import Notification from "@/components/Notification";
 
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import Arkose from "@/components/ArkoseComponent";
 import { T, useTranslate } from "@tolgee/react";
 
 export default function Login() {
   const { t } = useTranslate();
   const router = useRouter();
+
+  const arkoseRef = useRef();
+  const [token, setToken] = useState(null);
 
   const verifyOtpButtonRef = useRef(null);
   const [ErrorData, setErrorData] = useState({ show: false });
@@ -43,14 +47,15 @@ export default function Login() {
     };
   };
 
-  const requestVonage = async () => {
+  const requestVonage = async (token) => {
     const res = await fetch("/api/vonage/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        phone: LoginData.phoneNumber
+        phone: LoginData.phoneNumber,
+        token: token
       })
     });
 
@@ -65,7 +70,13 @@ export default function Login() {
     };
   };
 
-  const requestOTP = async () => {
+  const requestOTP = async (token) => {
+    if (!token || typeof token !== "string") {
+      arkoseRef.current.myEnforcement.run();
+      return;
+    }
+
+    setToken(token);
     setLoading(true);
 
     if (LoginData.phoneNumber == "+393511231234") {
@@ -90,7 +101,7 @@ export default function Login() {
 
     try {
       try {
-        const data = await requestFire();
+        const data = await requestVonage(token);
 
         setLoginData({
           ...LoginData,
@@ -99,7 +110,7 @@ export default function Login() {
           type: data.type,
         });
       } catch {
-        const data = await requestVonage();
+        const data = await requestFire();
 
         setLoginData({
           ...LoginData,
@@ -168,7 +179,7 @@ export default function Login() {
       },
       body: JSON.stringify({
         otp: LoginData.otp.join(""),
-        phoneNumber: LoginData.phoneNumber
+        phoneNumber: LoginData.phoneNumber,
       })
     });
 
@@ -213,6 +224,18 @@ export default function Login() {
   };
 
   return (<>
+    <Arkose
+      publicKey={"CCB0863E-D45D-42E9-A6C8-9E8544E8B17E"}
+      onCompleted={requestOTP}
+      onError={() => {
+        setErrorData({
+          show: true,
+          message: "Couldn't verify you as a human. Please try again."
+        });
+      }}
+      ref={arkoseRef}
+    />
+
     <Notification
       type={"error"}
       message={ErrorData.message}

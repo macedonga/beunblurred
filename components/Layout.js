@@ -9,7 +9,7 @@ import { T, useTranslate } from "@tolgee/react";
 import Popup from "./Popup";
 import Image from 'next/image';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin-ext", "cyrillic-ext"] });
 
 const PACKAGE_NAME = "co.beunblurred.macedonga";
 const APPSTORE_LINK = "https://play.app.goo.gl/?link=https://play.google.com/store/apps/details?id=" + PACKAGE_NAME + "&ddl=1&pcampaignid=web_ddl_1";

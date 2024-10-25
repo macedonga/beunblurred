@@ -48,6 +48,14 @@ export default function Layout({ children, user }) {
         {
             name: "donate",
             href: "/donate"
+        },
+        {
+            name: "github",
+            href: "/github"
+        },
+        {
+            name: "logOut",
+            href: "/logout"
         }
     ];
 
@@ -69,6 +77,10 @@ export default function Layout({ children, user }) {
 
         setGreeting(greeting);
 
+        if (process.env.NEXT_PUBLIC_NO_ARCHIVER) {
+            setLinks(BASE_LINKS.filter(link => link.name !== "archiver"));
+        }
+
         if (window && window.navigator) {
             const android = !!navigator.userAgent.match(/Android/);
             const isInstalled =
@@ -86,25 +98,16 @@ export default function Layout({ children, user }) {
             setShowPlayStorePopup(false);
 
             if (android && !isInstalled) {
-                setLinks([...BASE_LINKS, {
-                    name: "installAppHeader",
-                    href: APPSTORE_LINK,
-                    external: true
-                },
-                {
-                    name: "logOut",
-                    href: "/logout"
-                }]);
-            } else {
-                setLinks([...BASE_LINKS,
-                {
-                    name: "github",
-                    href: "/github"
-                },
-                {
-                    name: "logOut",
-                    href: "/logout"
-                }]);
+                setLinks(o => {
+                    const newLinks = [...o];
+                    newLinks.splice(-1, 0, {
+                        name: "installAppHeader",
+                        href: APPSTORE_LINK,
+                        external: true
+                    });
+
+                    return newLinks;
+                });
             }
         }
     }, []);

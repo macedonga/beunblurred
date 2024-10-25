@@ -358,6 +358,15 @@ export async function getServerSideProps({ req, res }) {
     const authCheck = await checkAuth(req, res);
     if (authCheck) return authCheck;
 
+    if (process.env.NEXT_PUBLIC_NO_ARCHIVER) {
+        return {
+            redirect: {
+                destination: "/feed",
+                permanent: false
+            }
+        };
+    }
+
     const friends = await requestAuthenticated("relationships/friends", req, res);
     const feed = await requestAuthenticated("feeds/friends-v1", req, res);
     const user = await requestAuthenticated("person/me", req, res);

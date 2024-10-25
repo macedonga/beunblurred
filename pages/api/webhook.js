@@ -6,6 +6,8 @@ const stripe = Stripe(process.env.STRIPE_API_KEY);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export default async function handler(req, res) {
+    if (process.env.NEXT_PUBLIC_NO_ARCHIVER) return res.status(400).json({ error: "Archiver not enabled." });
+    
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }

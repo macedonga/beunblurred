@@ -318,6 +318,9 @@ export async function getServerSideProps({ req, res, params, ...ctx }) {
         if (params.id == "me") path = "person/me";
 
         let data = await requestAuthenticated(path, req, res);
+        props = {
+            user: data?.data
+        };
 
         if (params.id == "me") {
             let friends = await requestAuthenticated("relationships/friends", req, res);
@@ -332,50 +335,51 @@ export async function getServerSideProps({ req, res, params, ...ctx }) {
                 user: data?.data
             };
         } else {
-            let pm = await requestAuthenticated("feeds/memories-v1/pinned-memories/for-user/" + params.id, req, res);
-            props = {
-                pinnedMemories: pm?.data?.pinnedMemories || [],
-                user: data?.data
-            };
+            try {
+                let pm = await requestAuthenticated("feeds/memories-v1/pinned-memories/for-user/" + params.id, req, res);
+                props.pinnedMemories = pm.data?.pinnedMemories || [];
+            } catch (e) {}
         }
     }
 
-    const db = (await clientPromise).db();
-    const users = db.collection("users");
-    const posts = db.collection("posts");
+    if (!process.env.NEXT_PUBLIC_NO_ARCHIVER) {
+        const db = (await clientPromise).db();
+        const users = db.collection("users");
+        const posts = db.collection("posts");
 
-    if (params.id == "me")
-        return { props: JSON.parse(JSON.stringify(props)) };
+        if (params.id == "me")
+            return { props: JSON.parse(JSON.stringify(props)) };
 
-    const user = await requestAuthenticated("person/me", req, res);
-    var userFromDb = await users.findOne({ id: user.data.id });
+        const user = await requestAuthenticated("person/me", req, res);
+        var userFromDb = await users.findOne({ id: user.data.id });
 
-    if (!userFromDb)
-        return { props: JSON.parse(JSON.stringify(props)) };
+        if (!userFromDb)
+            return { props: JSON.parse(JSON.stringify(props)) };
 
-    const postsFromDb = await posts.find({
-        for: { $in: [user.data.id] },
-        uid: params.id
-    }).toArray();
-    let availableDates = postsFromDb.reduce((acc, post) => {
-        const date = new Date(post.date).toISOString().split("T")[0];
-        if (acc[date]) {
-            acc[date] += 1;
-        } else {
-            acc[date] = 1;
-        }
+        const postsFromDb = await posts.find({
+            for: { $in: [user.data.id] },
+            uid: params.id
+        }).toArray();
+        var availableDates = postsFromDb.reduce((acc, post) => {
+            const date = new Date(post.date).toISOString().split("T")[0];
+            if (acc[date]) {
+                acc[date] += 1;
+            } else {
+                acc[date] = 1;
+            }
 
-        return acc;
-    }, {});
-    availableDates = Object.keys(availableDates)
-        .sort((a, b) => new Date(b) - new Date(a))
-        .reverse()
-        .map((date) => ({ date, count: availableDates[date] }));
+            return acc;
+        }, {});
+        availableDates = Object.keys(availableDates)
+            .sort((a, b) => new Date(b) - new Date(a))
+            .reverse()
+            .map((date) => ({ date, count: availableDates[date] }));
+    }
 
     return {
         props: JSON.parse(JSON.stringify({
             ...props,
-            posts: availableDates.reverse()
+            posts: availableDates?.reverse()
         }))
     }
 };

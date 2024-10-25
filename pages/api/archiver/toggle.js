@@ -3,6 +3,8 @@ import clientPromise from "@/utils/mongo";
 import checkAuth from "@/utils/checkAuth";
 
 export default async function handler(req, res) {
+    if (process.env.NEXT_PUBLIC_NO_ARCHIVER) return res.status(400).json({ error: "Archiver not enabled." });
+
     if (req.method !== "GET") {
         return res.status(405).json({ message: "Method not allowed" });
     }

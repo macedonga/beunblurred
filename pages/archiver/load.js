@@ -11,6 +11,15 @@ export default function LoadSubscription() {
 export async function getServerSideProps({ req, res }) {
     const authCheck = await checkAuth(req, res);
     if (authCheck) return authCheck;
+    
+    if (process.env.NEXT_PUBLIC_NO_ARCHIVER) {
+        return {
+            redirect: {
+                destination: "/feed",
+                permanent: false
+            }
+        };
+    }
 
     const user = await requestAuthenticated("person/me", req, res);
 

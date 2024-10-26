@@ -79,7 +79,16 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
                         "bereal-signature": SIGNATURE,
                         "bereal-device-id": "937v3jb942b0h6u9",
                         "bereal-timezone": "Europe/Paris",
-                    }
+                    },
+                    "proxy": process.env.USE_PROXY ? {
+                        "protocol": "http",
+                        "host": process.env.PROXY_HOST,
+                        "port": process.env.PROXY_PORT,
+                        "auth": {
+                            "username": process.env.PROXY_USER,
+                            "password": process.env.PROXY_PASS
+                        }
+                    } : null
                 }
             );
 

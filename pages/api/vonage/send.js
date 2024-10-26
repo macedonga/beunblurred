@@ -37,7 +37,16 @@ export default async function handler(req, res) {
                     "bereal-signature": (await fetchSignature()),
                     "bereal-device-id": "937v3jb942b0h6u9",
                     "bereal-timezone": "Europe/Paris",
-                }
+                },
+                "proxy": process.env.USE_PROXY ? {
+                    "protocol": "http",
+                    "host": process.env.PROXY_HOST,
+                    "port": process.env.PROXY_PORT,
+                    "auth": {
+                        "username": process.env.PROXY_USER,
+                        "password": process.env.PROXY_PASS
+                    }
+                } : null
             }
         );
 
@@ -48,6 +57,7 @@ export default async function handler(req, res) {
         });
         return;
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: "Internal server error", success: false });
     }
 };

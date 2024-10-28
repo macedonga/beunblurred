@@ -72,7 +72,7 @@ export default function Login() {
 
   const requestOTP = async (token) => {
     if (!token || typeof token !== "string") {
-      arkoseRef.current.myEnforcement.run();
+      arkoseRef.current.openArkoseIframe();
       return;
     }
 

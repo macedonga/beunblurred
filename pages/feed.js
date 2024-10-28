@@ -38,7 +38,6 @@ export default function Feed(props) {
     const [ShouldShowDonationBox, setShouldShowDonationBox] = useState(false);
     const [ShowArchiverBox, setShowArchiverBox] = useState(false);
     const [FriendsPosts, setFriendsPosts] = useState([]);
-    const [FriendsPostsIndex, setFriendsPostsIndex] = useState(1);
     const [Data, setData] = useState();
 
     const handleScroll = () => {
@@ -48,11 +47,11 @@ export default function Feed(props) {
 
         if (scrollPosition >= pageHeight - threshold) {
             setData(o => {
-                const posts = o?.friendsPosts?.slice(0, (FriendsPostsIndex + 1) * 5);
+                const lastIndex = o?.friendsPosts?.length;
+                const posts = o?.friendsPosts?.slice(0, lastIndex + 1);
 
                 if (posts.length !== FriendsPosts.length) {
                     setFriendsPosts(posts);
-                    setFriendsPostsIndex(FriendsPostsIndex + 1);
                 }
 
                 return o;

@@ -292,6 +292,17 @@ export default function User(props) {
     </>)
 }
 
+const fetchAllFriends = async (req, res, next) => {
+    let url = "relationships/friends";
+
+    if (next) url = url + "?next=" + next;
+    let friends = await requestAuthenticated(url, req, res);
+
+    if (friends.data.next) friends.data.data = friends.data.data.concat(await fetchAllFriends(req, res, friends.data.next));
+
+    return friends;
+};
+
 export async function getServerSideProps({ req, res, params, ...ctx }) {
     const authCheck = await checkAuth(req, res);
     if (authCheck) return authCheck;
@@ -323,13 +334,14 @@ export async function getServerSideProps({ req, res, params, ...ctx }) {
         };
 
         if (params.id == "me") {
-            let friends = await requestAuthenticated("relationships/friends", req, res);
+            let friends = await fetchAllFriends(req, res);
             setCookie("user", JSON.stringify(data?.data), {
                 req,
                 res,
                 maxAge: 60 * 60 * 24 * 7 * 3600,
                 path: "/",
             });
+
             props = {
                 friends: friends.data,
                 user: data?.data

@@ -82,6 +82,8 @@ export default function Layout({ children, user }) {
         }
 
         if (window && window.navigator) {
+            document.body.classList.add(inter.className);
+
             const android = !!navigator.userAgent.match(/Android/);
             const isInstalled =
                 document.referrer.includes("android-app://" + PACKAGE_NAME) ||

@@ -126,7 +126,7 @@ function Root({ Component, pageProps }) {
         show={userData.loading}
       />
 
-      <span style={{display: "none"}}>{userData.username}</span>
+      <span id="username-ga" style={{display: "none"}}>{userData.username}</span>
 
       <Layout user={userData || {}}>
         <DefaultSeo

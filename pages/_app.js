@@ -122,20 +122,11 @@ function Root({ Component, pageProps }) {
 
   return (<>
     <TolgeeProvider tolgee={ssrTolgee} options={{ useSuspense: false }}>
-      <Script src="https://www.googletagmanager.com/gtag/js?id=G-BFT79HZ7RH" />
-      <Script id="google-analytics">
-        {`
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BFT79HZ7RH');
-      `}
-      </Script>
-
       <Loading
         show={userData.loading}
       />
+
+      <span style={{display: "none"}}>{userData.username}</span>
 
       <Layout user={userData || {}}>
         <DefaultSeo

@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
 
+function generateRandomString(length) {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
 const Arkose = forwardRef(({ publicKey, onCompleted, onError, ...props }, ref) => {
     const iframeRef = useRef(null);
     const [isButtonDisabled, setButtonDisabled] = useState(true);
@@ -31,7 +40,7 @@ const Arkose = forwardRef(({ publicKey, onCompleted, onError, ...props }, ref) =
                     setButtonDisabled(false);
                     break;
                 case "challenge-complete":
-                    onCompleted(data.payload.sessionToken);
+                    onCompleted(data.payload.sessionToken.split("|")[0]);
                     iframeRef.current.style.display = "none";
                     break;
                 case "challenge-show":
@@ -59,7 +68,7 @@ const Arkose = forwardRef(({ publicKey, onCompleted, onError, ...props }, ref) =
             <iframe
                 id="arkoseFrame"
                 ref={iframeRef}
-                src={`${URL}`}
+                src={`https://${generateRandomString(10)}.beunblurred.co`}
                 style={{
                     display: "none",
                 }}

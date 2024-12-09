@@ -72,7 +72,7 @@ export default function Login() {
 
   const requestOTP = async (token) => {
     if (!token || typeof token !== "string") {
-      arkoseRef.current.openArkoseIframe();
+      arkoseRef.current.myEnforcement.run();
       return;
     }
 
@@ -209,7 +209,7 @@ export default function Login() {
       });
       return;
     }
-    
+
     window.location.href = "/feed";
   };
 
@@ -372,7 +372,7 @@ export default function Login() {
               disabled={!isValidPhoneNumber(LoginData.phoneNumber || "") || Loading}
               onClick={requestOTP}
             >
-                {Loading ? <T keyName={"loading"} /> : <T keyName={"sendOTP"} />}
+              {Loading ? <T keyName={"loading"} /> : <T keyName={"sendOTP"} />}
             </button>
           </>)
         }

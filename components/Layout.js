@@ -249,29 +249,22 @@ export default function Layout({ children, user }) {
                     border-t-2 lg:border-x-2 border-white/10 ${isTWAInstalled ? "font-comic-sans" : inter.className}
                 `}
             >
-                <p>
+                <p className="text-sm opacity-75">
                     <b><T keyName={isTWAInstalled ? "footerWarningApp" : "footerWarningWebsite"} /></b>
                     <br />
-                    {
-                        isTWAInstalled ? (<>
-                            <a
-                                href="https://i.marco.win/beunblurred-privacy.txt"
-                                className="link"
-                            >
-                                Privacy policy
-                            </a>
-                        </>) : (<>
-                            <T keyName={"schoolProject"} />{" "}
-                            <a
-                                href="https://marco.win"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="link"
-                            >
-                                Marco Ceccon
-                            </a>.
-                        </>)
-                    }
+                    <T keyName={"schoolProject"} />{" "}
+                    <a
+                        href="https://marco.win?ref=beunblurred-footer"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="link"
+                    >
+                        Marco Ceccon
+                    </a>.
+                    <br />
+                    <Link href="/privacy" className="link">
+                        <T keyName="privacyPolicy" />
+                    </Link>
                 </p>
             </footer>
         </div>

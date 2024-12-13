@@ -64,6 +64,8 @@ export default function ArchiverSignupPage({
         </button>
         <p className="text-center mt-4 opacity-75 text-sm">
             <T keyName="signupPrivacyAndToSSubtitle" />
+            <br />
+            <Link href="/privacy" className="link"><T keyName="privacyPolicy" /></Link>
         </p>
     </>)
 };

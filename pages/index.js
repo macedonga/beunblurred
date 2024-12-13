@@ -7,6 +7,7 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import Arkose from "@/components/ArkoseComponent";
 import { T, useTranslate } from "@tolgee/react";
+import Link from "next/link";
 
 export default function Login() {
   const { t } = useTranslate();
@@ -376,6 +377,10 @@ export default function Login() {
             </button>
           </>)
         }
+
+        <Link href="/privacy" className="link mt-2 text-sm text-center opacity-75">
+          <T keyName={"privacyPolicy"} />
+        </Link>
       </div>
 
       <h2 className="text-xl font-bold mt-4">

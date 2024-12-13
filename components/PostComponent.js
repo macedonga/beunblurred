@@ -100,11 +100,13 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
         onSwipedLeft: () => {
             if (PostIndex < PostData.posts.length - 1) {
                 setPostIndex(PostIndex + 1);
+                PostRef.current = PostIndex + 1;
             }
         },
         onSwipedRight: () => {
             if (PostIndex > 0) {
                 setPostIndex(PostIndex - 1);
+                PostRef.current = PostIndex - 1;
             }
         },
         preventDefaultTouchmoveEvent: true,
@@ -908,7 +910,10 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                     disabled:opacity-50 disabled:cursor-not-allowed
                                 `}
                                 disabled={PostIndex === PostData.posts.length - 1}
-                                onClick={() => setPostIndex(PostIndex + 1)}
+                                onClick={() => {
+                                    setPostIndex(PostIndex + 1);
+                                    PostRef.current = PostIndex + 1;
+                                }}
                             >
                                 <ChevronRightIcon className="w-6 h-6 text-black m-auto" />
                             </button>
@@ -926,7 +931,10 @@ export default function PostComponent({ data, isDiscovery, isMemory, locale }) {
                                     disabled:opacity-50 disabled:cursor-not-allowed
                                 `}
                                 disabled={PostIndex === 0}
-                                onClick={() => setPostIndex(PostIndex - 1)}
+                                onClick={() => {
+                                    setPostIndex(PostIndex - 1);
+                                    PostRef.current = PostIndex - 1;
+                                }}
                             >
                                 <ChevronLeftIcon className="w-6 h-6 text-black m-auto" />
                             </button>

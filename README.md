@@ -23,6 +23,6 @@ NEXT_PUBLIC_NO_ARCHIVER=1
 6. Open `http://localhost:3290` in your browser.
 
 > [!NOTE]
-> If you're on Windows you can follow [this video guide](https://youtu.be/slVedW8bT9I)
+> You can follow these videos guides: [Windows](https://youtu.be/slVedW8bT9I) and [macOS](https://youtu.be/Ts99LVkGs8A) 
 
 [^1]: Only for your friends' BeReals. Friends of Friends posts won't work if you don't post a BeReal.

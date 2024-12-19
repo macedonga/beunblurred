@@ -22,4 +22,7 @@ NEXT_PUBLIC_NO_ARCHIVER=1
 5. Run `npm start` in the repository directory.
 6. Open `http://localhost:3290` in your browser.
 
+> [!NOTE]
+> If you're on Windows you can follow [this video guide](https://youtu.be/slVedW8bT9I)
+
 [^1]: Only for your friends' BeReals. Friends of Friends posts won't work if you don't post a BeReal.

@@ -42,6 +42,25 @@ export default function ArchiverSignupPage({
         <NextSeo title="Sign up for archiver" />
 
         <h1 className="text-3xl font-semibold text-center">
+            New signups are disabled
+        </h1>
+        <p className="text-center mt-2">
+            We are currently not accepting new signups for the archiver.
+        </p>
+
+        <button
+            className={`
+                flex bg-white/5 mt-4
+                relative border-2 border-white/10
+                rounded-lg px-4 py-2 min-w-0 justify-center
+                text-white/75 font-medium w-full
+            `}
+            onClick={() => router.push("/feed")}
+        >
+            <T keyName="backToFeed" />
+        </button>
+
+        {/* <h1 className="text-3xl font-semibold text-center">
             <T keyName="archiverSignupTitle" />
         </h1>
         <p className="text-center mt-2">
@@ -66,7 +85,7 @@ export default function ArchiverSignupPage({
             <T keyName="signupPrivacyAndToSSubtitle" />
             <br />
             <Link href="/privacy" className="link"><T keyName="privacyPolicy" /></Link>
-        </p>
+        </p> */}
     </>)
 };
 

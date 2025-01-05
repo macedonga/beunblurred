@@ -1,4 +1,7 @@
 {
+  "zipProgressTitle": "Ihre Erinnerungen werden heruntergeladen",
+  "zipProgressSteps": "Bild {current} von {max} wird heruntergeladen",
+  "downloadMemoriesAsZip": "Exportieren Sie alle Ihre Erinnerungen als ZIP-Datei",
   "privacyPolicy": "Datenschutzrichtlinie",
   "search": "Benutzer suchen",
   "searchNoResults": "Die Abfrage ergab keine Ergebnisse",

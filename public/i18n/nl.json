@@ -1,4 +1,7 @@
 {
+  "zipProgressTitle": "Je herinneringen worden gedownload",
+  "zipProgressSteps": "Afbeelding {current} van {max} wordt gedownload",
+  "downloadMemoriesAsZip": "Exporteer al je herinneringen als een ZIP-bestand",
   "privacyPolicy": "Privacybeleid",
   "search": "Zoeken naar gebruikers",
   "searchNoResults": "De zoekopdracht heeft geen resultaten opgeleverd",

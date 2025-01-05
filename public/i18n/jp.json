@@ -1,4 +1,7 @@
 {
+    "zipProgressTitle": "思い出をダウンロード中",
+    "zipProgressSteps": "{max} 枚中 {current} 枚の画像をダウンロード中",
+    "downloadMemoriesAsZip": "すべての思い出を ZIP ファイルとしてエクスポート",
     "privacyPolicy": "プライバシーポリシー",
     "search": "検索",
     "searchNoResults": "結果がありません",

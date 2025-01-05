@@ -1,13 +1,15 @@
 import axios from "axios";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { getCookie, hasCookie, deleteCookie, setCookie } from "cookies-next";
 
 import Link from "next/link";
+import jszip from "jszip";
 import { NextSeo } from "next-seo";
 import checkAuth from "@/utils/checkAuth";
 import { T, useTranslate } from "@tolgee/react";
 import { requestAuthenticated } from "@/utils/requests";
+import { Transition } from "@headlessui/react";
 
 const PostComponent = dynamic(() => import("../components/PostComponent"), {
     loading: () => (
@@ -33,6 +35,8 @@ const PostComponent = dynamic(() => import("../components/PostComponent"), {
 
 export default function Memories(props) {
     const { t } = useTranslate();
+    const [showZipProgress, setShowZipProgress] = useState(false);
+    const [currentZippingImage, setCurrentZippingImage] = useState(1);
     const [Greeting, setGreeting] = useState(t("gm"));
     const [Data, setData] = useState(
         // really lazy way to fix the sorting issue lol
@@ -60,8 +64,100 @@ export default function Memories(props) {
         setGreeting(greeting);
     }, []);
 
+    const downloadMemoriesAsZip = async () => {
+        setCurrentZippingImage(1);
+        setShowZipProgress(true);
+
+        let zipFolder = new jszip();
+
+        for (const index in Data) {
+            const Memory = Data[index];
+
+            try {
+                const primaryImage = await fetch("/_next/image?w=1920&q=100&url=" + Memory.primary.url);
+                const primaryBuffer = await primaryImage.arrayBuffer();
+                const primaryFileType = Memory.primary.url.split(".").pop() || "webp";
+                const primaryFileName = `${Memory.memoryDay}-primary-${Memory.id}.${primaryFileType}`;
+                zipFolder.file(primaryFileName, primaryBuffer);
+            } catch (error) {
+                console.error(`Error fetching primary image:`, error);
+            }
+
+            try {
+                const secondaryImage = await fetch("/_next/image?w=1920&q=100&url=" + Memory.secondary.url);
+                const secondaryBuffer = await secondaryImage.arrayBuffer();
+                const secondaryFileType = Memory.secondary.url.split(".").pop() || "webp";
+                const secondaryFileName = `${Memory.memoryDay}-secondary-${Memory.id}.${secondaryFileType}`;
+                zipFolder.file(secondaryFileName, secondaryBuffer);
+            } catch (error) {
+                console.error(`Error fetching secondary image:`, error);
+            }
+
+            setCurrentZippingImage(Number(index) + 1);
+
+            console.log(index + 1, Data.length);
+        }
+
+        try {
+            const zipBlob = await zipFolder.generateAsync({ type: "blob" });
+            const downloadLink = document.createElement("a");
+            downloadLink.href = URL.createObjectURL(zipBlob);
+            downloadLink.download = "memories.zip";
+            downloadLink.click();
+            URL.revokeObjectURL(downloadLink.href);
+        } catch (error) {
+            console.error("Error generating or downloading the ZIP file:", error);
+        }
+
+        setShowZipProgress(false);
+    };
+
     return (<>
         <NextSeo title="Memories - Feed" />
+
+        <Transition appear show={showZipProgress} as={Fragment}>
+            <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-100"
+                enterFrom="bottom-0 opacity-0 lg:scale-95 translate-y-10 lg:translate-y-0 translate-x-0"
+                enterTo="opacity-100 lg:scale-100 translate-y-0 translate-x-0"
+                leave="ease-in duration-75"
+                leaveFrom="opacity-100 lg:scale-100 translate-y-0 translate-x-0"
+                leaveTo="opacity-0 lg:scale-95 translate-y-10 lg:translate-y-0 translate-x-0"
+            >
+                <div
+                    className="z-[51] backdrop-blur inset-0 fixed flex items-center justify-center"
+                >
+                    <div
+                        className={`
+                            lg:max-w-lg max-w-none w-full z-[70] rounded-lg lg:mx-auto mx-4
+                            border-2 border-white/10 bg-[#0d0d0d] shadow-xl p-6
+                        `}
+                    >
+                        <h2 className={"m-0 text-center text-2xl font-bold"}>
+                            <T keyName={"zipProgressTitle"} />
+                        </h2>
+                        <p className={"m-0 text-center opacity-75 text-sm mt-2"}>
+                            <T keyName={"zipProgressSteps"} params={{ max: Data.length, current: currentZippingImage }} />
+                        </p>
+
+                        <div className="flex items-center mt-4">
+                            <p className="text-white/70 text-sm mr-4">
+                                {Math.ceil((currentZippingImage / Data.length) * 100)}%
+                            </p>
+                            <div className="w-full bg-white/10 h-2 rounded-lg">
+                                <div
+                                    className="bg-white/50 h-full rounded-lg"
+                                    style={{
+                                        width: `${(currentZippingImage / Data.length) * 100}%`
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Transition.Child>
+        </Transition>
 
         <div
             className="relative p-4 rounded-lg bg-white/10"
@@ -79,6 +175,16 @@ export default function Memories(props) {
                 </p>
             </div>
         </div>
+
+        <button
+            className={`
+                text-center py-2 px-4 w-full rounded-lg outline-none transition-colors bg-white/5 relative border-2 border-white/10
+                disabled:opacity-50 disabled:cursor-not-allowed lg:mt-8 mt-4
+            `}
+            onClick={downloadMemoriesAsZip}
+        >
+            <T keyName={"downloadMemoriesAsZip"} />
+        </button>
 
         <div
             className={"grid lg:gap-y-8 gap-y-4 lg:mt-8 mt-4"}

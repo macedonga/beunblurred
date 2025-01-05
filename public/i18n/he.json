@@ -1,4 +1,7 @@
 {
+  "zipProgressTitle": "מוריד את הזיכרונות שלך",
+  "zipProgressSteps": "מוריד תמונה {current} מתוך {max}",
+  "downloadMemoriesAsZip": "ייצא את כל הזיכרונות שלך כקובץ ZIP",
   "privacyPolicy": "מדיניות פרטיות",
   "search": "חפש משתמשים",
   "searchNoResults": "החיפוש לא הניב תוצאות",

@@ -1,4 +1,7 @@
 {
+  "zipProgressTitle": "Descargando tus recuerdos",
+  "zipProgressSteps": "Descargando imagen {current} de {max}",
+  "downloadMemoriesAsZip": "Exporta todos tus recuerdos como un archivo ZIP",
   "privacyPolicy": "Política de privacidad",
   "search": "Buscar usuarios",
   "searchNoResults": "La consulta no devolvió resultados",

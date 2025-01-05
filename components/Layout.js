@@ -245,7 +245,7 @@ export default function Layout({ children, user }) {
             <footer
                 className={`
                     mt-auto lg:max-w-xl mx-auto w-full bg-[#0d0d0d]
-                    py-8 lg:px-8 px-4 text-center lg:rounded-t-lg
+                    py-8 lg:px-8 px-4 text-center lg:rounded-t-lg z-[70]
                     border-t-2 lg:border-x-2 border-white/10 ${isTWAInstalled ? "font-comic-sans" : inter.className}
                 `}
             >

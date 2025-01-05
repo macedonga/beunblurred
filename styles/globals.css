@@ -45,3 +45,9 @@ body {
 .link {
   @apply underline decoration-dashed hover:opacity-75 transition-all;
 }
+
+.leaflet-layer,
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}

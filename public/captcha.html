@@ -1,0 +1,166 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Authentication</title>
+    <style type="text/css">
+      html,
+      body {
+        background-color: black !important;
+        margin: 0px;
+        padding: 0px;
+        display: grid;
+        height: 100%;
+        width: 100%;
+      }
+
+      #arkose {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script>
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.async = true;
+      script.defer = true;
+      script.src =
+        "https://client-api.arkoselabs.com/v2/CCB0863E-D45D-42E9-A6C8-9E8544E8B17E/api.js";
+      script.setAttribute("data-callback", "setupEnforcement");
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+
+      var interval = setInterval(function () {
+        frameHeight = document.getElementById("fc-iframe-wrap")?.offsetHeight;
+        frameWidth = document.getElementById("fc-iframe-wrap")?.offsetWidth;
+        if (frameHeight && frameWidth) {
+          parent.postMessage(
+            JSON.stringify({
+              eventId: "challenge-iframeSize",
+              payload: {
+                frameHeight: frameHeight,
+                frameWidth: frameWidth,
+              },
+            }),
+            "*"
+          );
+        }
+      }, 3000);
+
+      function setupEnforcement(myEnforcement) {
+        myEnforcement.setConfig({
+          selector: "#arkose",
+          mode: "inline",
+          data: { blob: "" },
+          language: "",
+          isSDK: true,
+          accessibilitySettings: {
+            lockFocusToModal: true,
+          },
+          noSuppress: false,
+          onCompleted: function (response) {
+            parent.postMessage(
+              JSON.stringify({
+                eventId: "challenge-complete",
+                payload: {
+                  sessionToken: response.token,
+                },
+              }),
+              "*"
+            );
+          },
+          onReady: function (response) {
+            parent.postMessage(
+              JSON.stringify({
+                eventId: "challenge-loaded",
+              }),
+              "*"
+            );
+          },
+          onSuppress: function (response) {
+            parent.postMessage(
+              JSON.stringify({
+                eventId: "challenge-suppressed",
+              }),
+              "*"
+            );
+          },
+          onShown: function (response) {
+            parent.postMessage(
+              JSON.stringify({
+                eventId: "challenge-shown",
+              }),
+              "*"
+            );
+          },
+          onFailed: function (response) {
+            parent.postMessage(
+              JSON.stringify({
+                eventId: "challenge-failed",
+                payload: {
+                  sessionToken: response.token,
+                },
+              }),
+              "*"
+            );
+          },
+          onError: function (response) {
+            parent.postMessage(
+              JSON.stringify({
+                eventId: "challenge-error",
+                payload: {
+                  error: response.error,
+                },
+              }),
+              "*"
+            );
+          },
+          onResize: function (response) {
+            var defaultHeight = 450;
+            var defaultWidth = 400;
+            var height =
+              response && response.height ? response.height : defaultHeight;
+            var width =
+              response && response.width ? response.width : defaultWidth;
+            try {
+              if (typeof height === "string") {
+                height = height.replace("px", "");
+                height = parseInt(height, 10);
+                if (isNaN(height)) {
+                  height = defaultHeight;
+                }
+              }
+              if (typeof width === "string") {
+                width = width.replace("px", "");
+                width = parseInt(width, 10);
+                if (isNaN(width)) {
+                  width = defaultWidth;
+                }
+              }
+            } catch (e) {
+              height = defaultHeight;
+              width = defaultWidth;
+            }
+            parent.postMessage(
+              JSON.stringify({
+                eventId: "challenge-iframeSize",
+                payload: {
+                  frameHeight: height,
+                  frameWidth: width,
+                },
+              }),
+              "*"
+            );
+          },
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="arkose"></div>
+  </body>
+</html>

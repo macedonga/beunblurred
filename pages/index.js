@@ -72,13 +72,14 @@ export default function Login() {
   };
 
   const requestOTP = async (token) => {
+    setLoading(true);
+
     if (!token || typeof token !== "string") {
-      arkoseRef.current.myEnforcement.run();
+      arkoseRef.current.openArkoseIframe();
       return;
     }
 
     setToken(token);
-    setLoading(true);
 
     if (LoginData.phoneNumber == "+393511231234") {
       console.log("--- test mode ---")
@@ -229,6 +230,7 @@ export default function Login() {
       publicKey={"CCB0863E-D45D-42E9-A6C8-9E8544E8B17E"}
       onCompleted={requestOTP}
       onError={() => {
+        setLoading(false);
         setErrorData({
           show: true,
           message: "Couldn't verify you as a human. Please try again."

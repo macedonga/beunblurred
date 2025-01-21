@@ -48,7 +48,7 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
         try {
             const res = await axios({
                 "method": method,
-                "url": "https://mobile.bereal.com/api/" + endpoint,
+                "url": "https://mobile-l7.bereal.com/api/" + endpoint,
                 "headers": options.headers,
                 "data": body
             });
@@ -110,7 +110,7 @@ const requestAuthenticated = async (endpoint, request, response, method = "get",
 
             options.headers["Authorization"] = `Bearer ${refreshData.data.access_token}`;
 
-            const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
+            const res = await axios.get("https://mobile-l7.bereal.com/api/" + endpoint, options);
 
             return {
                 ...res,

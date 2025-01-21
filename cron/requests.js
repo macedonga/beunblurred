@@ -40,7 +40,7 @@ const requestAuthenticated = async (endpoint, data, idx = 0) => {
     };
 
     try {
-        const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
+        const res = await axios.get("https://mobile-l7.bereal.com/api/" + endpoint, options);
 
         return {
             res,
@@ -83,7 +83,7 @@ const requestAuthenticated = async (endpoint, data, idx = 0) => {
 
             options.headers["Authorization"] = `Bearer ${refreshData.data.access_token}`;
 
-            const res = await axios.get("https://mobile.bereal.com/api/" + endpoint, options);
+            const res = await axios.get("https://mobile-l7.bereal.com/api/" + endpoint, options);
 
             return {
                 res,
